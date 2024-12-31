@@ -12,7 +12,8 @@ std::mutex mu;
 
 void *threadFunc(void *arg) {
     mu.lock();
-    // std::cout << arg << std::endl;
+    // int a = 1000;
+    // while (a--) {}
     mu.unlock();
     return arg;
 }

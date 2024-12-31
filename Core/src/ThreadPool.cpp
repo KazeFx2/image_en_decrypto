@@ -267,8 +267,8 @@ void *ThreadPool::threadFunc(void *arg) {
     delete static_cast<ThreadInfo *>(arg);
     while (true) {
         sem_wait(info.pool->semaphoreStart[info.id]);
-        info.pool->mutexes[info.id]->lock();
         info.pool->countMutex.lock();
+        info.pool->mutexes[info.id]->lock();
         if (!info.pool->termAll && !info.pool->terminate[info.id] && (
                 info.pool->reduce == -1 || info.pool->reduce >= info.pool->
                 threadCount)) {
@@ -289,8 +289,8 @@ void *ThreadPool::threadFunc(void *arg) {
             if (info.pool->threadCount == 0) {
                 sem_post(info.pool->finalSignal);
             }
-            info.pool->countMutex.unlock();
             info.pool->mutexes[info.id]->unlock();
+            info.pool->countMutex.unlock();
             return nullptr;
         }
         void *ret = info.pool->func[info.id](info.pool->param_return[info.id]);
