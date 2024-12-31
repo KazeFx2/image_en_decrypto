@@ -3,6 +3,7 @@
 //
 
 #include "ImageCrypto.h"
+#include "private/Random.h"
 #include "private/ImageEncrypto.h"
 #include "unistd.h"
 #include "vars.h"
@@ -34,7 +35,7 @@ int main() {
     int ct = 0;
     while (true) {
         ThreadPool sp(10);
-        int n = 100;
+        int n = 50;
         size_t handles[n];
         for (int i = 0; i < n; i++) {
             handles[i] = sp.addThread(threadFunc, (void *)i, false);

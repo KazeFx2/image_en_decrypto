@@ -8,27 +8,27 @@
 //     return new ThreadPool::Semaphore(n);
 // }
 
-void sem_post(ThreadPool::Semaphore *sem) {
+inline void sem_post(ThreadPool::Semaphore *sem) {
     sem->post();
 }
 
-void sem_wait(ThreadPool::Semaphore *sem) {
+inline void sem_wait(ThreadPool::Semaphore *sem) {
     sem->wait();
 }
 
-void sem_close(const ThreadPool::Semaphore *sem) {
+inline void sem_close(const ThreadPool::Semaphore *sem) {
     delete sem;
 }
 
-ThreadPool::ThreadPool(const size_t nThreads): threadCount(nThreads), reduce(-1), threads(nThreads),
-                                               semaphoreStart(nThreads), semaphoreFinish(nThreads),
-                                               terminate(nThreads, false), wait(nThreads, true),
-                                               func(nThreads, nullptr), param_return(nThreads, nullptr),
-                                               status(nThreads, Idly), refers(nThreads, 0), mutexes(nThreads),
-                                               waitRefer(0), termAll(false) {
+ThreadPool::ThreadPool(const u_count_t nThreads): threadCount(nThreads), reduce(-1), threads(nThreads),
+                                                  semaphoreStart(nThreads), semaphoreFinish(nThreads),
+                                                  terminate(nThreads, false), wait(nThreads, true),
+                                                  func(nThreads, nullptr), param_return(nThreads, nullptr),
+                                                  status(nThreads, Idly), refers(nThreads, 0), mutexes(nThreads),
+                                                  waitRefer(0), termAll(false) {
     // char tmp[64];
     idx = getIdx();
-    for (size_t i = 0; i < nThreads; i++) {
+    for (u_count_t i = 0; i < nThreads; i++) {
         mutexes[i] = new std::mutex;
         // snprintf(tmp, sizeof(tmp), "%zu_sem_start_%zu", idx, i);
         // semaphoreStart[i] = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
@@ -43,7 +43,7 @@ ThreadPool::ThreadPool(const size_t nThreads): threadCount(nThreads), reduce(-1)
         pthread_create(&threads[i], nullptr, threadFunc, info);
         pthread_detach(threads[i]);
     }
-    for (size_t i = 0; i < nThreads; i++) {
+    for (u_count_t i = 0; i < nThreads; i++) {
         sem_wait(semaphoreFinish[i]);
     }
     // snprintf(tmp, sizeof(tmp), "%zu_sem_fin", idx);
@@ -56,7 +56,7 @@ ThreadPool::ThreadPool(const size_t nThreads): threadCount(nThreads), reduce(-1)
 
 ThreadPool::~ThreadPool() {
     termAll = true;
-    for (size_t i = 0; i < threads.size(); i++) {
+    for (u_count_t i = 0; i < threads.size(); i++) {
         mutexes[i]->lock();
         if (status[i] != Empty) {
             destroyThreadLocked(i);
@@ -66,15 +66,15 @@ ThreadPool::~ThreadPool() {
     sem_wait(finalSignal);
     sem_close(finalSignal);
     sem_close(waitSignal);
-    for (size_t i = 0; i < threads.size(); i++) {
+    for (u_count_t i = 0; i < threads.size(); i++) {
         delete mutexes[i];
     }
 }
 
-size_t ThreadPool::addThread(void *(function)(void *), void *param, const bool wait) {
+ThreadPool::u_count_t ThreadPool::addThread(void *(function)(void *), void *param, const bool wait) {
     // char tmp[64];
     ThreadInfo *info;
-    for (size_t i = 0; i < threads.size(); i++) {
+    for (u_count_t i = 0; i < threads.size(); i++) {
         mutexes[i]->lock();
         if (status[i] == Idly) {
             this->func[i] = function;
@@ -88,7 +88,7 @@ size_t ThreadPool::addThread(void *(function)(void *), void *param, const bool w
         }
         mutexes[i]->unlock();
     }
-    for (size_t i = 0; i < threads.size(); i++) {
+    for (u_count_t i = 0; i < threads.size(); i++) {
         mutexes[i]->lock();
         if (status[i] == Empty) {
             terminate[i] = false;
@@ -121,7 +121,7 @@ size_t ThreadPool::addThread(void *(function)(void *), void *param, const bool w
         }
         mutexes[i]->unlock();
     }
-    const size_t last = threads.size();
+    const u_count_t last = threads.size();
     // snprintf(tmp, sizeof(tmp), "%zu_sem_start_%zu", idx, last);
     // semaphoreStart.push_back(sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0));
     // snprintf(tmp, sizeof(tmp), "%zu_sem_finish_%zu", idx, last);
@@ -152,7 +152,7 @@ size_t ThreadPool::addThread(void *(function)(void *), void *param, const bool w
     return last;
 }
 
-void *ThreadPool::waitThread(size_t handle) {
+void *ThreadPool::waitThread(const handler_t handle) {
     if (handle >= threads.size()) { return nullptr; }
     if (!wait[handle]) { return nullptr; }
     void *ret;
@@ -172,7 +172,7 @@ void *ThreadPool::waitThread(size_t handle) {
     return ret;
 }
 
-bool ThreadPool::destroyThread(const size_t handle, const bool forceIdly) {
+bool ThreadPool::destroyThread(const handler_t handle, const bool forceIdly) {
     if (handle >= threads.size()) { return false; }
     mutexes[handle]->lock();
     const bool ret = destroyThreadLocked(handle, forceIdly);
@@ -180,7 +180,7 @@ bool ThreadPool::destroyThread(const size_t handle, const bool forceIdly) {
     return ret;
 }
 
-bool ThreadPool::destroyThreadLocked(const size_t handle, const bool forceIdly) {
+bool ThreadPool::destroyThreadLocked(const handler_t handle, const bool forceIdly) {
     if (handle >= threads.size()) { return false; }
     if (status[handle] == Empty) {
         return false;
@@ -199,11 +199,11 @@ bool ThreadPool::destroyThreadLocked(const size_t handle, const bool forceIdly) 
     return true;
 }
 
-void ThreadPool::reduceTo(const int32_t tar, const bool force) {
+void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
     if (tar < 0 || tar >= threadCount) return;
     reduce = tar;
-    int32_t deduct = 0;
-    for (size_t i = 0; i < threads.size(); i++) {
+    s_count_t deduct = 0;
+    for (u_count_t i = 0; i < threads.size(); i++) {
         if (status[i] == Idly) {
             if (destroyThread(i, !force)) {
                 deduct++;
@@ -221,13 +221,13 @@ void ThreadPool::waitReduce() {
         countMutex.unlock();
         return;
     }
-    size_t deduct = threadCount - reduce;
-    for (size_t i = 0; i < threads.size(); i++) {
+    u_count_t deduct = threadCount - reduce;
+    for (u_count_t i = 0; i < threads.size(); i++) {
         if (status[i] == Idly && terminate[i])
             sem_post(semaphoreStart[i]), deduct--;
     }
     if (deduct > 0)
-        for (size_t i = 0; i < threads.size(); i++) {
+        for (u_count_t i = 0; i < threads.size(); i++) {
             if (status[i] == Idly && !terminate[i]) {
                 terminate[i] = true;
                 sem_post(semaphoreStart[i]);
@@ -241,13 +241,13 @@ void ThreadPool::waitReduce() {
     sem_wait(waitSignal);
 }
 
-size_t ThreadPool::getNumThreads() const {
+ThreadPool::u_count_t ThreadPool::getNumThreads() const {
     return threadCount;
 }
 
-size_t ThreadPool::getIdlyThreads() const {
-    size_t ret = 0;
-    for (size_t i = 0; i < threads.size(); i++) {
+ThreadPool::u_count_t ThreadPool::getIdlyThreads() const {
+    u_count_t ret = 0;
+    for (u_count_t i = 0; i < threads.size(); i++) {
         if (status[i] == Idly) {
             ret++;
         }
@@ -255,8 +255,8 @@ size_t ThreadPool::getIdlyThreads() const {
     return ret;
 }
 
-size_t ThreadPool::getIdx() {
-    static size_t idx = 0;
+ThreadPool::u_count_t ThreadPool::getIdx() {
+    static u_count_t idx = 0;
     idx++;
     return idx - 1;
 }
@@ -275,6 +275,8 @@ void *ThreadPool::threadFunc(void *arg) {
             info.pool->mutexes[info.id]->unlock();
             info.pool->countMutex.unlock();
         } else {
+            // info.pool->countMutex.lock();
+            // info.pool->mutexes[info.id]->lock();
             info.pool->status[info.id] = Empty;
             sem_close(info.pool->semaphoreStart[info.id]);
             sem_close(info.pool->semaphoreFinish[info.id]);

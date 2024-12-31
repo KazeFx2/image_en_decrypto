@@ -7,6 +7,9 @@
 
 #include "includes.h"
 
-double PLCM(__IN const double &prevCondition, __IN const double &controlCondition);
+f64 PLCM(__IN const f64 &prevCondition, __IN const f64 &controlCondition);
+
+void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
+                   __OUT u32 &newCol);
 
 #endif //UTIL_H

@@ -6,24 +6,25 @@
 #define INCLUDES_H
 
 #include <opencv2/opencv.hpp>
-#include "Random.h"
+#include "types.h"
 
 #define __IN
 #define __OUT
 #define __IN_OUT
 
 typedef struct ImageSize_s {
-    uint32_t width;
-    uint32_t height;
-}ImageSize;
+    u32 width;
+    u32 height;
+} ImageSize;
 
 typedef struct Keys_s {
-    uint32_t QuantumBits;
+    u32 confusionSeed;
+    u32 iterations;
     double initCondition;
     double controlCondition;
-}Keys;
+} Keys;
 
 #define ORIGINAL_SIZE ImageSize{0, 0}
-#define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
+#define RANDOM_KEYS Keys{Rand16(), 8, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
 
 #endif //INCLUDES_H

@@ -6,14 +6,18 @@
 #define RANDOM_H
 
 #include <random>
+#include "types.h"
 
-uint64_t Rand64();
-uint32_t Rand32();
-uint16_t Rand16();
-uint8_t Rand8();
+u64 Rand64();
 
-double GenDoubleFloatFrom0To1(uint64_t Val52Bits);
+u32 Rand32();
 
-double GenDoubleFloatFrom1To0Random();
+u16 Rand16();
+
+u8 Rand8();
+
+f64 GenDoubleFloatFrom0To1(u64 Val52Bits);
+
+f64 GenDoubleFloatFrom1To0Random();
 
 #endif //RANDOM_H
