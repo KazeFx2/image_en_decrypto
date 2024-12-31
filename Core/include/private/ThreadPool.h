@@ -69,33 +69,6 @@ private:
         size_t id;
     } ThreadInfo;
 
-    template<typename T>
-    class MtxCounter<T> {
-    public:
-        explicit MtxCounter(const size_t initialCount): threadCount(initialCount) {
-        }
-
-        explicit operator T() const {
-            return threadCount;
-        }
-
-        std::unique_lock<std::mutex> getValAndLock(T &outVale) {
-            std::unique_lock lock(mtx);
-            outVale = threadCount;
-            return lock;
-        }
-
-        void operator=(const T newVal) {
-            mtx.lock();
-            threadCount = newVal;
-            mtx.unlock();
-        }
-
-    private:
-        T threadCount;
-        std::mutex mtx;
-    };
-
     size_t threadCount;
     size_t idx;
     int32_t reduce;
@@ -119,6 +92,8 @@ private:
     static size_t getIdx();
 
     static void *threadFunc(void *arg);
+
+    bool destroyThreadLocked(size_t handle, bool forceIdly = false);
 };
 
 #endif //THREAD_POOL_H

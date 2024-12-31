@@ -57,9 +57,11 @@ ThreadPool::ThreadPool(const size_t nThreads): threadCount(nThreads), reduce(-1)
 ThreadPool::~ThreadPool() {
     termAll = true;
     for (size_t i = 0; i < threads.size(); i++) {
+        mutexes[i]->lock();
         if (status[i] != Empty) {
-            destroyThread(i);
+            destroyThreadLocked(i);
         }
+        mutexes[i]->unlock();
     }
     sem_wait(finalSignal);
     sem_close(finalSignal);
@@ -167,29 +169,33 @@ void *ThreadPool::waitThread(size_t handle) {
     mutexes[handle]->unlock();
     sem_wait(semaphoreFinish[handle]);
     ret = param_return[handle];
-    status[handle] = Idly;
     return ret;
 }
 
-bool ThreadPool::destroyThread(size_t handle, const bool forceIdly) {
+bool ThreadPool::destroyThread(const size_t handle, const bool forceIdly) {
     if (handle >= threads.size()) { return false; }
     mutexes[handle]->lock();
+    const bool ret = destroyThreadLocked(handle, forceIdly);
+    mutexes[handle]->unlock();
+    return ret;
+}
+
+bool ThreadPool::destroyThreadLocked(const size_t handle, const bool forceIdly) {
+    if (handle >= threads.size()) { return false; }
     if (status[handle] == Empty) {
-        mutexes[handle]->unlock();
         return false;
     }
     if (forceIdly && status[handle] != Idly) {
-        mutexes[handle]->unlock();
         return false;
     }
     terminate[handle] = true;
     if (status[handle] == Returning) {
         sem_wait(semaphoreFinish[handle]);
+        status[handle] = Idly;
     } else if (status[handle] == Working) {
         wait[handle] = false;
     }
     sem_post(semaphoreStart[handle]);
-    mutexes[handle]->unlock();
     return true;
 }
 
@@ -263,8 +269,9 @@ void *ThreadPool::threadFunc(void *arg) {
         sem_wait(info.pool->semaphoreStart[info.id]);
         info.pool->mutexes[info.id]->lock();
         info.pool->countMutex.lock();
-        if (!info.pool->termAll && !info.pool->terminate[info.id] && (info.pool->reduce == -1 || info.pool->reduce >= info.pool->
-                                               threadCount)) {
+        if (!info.pool->termAll && !info.pool->terminate[info.id] && (
+                info.pool->reduce == -1 || info.pool->reduce >= info.pool->
+                threadCount)) {
             info.pool->mutexes[info.id]->unlock();
             info.pool->countMutex.unlock();
         } else {
@@ -297,9 +304,11 @@ void *ThreadPool::threadFunc(void *arg) {
             info.pool->param_return[info.id] = ret;
             info.pool->status[info.id] = Returning;
             sem_post(info.pool->semaphoreFinish[info.id]);
-            if (info.pool->refers[info.id] > 0)
+            if (info.pool->refers[info.id] > 0) {
                 while (--info.pool->refers[info.id])
                     sem_post(info.pool->semaphoreFinish[info.id]);
+                info.pool->status[info.id] = Idly;
+            }
         }
         info.pool->mutexes[info.id]->unlock();
     }
