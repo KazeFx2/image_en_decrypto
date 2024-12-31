@@ -7,7 +7,17 @@
 
 #include "includes.h"
 
-f64 PLCM(__IN const f64 &prevCondition, __IN const f64 &controlCondition);
+f64 PLCM(__IN f64 initialCondition, __IN f64 controlCondition);
+
+f64 IteratePLCM(__IN f64 initialCondition, __IN f64 controlCondition, __IN u32 iterations,
+                __OUT f64 *iterationResultArray);
+
+void CvtF64toBytes(__IN const f64 *iterationResultArray, __OUT u8 *bytes, __IN u32 length, __IN u8 bytesReserve);
+
+void XorByteSequence(__IN const u8 *bytesA, __IN const u8 *bytesB, __OUT u8 *bytesOut, __IN u32 length);
+
+void GenDiffusionSeeds(__IN f64 initialCondition1, __IN f64 controlCondition1, __IN f64 initialCondition2,
+                       __IN f64 controlCondition2, __OUT u8 *diffusionSeedArray, __IN u32 diffusionIteration);
 
 void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
                    __OUT u32 &newCol);

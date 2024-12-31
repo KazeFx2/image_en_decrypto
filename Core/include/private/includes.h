@@ -12,19 +12,30 @@
 #define __OUT
 #define __IN_OUT
 
-typedef struct ImageSize_s {
+typedef struct {
     u32 width;
     u32 height;
 } ImageSize;
 
-typedef struct Keys_s {
-    u32 confusionSeed;
+typedef struct {
+    f64 initCondition;
+    f64 ctrlCondition;
+} ParamGroup;
+
+typedef struct {
+    u8 byteReserve;
     u32 iterations;
-    double initCondition;
-    double controlCondition;
+    u32 confusionIterations;
+    u32 diffusionIterations;
+} ParamControl;
+
+typedef struct {
+    u32 confusionSeed;
+    ParamGroup gParam1;
+    ParamGroup gParam2;
 } Keys;
 
 #define ORIGINAL_SIZE ImageSize{0, 0}
-#define RANDOM_KEYS Keys{Rand16(), 8, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
+#define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
 
 #endif //INCLUDES_H
