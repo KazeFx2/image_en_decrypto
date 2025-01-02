@@ -4,314 +4,376 @@
 
 #include "private/ThreadPool.h"
 
-// ThreadPool::Semaphore *sem_open(const char *, int, int, const int n) {
-//     return new ThreadPool::Semaphore(n);
-// }
+#include <mutex>
 
-inline void sem_post(ThreadPool::Semaphore *sem) {
-    sem->post();
+#define W_SEM_S(t) rk_sema_wait(&(t).semaStart)
+#define W_SEM_F(t) rk_sema_wait(&(t).semaFinish)
+#define P_SEM_S(t) rk_sema_post(&(t).semaStart)
+#define P_SEM_F(t) rk_sema_post(&(t).semaFinish)
+
+#define W_SEM(t) rk_sema_wait(&(t))
+#define P_SEM(t) rk_sema_post(&(t))
+
+#define C_SEM(t) rk_sema_close(&(t))
+
+static std::mutex t_mtx;
+
+FastBitmap Mutex::bitmap;
+
+Mutex::~Mutex() {
+    t_mtx.lock();
+    bitmap[mtxId] = false;
+    t_mtx.unlock();
+    rk_sema_close(&sem);
 }
 
-inline void sem_wait(ThreadPool::Semaphore *sem) {
-    sem->wait();
-}
-
-inline void sem_close(const ThreadPool::Semaphore *sem) {
-    delete sem;
-}
-
-ThreadPool::ThreadPool(const u_count_t nThreads): threadCount(nThreads), reduce(-1), threads(nThreads),
-                                                  semaphoreStart(nThreads), semaphoreFinish(nThreads),
-                                                  terminate(nThreads, false), wait(nThreads, true),
-                                                  func(nThreads, nullptr), param_return(nThreads, nullptr),
-                                                  status(nThreads, Idly), refers(nThreads, 0), mutexes(nThreads),
-                                                  waitRefer(0), termAll(false) {
-    // char tmp[64];
-    idx = getIdx();
-    for (u_count_t i = 0; i < nThreads; i++) {
-        mutexes[i] = new std::mutex;
-        // snprintf(tmp, sizeof(tmp), "%zu_sem_start_%zu", idx, i);
-        // semaphoreStart[i] = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-        // snprintf(tmp, sizeof(tmp), "%zu_sem_finish_%zu", idx, i);
-        // semaphoreFinish[i] = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-        semaphoreStart[i] = new Semaphore(0);
-        semaphoreFinish[i] = new Semaphore(0);
-        ThreadInfo *info = new ThreadInfo{
-            this,
-            i
-        };
-        pthread_create(&threads[i], nullptr, threadFunc, info);
-        pthread_detach(threads[i]);
+u64 Mutex::getIdx() {
+    static u64 idx = 0;
+    t_mtx.lock();
+    for (u64 i = 0; i < idx; i++) {
+        if (!bitmap[i]) {
+            bitmap[i] = true;
+            t_mtx.unlock();
+            return i;
+        }
     }
+    idx++;
+    const u64 ret = idx - 1;
+    bitmap[ret] = true;
+    t_mtx.unlock();
+    return ret;
+}
+
+ThreadPool::ThreadPool(const u_count_t nThreads): idx(getIdx()),
+                                                  threads(nThreads) {
+    mtxContext.threadCount = nThreads;
+    mtxContext.waitRefers = 0;
+    mtxContext.reduce = -1;
+    mtxContext.termAll = false;
     for (u_count_t i = 0; i < nThreads; i++) {
-        sem_wait(semaphoreFinish[i]);
+        threads[i] = new ThreadContext;
+        initThread(*threads[i], i);
     }
-    // snprintf(tmp, sizeof(tmp), "%zu_sem_fin", idx);
-    // finalSignal = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-    // snprintf(tmp, sizeof(tmp), "%zu_sem_wait", idx);
-    // waitSignal = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-    finalSignal = new Semaphore(0);
-    waitSignal = new Semaphore(0);
+    rk_sema_init(&poolTermSem, 0);
+    rk_sema_init(&reduceWaitSem, 0);
 }
 
 ThreadPool::~ThreadPool() {
-    termAll = true;
+    lockAll.lock();
+    mtxContext.termAll = true;
     for (u_count_t i = 0; i < threads.size(); i++) {
-        mutexes[i]->lock();
-        if (status[i] != Empty) {
+        if (status(i) != Empty) {
             destroyThreadLocked(i);
         }
-        mutexes[i]->unlock();
     }
-    sem_wait(finalSignal);
-    sem_close(finalSignal);
-    sem_close(waitSignal);
+    lockAll.unlock();
+    W_SEM(poolTermSem);
     for (u_count_t i = 0; i < threads.size(); i++) {
-        delete mutexes[i];
+        delete threads[i];
+        C_SEM(threads[i]->semaStart);
+        C_SEM(threads[i]->semaFinish);
     }
+    C_SEM(reduceWaitSem);
+    C_SEM(poolTermSem);
 }
 
-ThreadPool::u_count_t ThreadPool::addThread(void *(function)(void *), void *param, const bool wait) {
-    // char tmp[64];
-    ThreadInfo *info;
-    for (u_count_t i = 0; i < threads.size(); i++) {
-        mutexes[i]->lock();
-        if (status[i] == Idly) {
-            this->func[i] = function;
-            param_return[i] = param;
-            status[i] = Working;
-            refers[i] = 0;
-            this->wait[i] = wait;
-            sem_post(semaphoreStart[i]);
-            mutexes[i]->unlock();
-            return i;
-        }
-        mutexes[i]->unlock();
+ThreadPool::u_count_t ThreadPool::addThread(void *(fun)(void *), void *param, const bool wait) {
+    lockAll.lock();
+    if (mtxContext.termAll) {
+        lockAll.unlock();
+        return ~static_cast<u_count_t>(0x0);
     }
     for (u_count_t i = 0; i < threads.size(); i++) {
-        mutexes[i]->lock();
-        if (status[i] == Empty) {
-            terminate[i] = false;
-            // snprintf(tmp, sizeof(tmp), "%zu_sem_start_%zu", idx, i);
-            // semaphoreStart[i] = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-            // snprintf(tmp, sizeof(tmp), "%zu_sem_finish_%zu", idx, i);
-            // semaphoreFinish[i] = sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0);
-            semaphoreStart[i] = new Semaphore(0);
-            semaphoreFinish[i] = new Semaphore(0);
-            info = new ThreadInfo{
-                this,
-                i
-            };
-            pthread_create(&threads[i], nullptr, threadFunc, info);
-            pthread_detach(threads[i]);
-            sem_wait(semaphoreFinish[i]);
-            countMutex.lock();
-            if (threadCount == 0)
-                sem_wait(finalSignal);
-            threadCount++;
-            countMutex.unlock();
-            this->func[i] = function;
-            param_return[i] = param;
-            this->wait[i] = wait;
-            status[i] = Working;
-            refers[i] = 0;
-            sem_post(semaphoreStart[i]);
-            mutexes[i]->unlock();
+        if (status(i) == Idly) {
+            function(i) = fun;
+            paramReturn(i) = param;
+            this->wait(i) = wait;
+            status(i) = Working;
+            P_SEM_S(*threads[i]);
+            lockAll.unlock();
             return i;
         }
-        mutexes[i]->unlock();
+    }
+    for (u_count_t i = 0; i < threads.size(); i++) {
+        if (status(i) == Empty) {
+            mtxContext.threadCount++;
+            function(i) = fun;
+            paramReturn(i) = param;
+            this->wait(i) = wait;
+            status(i) = Working;
+            startThread(i);
+            P_SEM_S(*threads[i]);
+            lockAll.unlock();
+            return i;
+        }
     }
     const u_count_t last = threads.size();
-    // snprintf(tmp, sizeof(tmp), "%zu_sem_start_%zu", idx, last);
-    // semaphoreStart.push_back(sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0));
-    // snprintf(tmp, sizeof(tmp), "%zu_sem_finish_%zu", idx, last);
-    // semaphoreFinish.push_back(sem_open(tmp, O_CREAT, S_IRUSR | S_IWUSR, 0));
-    semaphoreStart.push_back(new Semaphore(0));
-    semaphoreFinish.push_back(new Semaphore(0));
-    terminate.push_back(false);
-    func.push_back(function);
-    param_return.push_back(param);
-    this->wait.push_back(wait);
-    status.push_back(Working);
-    refers.push_back(0);
-    mutexes.push_back(new std::mutex);
-    threads.push_back(nullptr);
-    info = new ThreadInfo{
-        this,
-        last
-    };
-    pthread_create(&threads[last], nullptr, threadFunc, info);
-    pthread_detach(threads[last]);
-    sem_wait(semaphoreFinish[last]);
-    countMutex.lock();
-    if (threadCount == 0)
-        sem_wait(finalSignal);
-    threadCount++;
-    countMutex.unlock();
-    sem_post(semaphoreStart[last]);
+    // threads.push_back(ThreadContext());
+    threads.push_back(new ThreadContext);
+    initThread(*threads[last], last);
+    mtxContext.threadCount++;
+    function(last) = fun;
+    paramReturn(last) = param;
+    this->wait(last) = wait;
+    status(last) = Working;
+    P_SEM_S(*threads[last]);
+    lockAll.unlock();
     return last;
 }
 
-void *ThreadPool::waitThread(const handler_t handle) {
-    if (handle >= threads.size()) { return nullptr; }
-    if (!wait[handle]) { return nullptr; }
+void *ThreadPool::waitThread(const thread_descriptor_t index) {
+    if (index >= threads.size()) { return nullptr; }
+    lockAll.lock();
+    lock(index);
+    if (!wait(index)) {
+        unlock(index);
+        lockAll.unlock();
+        return nullptr;
+    }
     void *ret;
-    mutexes[handle]->lock();
-    if (status[handle] & (Idly | Empty)) { return nullptr; }
-    if (status[handle] == Returning) {
-        sem_wait(semaphoreFinish[handle]);
-        status[handle] = Idly;
-        ret = param_return[handle];
-        mutexes[handle]->unlock();
+    if (status(index) & (Idly | Empty)) {
+        unlock(index);
+        lockAll.unlock();
+        return nullptr;
+    }
+    if (status(index) == Returning) {
+        W_SEM_F(*threads[index]);
+        status(index) = Idly;
+        ret = paramReturn(index);
+        unlock(index);
+        lockAll.unlock();
         return ret;
     }
-    refers[handle]++;
-    mutexes[handle]->unlock();
-    sem_wait(semaphoreFinish[handle]);
-    ret = param_return[handle];
+    refers(index)++;
+    unlock(index);
+    lockAll.unlock();
+    W_SEM_F(*threads[index]);
+    ret = paramReturn(index);
     return ret;
 }
 
-bool ThreadPool::destroyThread(const handler_t handle, const bool forceIdly) {
-    if (handle >= threads.size()) { return false; }
-    mutexes[handle]->lock();
-    const bool ret = destroyThreadLocked(handle, forceIdly);
-    mutexes[handle]->unlock();
+bool ThreadPool::destroyThread(const thread_descriptor_t index, const bool onlyIdly) {
+    if (index >= threads.size()) { return false; }
+    lockAll.lock();
+    lock(index);
+    const bool ret = destroyThreadLocked(index, onlyIdly);
+    unlock(index);
+    lockAll.unlock();
     return ret;
 }
 
-bool ThreadPool::destroyThreadLocked(const handler_t handle, const bool forceIdly) {
-    if (handle >= threads.size()) { return false; }
-    if (status[handle] == Empty) {
+bool ThreadPool::destroyThreadLocked(const thread_descriptor_t index, const bool onlyIdly) const {
+    if (index >= threads.size()) { return false; }
+    if (status(index) == Empty) {
         return false;
     }
-    if (forceIdly && status[handle] != Idly) {
+    if (onlyIdly && status(index) != Idly) {
         return false;
     }
-    terminate[handle] = true;
-    if (status[handle] == Returning) {
-        sem_wait(semaphoreFinish[handle]);
-        status[handle] = Idly;
-    } else if (status[handle] == Working) {
-        wait[handle] = false;
+    terminate(index) = true;
+    if (status(index) == Returning) {
+        W_SEM_F(*threads[index]);
+        status(index) = Idly;
+    } else if (status(index) == Working) {
+        wait(index) = false;
     }
-    sem_post(semaphoreStart[handle]);
+    P_SEM_S(*threads[index]);
     return true;
 }
 
 void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
-    if (tar < 0 || tar >= threadCount) return;
-    reduce = tar;
-    s_count_t deduct = 0;
+    lockAll.lock();
+    if (tar < 0 || tar >= mtxContext.threadCount) {
+        lockAll.unlock();
+        return;
+    }
+    mtxContext.reduce = tar;
+    u_count_t deduct = mtxContext.threadCount - tar;
     for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status[i] == Idly) {
-            if (destroyThread(i, !force)) {
-                deduct++;
-                if (reduce + deduct >= threadCount) {
-                    return;
-                }
+        if (destroyThreadLocked(i, !force)) {
+            deduct--;
+            if (deduct == 0) {
+                break;
             }
         }
     }
+    lockAll.unlock();
 }
 
 void ThreadPool::waitReduce() {
-    countMutex.lock();
-    if (reduce < 0 || reduce >= threadCount) {
-        countMutex.unlock();
+    lockAll.lock();
+    if (mtxContext.reduce < 0 || mtxContext.reduce >= mtxContext.threadCount) {
+        lockAll.unlock();
         return;
     }
-    u_count_t deduct = threadCount - reduce;
+    u_count_t deduct = mtxContext.threadCount - mtxContext.reduce;
     for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status[i] == Idly && terminate[i])
-            sem_post(semaphoreStart[i]), deduct--;
-    }
-    if (deduct > 0)
-        for (u_count_t i = 0; i < threads.size(); i++) {
-            if (status[i] == Idly && !terminate[i]) {
-                terminate[i] = true;
-                sem_post(semaphoreStart[i]);
-                deduct--;
-                if (deduct <= 0)
-                    break;
+        if (destroyThreadLocked(i, true)) {
+            deduct--;
+            if (deduct == 0) {
+                break;
             }
         }
-    waitRefer++;
-    countMutex.unlock();
-    sem_wait(waitSignal);
+    }
+    mtxContext.waitRefers++;
+    lockAll.unlock();
+    W_SEM(reduceWaitSem);
 }
 
 ThreadPool::u_count_t ThreadPool::getNumThreads() const {
-    return threadCount;
+    return mtxContext.threadCount;
 }
 
-ThreadPool::u_count_t ThreadPool::getIdlyThreads() const {
+ThreadPool::u_count_t ThreadPool::getIdlyThreads() {
     u_count_t ret = 0;
+    lockAll.lock();
     for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status[i] == Idly) {
+        if (status(i) == Idly) {
             ret++;
         }
     }
+    lockAll.unlock();
     return ret;
 }
 
 ThreadPool::u_count_t ThreadPool::getIdx() {
     static u_count_t idx = 0;
+    static Mutex mutex;
+    mutex.lock();
     idx++;
-    return idx - 1;
+    const u_count_t ret = idx - 1;
+    mutex.unlock();
+    return ret;
 }
 
 void *ThreadPool::threadFunc(void *arg) {
-    ThreadInfo info = *static_cast<ThreadInfo *>(arg);
-    sem_post(info.pool->semaphoreFinish[info.id]);
-    delete static_cast<ThreadInfo *>(arg);
+    ThreadContext &thread = *static_cast<ThreadContext *>(arg);
+    ThreadPool &pool = *thread.pool;
+    ThreadMtx &tMtx = thread.mtxContext;
+    PoolMtx &pMtx = pool.mtxContext;
     while (true) {
-        sem_wait(info.pool->semaphoreStart[info.id]);
-        info.pool->countMutex.lock();
-        info.pool->mutexes[info.id]->lock();
-        if (!info.pool->termAll && !info.pool->terminate[info.id] && (
-                info.pool->reduce == -1 || info.pool->reduce >= info.pool->
-                threadCount)) {
-            info.pool->mutexes[info.id]->unlock();
-            info.pool->countMutex.unlock();
-        } else {
-            // info.pool->countMutex.lock();
-            // info.pool->mutexes[info.id]->lock();
-            info.pool->status[info.id] = Empty;
-            sem_close(info.pool->semaphoreStart[info.id]);
-            sem_close(info.pool->semaphoreFinish[info.id]);
-            info.pool->threadCount--;
-            if (info.pool->threadCount <= info.pool->reduce && info.pool->reduce != -1) {
-                info.pool->reduce = -1;
-                while (info.pool->waitRefer--)
-                    sem_post(info.pool->waitSignal);
-                info.pool->waitRefer = 0;
+        W_SEM_S(thread);
+        // Check if terminate
+        pool.lockAll.lock();
+        pMtx.mtx.lock();
+        tMtx.mtx.lock();
+        if (pMtx.termAll
+            || tMtx.forceTerminate
+            || (tMtx.func != nullptr && pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount)) {
+            resetThread(tMtx);
+            // Do terminate
+        DO_TERMINATE:
+            tMtx.status = Empty;
+            pMtx.threadCount--;
+            // If reduceWaited
+            if (pMtx.reduce != -1 && pMtx.reduce >= pMtx.threadCount) {
+                while (pMtx.waitRefers > 0) {
+                    P_SEM(pool.reduceWaitSem);
+                    pMtx.waitRefers--;
+                }
+                pMtx.waitRefers = 0, pMtx.reduce = -1;
             }
-            info.pool->terminate[info.id] = false;
-            if (info.pool->threadCount == 0) {
-                sem_post(info.pool->finalSignal);
+            // If termAll
+            if (pMtx.threadCount == 0 && pMtx.termAll) {
+                tMtx.mtx.unlock();
+                pMtx.mtx.unlock();
+                pool.lockAll.unlock();
+                P_SEM(pool.poolTermSem);
+                return nullptr;
             }
-            info.pool->mutexes[info.id]->unlock();
-            info.pool->countMutex.unlock();
+            tMtx.mtx.unlock();
+            pMtx.mtx.unlock();
+            pool.lockAll.unlock();
             return nullptr;
         }
-        void *ret = info.pool->func[info.id](info.pool->param_return[info.id]);
-        info.pool->mutexes[info.id]->lock();
-        if (!info.pool->wait[info.id]) {
-            info.pool->param_return[info.id] = ret;
-            info.pool->status[info.id] = Idly;
-            while (info.pool->refers[info.id] > 0 && info.pool->refers[info.id]--)
-                sem_post(info.pool->semaphoreFinish[info.id]);
-        } else {
-            info.pool->param_return[info.id] = ret;
-            info.pool->status[info.id] = Returning;
-            sem_post(info.pool->semaphoreFinish[info.id]);
-            if (info.pool->refers[info.id] > 0) {
-                while (--info.pool->refers[info.id])
-                    sem_post(info.pool->semaphoreFinish[info.id]);
-                info.pool->status[info.id] = Idly;
+        // tMtx.status = Working;
+        tMtx.mtx.unlock();
+        pMtx.mtx.unlock();
+        pool.lockAll.unlock();
+        tMtx.param_return = tMtx.func(tMtx.param_return);
+        pool.lockAll.lock();
+        tMtx.mtx.lock();
+        if (tMtx.refers > 0) {
+            tMtx.status = Idly;
+            while (tMtx.refers > 0) {
+                P_SEM_F(thread);
+                tMtx.refers--;
             }
+            tMtx.refers = 0;
+        } else if (tMtx.waitNeed) {
+            tMtx.status = Returning;
+            P_SEM_F(thread);
+        } else {
+            tMtx.status = Idly;
         }
-        info.pool->mutexes[info.id]->unlock();
+        resetThread(tMtx);
+        pMtx.mtx.lock();
+        if (tMtx.forceTerminate || (pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount)) {
+            goto DO_TERMINATE;
+        }
+        pMtx.mtx.unlock();
+        tMtx.mtx.unlock();
+        pool.lockAll.unlock();
     }
+}
+
+void ThreadPool::startThread(const u_count_t id) const {
+    if (status(id) != Empty) { return; }
+    status(id) = Idly;
+    pthread_create(&threads[id]->thread, nullptr, threadFunc, threads[id]);
+    pthread_detach(threads[id]->thread);
+}
+
+void ThreadPool::initThread(ThreadContext &th, const u_count_t id) {
+    th.id = id;
+    th.pool = this;
+    rk_sema_init(&th.semaStart, 0);
+    rk_sema_init(&th.semaFinish, 0);
+    th.mtxContext.func = nullptr;
+    th.mtxContext.param_return = nullptr;
+    th.mtxContext.refers = 0;
+    th.mtxContext.status = Empty;
+    th.mtxContext.forceTerminate = false;
+    th.mtxContext.waitNeed = true;
+    startThread(id);
+}
+
+void ThreadPool::resetThread(ThreadMtx &tMtx) {
+    tMtx.func = nullptr;
+    tMtx.refers = 0;
+    // tMtx.param_return = nullptr;
+    tMtx.forceTerminate = false;
+    tMtx.waitNeed = true;
+}
+
+u8 &ThreadPool::status(const u_count_t id) const {
+    return threads[id]->mtxContext.status;
+}
+
+bool &ThreadPool::terminate(const u_count_t id) const {
+    return threads[id]->mtxContext.forceTerminate;
+}
+
+bool &ThreadPool::wait(const u_count_t id) const {
+    return threads[id]->mtxContext.waitNeed;
+}
+
+ThreadPool::funcHandler &ThreadPool::function(const u_count_t id) const {
+    return threads[id]->mtxContext.func;
+}
+
+void ThreadPool::lock(const u_count_t id) const {
+    threads[id]->mtxContext.mtx.lock();
+}
+
+void ThreadPool::unlock(const u_count_t id) const {
+    threads[id]->mtxContext.mtx.unlock();
+}
+
+void *&ThreadPool::paramReturn(const u_count_t id) const {
+    return threads[id]->mtxContext.param_return;
+}
+
+ThreadPool::u_count_t &ThreadPool::refers(const u_count_t id) const {
+    return threads[id]->mtxContext.refers;
 }

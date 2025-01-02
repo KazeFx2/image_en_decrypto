@@ -9,7 +9,7 @@
 #include "vars.h"
 #include "private/ThreadPool.h"
 
-std::mutex mu;
+Mutex mu;
 
 void *threadFunc(void *arg) {
     mu.lock();
@@ -38,10 +38,10 @@ int main() {
         int n = 50;
         size_t handles[n];
         for (int i = 0; i < n; i++) {
-            handles[i] = sp.addThread(threadFunc, (void *)i, false);
+            handles[i] = sp.addThread(threadFunc, (void *) i, false);
         }
         for (int i = 0; i < n; i++) {
-            handles[i] = sp.addThread(threadFunc, (void *)(i+n));
+            handles[i] = sp.addThread(threadFunc, (void *) (i + n));
         }
         for (int i = 0; i < n; i++) {
             // std::cout << sp.waitThread(handles[i]) << std::endl;
