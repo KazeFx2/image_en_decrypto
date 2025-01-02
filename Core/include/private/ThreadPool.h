@@ -70,33 +70,77 @@ private:
     std::vector<uptr> bitmap;
 };
 
+class Semaphore {
+public:
+    Semaphore(u32 init = 0) {
+        rk_sema_init(&sem, init);
+    }
+
+    ~Semaphore() {
+        rk_sema_close(&sem);
+    }
+
+    Semaphore(const Semaphore &other) = delete;
+
+    Semaphore &operator=(const Semaphore &other) = delete;
+
+    Semaphore(Semaphore &&other) = delete;
+
+    Semaphore &operator=(Semaphore &&other) = delete;
+
+    void wait() {
+        rk_sema_wait(&sem);
+    }
+
+    void post() {
+        rk_sema_post(&sem);
+    }
+
+private:
+    rk_sema sem;
+};
+
 class Mutex {
 public:
     Mutex() {
         mtxId = getIdx();
         rk_sema_init(&sem, 1);
-        // ct = 1;
-        // printf("[mutex]id: %zu, op: init, value: %d, addr: %p\n", mtxId, ct, this);
+#ifdef __DEBUG
+        ct = 1;
+        printf("[mutex]id: %zu, op: init, value: %d, addr: %p\n", mtxId, ct, this);
+#endif
     }
 
     ~Mutex();
 
     void lock() {
         rk_sema_wait(&sem);
-        // ct--;
-        // printf("[mutex]id: %zu, op: lock, value: %d, addr: %p\n", mtxId, ct, this);
+#ifdef __DEBUG
+        ct--;
+        printf("[mutex]id: %zu, op: lock, value: %d, addr: %p\n", mtxId, ct, this);
+#endif
     }
 
     void unlock() {
-        // ct++;
-        // printf("[mutex]id: %zu, op: unlock, value: %d, addr: %p\n", mtxId, ct, this);
+#ifdef __DEBUG
+        ct++;
+        printf("[mutex]id: %zu, op: unlock, value: %d, addr: %p\n", mtxId, ct, this);
+#endif
         rk_sema_post(&sem);
     }
 
     Mutex(const Mutex &other) = delete;
 
+    Mutex &operator=(const Mutex &other) = delete;
+
+    Mutex(Mutex &&other) = delete;
+
+    Mutex &operator=(Mutex &&other) = delete;
+
 private:
-    // u8 ct;
+#ifdef __DEBUG
+    u8 ct;
+#endif
     u64 mtxId;
     rk_sema sem;
 
@@ -105,7 +149,143 @@ private:
     u64 static getIdx();
 };
 
-// using namespace std;
+class RWLock {
+public:
+    class SubLock {
+    public:
+        SubLock(RWLock *p, void (RWLock::*lock)(), void (RWLock::*unlock)()): parent(p), lockHandler(lock),
+                                                                              unlockHandler(unlock) {
+        }
+
+        ~SubLock() = default;
+
+        void lock() const { (parent->*lockHandler)(); }
+
+        void unlock() const { (parent->*unlockHandler)(); }
+
+    private:
+        RWLock *parent;
+
+        void (RWLock::*lockHandler)();
+
+        void (RWLock::*unlockHandler)();
+    };
+
+    RWLock(const u8 Strategy = WriterFist): strategy(Strategy), rCount(0), wCount(0), rWait(0), wWait(0), ReaderSem(0),
+                                            WriterSem(0) {
+    }
+
+    ~RWLock() {
+    }
+
+    typedef enum {
+        WriterFist = 0x0,
+        ReaderFist = 0x1
+    } RW_Strategy;
+
+    RWLock(const RWLock &other) = delete;
+
+    RWLock &operator=(const RWLock &other) = delete;
+
+    RWLock(RWLock &&other) = delete;
+
+    RWLock &operator=(RWLock &&other) = delete;
+
+    SubLock reader() {
+        return SubLock(this, &RWLock::ReaderLock, &RWLock::ReaderUnlock);
+    }
+
+    SubLock writer() {
+        return SubLock(this, &RWLock::WriterLock, &RWLock::WriterUnlock);
+    }
+
+    void ReaderLock() {
+        bool onWait = false;
+        mtx.lock();
+        switch (strategy) {
+            case WriterFist:
+                if (wCount > 0 || wWait > 0) {
+                    rWait++;
+                    onWait = true;
+                } else
+                    rCount++;
+                break;
+            case ReaderFist:
+            default:
+                if (wCount > 0) {
+                    rWait++;
+                    onWait = true;
+                } else
+                    rCount++;
+                break;
+        }
+        mtx.unlock();
+        if (onWait) {
+            ReaderSem.wait();
+        }
+    }
+
+    void ReaderUnlock() {
+        mtx.lock();
+        rCount--;
+        if (rCount == 0 && wWait > 0) {
+            wWait--;
+            wCount++;
+            WriterSem.post();
+        }
+        mtx.unlock();
+    }
+
+    void WriterLock() {
+        bool onWait = false;
+        mtx.lock();
+        switch (strategy) {
+            case WriterFist:
+                if (rCount > 0 || wCount > 0) {
+                    wWait++;
+                    onWait = true;
+                } else
+                    wCount++;
+                break;
+            case ReaderFist:
+            default:
+                if (rCount > 0 || wCount > 0 || rWait > 0) {
+                    wWait++;
+                    onWait = true;
+                } else
+                    wCount++;
+                break;
+        }
+        mtx.unlock();
+        if (onWait) {
+            WriterSem.wait();
+        }
+    }
+
+    void WriterUnlock() {
+        mtx.lock();
+        wCount--;
+        if (wWait > 0) {
+            wWait--;
+            wCount++;
+            WriterSem.post();
+        } else if (rWait > 0) {
+            while (rWait > 0) {
+                rWait--;
+                rCount++;
+                ReaderSem.post();
+            }
+        }
+        mtx.unlock();
+    }
+
+private:
+    using u_count_t = u32;
+    u8 strategy;
+    u_count_t rCount, wCount, rWait, wWait;
+    Mutex mtx;
+    Semaphore ReaderSem, WriterSem;
+};
 
 class ThreadPool {
 public:
@@ -130,6 +310,8 @@ public:
     void reduceTo(s_count_t tar, bool force = false);
 
     void waitReduce();
+
+    void waitFinish();
 
     u_count_t getNumThreads() const;
 
@@ -156,24 +338,26 @@ private:
     typedef struct {
         ThreadPool *pool;
         u_count_t id;
-        rk_sema semaStart;
-        rk_sema semaFinish;
+        Semaphore semaStart;
+        Semaphore semaFinish;
         pthread_t thread;
         ThreadMtx mtxContext;
     } ThreadContext;
 
     typedef struct {
         u_count_t threadCount;
-        u_count_t waitRefers;
+        u_count_t idlyCount;
+        u_count_t waitReduceRefers;
+        u_count_t waitFinishRefers;
         s_count_t reduce;
         bool termAll;
         Mutex mtx;
     } PoolMtx;
 
     u_count_t idx;
-    rk_sema poolTermSem, reduceWaitSem;
+    Semaphore poolTermSem, reduceWaitSem, finishWaitSem;
     PoolMtx mtxContext;
-    Mutex lockAll;
+    RWLock lockAll;
 
     std::vector<ThreadContext *> threads;
 
@@ -203,7 +387,9 @@ private:
 
     static void *threadFunc(void *arg);
 
-    bool destroyThreadLocked(thread_descriptor_t index, bool onlyIdly = false) const;
+    bool destroyThreadLocked(thread_descriptor_t index, bool allLocked = true, bool onlyIdly = false);
+
+    void wakeFinishSem();
 };
 
 #endif //THREAD_POOL_H

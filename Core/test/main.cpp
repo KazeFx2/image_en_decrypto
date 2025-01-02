@@ -13,10 +13,15 @@ Mutex mu;
 
 void *threadFunc(void *arg) {
     mu.lock();
-    // int a = 1000;
-    // while (a--) {}
+    mu.lock();
+    u64 ret = 0;
+    u64 a = 1e10 * rand();
+    while (a--) {
+        ret += a;
+    }
+    std::cout << ret << std::endl;
     mu.unlock();
-    return arg;
+    return (void *) ret;
 }
 
 int main() {
@@ -33,13 +38,10 @@ int main() {
     auto img = cv::imread("inputs/1.jpeg");
     EncryptoImage(img, RANDOM_KEYS, ORIGINAL_SIZE);
     int ct = 0;
+    ThreadPool sp(10);
     while (true) {
-        ThreadPool sp(10);
-        int n = 50;
+        int n = 64;
         size_t handles[n];
-        for (int i = 0; i < n; i++) {
-            handles[i] = sp.addThread(threadFunc, (void *) i, false);
-        }
         for (int i = 0; i < n; i++) {
             handles[i] = sp.addThread(threadFunc, (void *) (i + n));
         }
@@ -47,9 +49,15 @@ int main() {
             // std::cout << sp.waitThread(handles[i]) << std::endl;
             sp.waitThread(handles[i]);
         }
-        sp.reduceTo(3, true);
-        sp.waitReduce();
+        for (int i = 0; i < n; i++) {
+            handles[i] = sp.addThread(threadFunc, (void *) i, false);
+        }
+        system("clear");
         std::cout << ct++ << std::endl;
+        std::cout << "current threads: " << sp.getNumThreads() << std::endl;
+        std::cout << "current working: " << sp.getNumThreads() - sp.getIdlyThreads() << std::endl;
+        // sp.reduceTo(10, true);
+        sp.waitFinish();
     }
     return 0;
 }
