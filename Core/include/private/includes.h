@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
     u8 byteReserve;
-    u32 iterations;
+    u32 preIterations;
     u32 confusionIterations;
     u32 diffusionConfusionIterations;
 } ParamControl;
@@ -36,7 +36,7 @@ typedef struct {
 } Keys;
 
 #define ORIGINAL_SIZE ImageSize{0, 0}
-#define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
+#define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2}
 #define DEFAULT_CONFIG ParamControl{6, 200, 3, 5}
 
 #endif //INCLUDES_H

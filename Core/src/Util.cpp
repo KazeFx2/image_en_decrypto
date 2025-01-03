@@ -7,7 +7,7 @@
 #include "math.h"
 
 f64 PLCM(__IN const f64 initialCondition, __IN const f64 controlCondition) {
-    assert(initialCondition >= 0 && initialCondition <= 1);
+    assert(initialCondition >= 0 && initialCondition <= 1 && controlCondition > 0 && controlCondition < 0.5);
     if (initialCondition < controlCondition) {
         return initialCondition / controlCondition;
     }

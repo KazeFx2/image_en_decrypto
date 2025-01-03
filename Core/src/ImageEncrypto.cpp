@@ -14,7 +14,8 @@ typedef struct {
     __IN Size *size;
     __IN size_t nThreads;
     __IN size_t threadId;
-    __IN const Keys *keys;
+    __IN u32 iterations;
+    __IN Keys keys;
     __IN const ParamControl *config;
     __IN Semaphore Start;
     __IN Semaphore Finish;
@@ -50,13 +51,41 @@ void EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Ke
     u32 *threads = new u32[nThread];
     encryptoParams *params = new encryptoParams[nThread];
     encryptoReturn **ret = new encryptoReturn *[nThread];
+    const u32 iterations = static_cast<int>(3 * ImageSize.width * ImageSize.height * Config.diffusionConfusionIterations
+                                            / (
+                                                nThread * Config.byteReserve)) + 1;
+    ::Keys iterated_keys = Keys;
+    // pre-iterate
+    for (u32 i = 0; i < Config.preIterations; i++) {
+        iterated_keys.gParam1.initCondition = PLCM(iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
+        iterated_keys.gParam2.initCondition = PLCM(iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
+    }
+    ::Keys tmpKeys = iterated_keys;
+
     for (u32 i = 0; i < nThread; i++) {
         params[i].dst = &dst;
         params[i].src = &src;
         params[i].size = &ImageSize;
         params[i].nThreads = nThread;
         params[i].threadId = i;
-        params[i].keys = &Keys;
+        params[i].iterations = iterations;
+        params[i].keys.confusionSeed = Keys.confusionSeed;
+        // generate params
+        params[i].keys.gParam1.initCondition = tmpKeys.gParam1.initCondition = PLCM(
+                                                   tmpKeys.gParam1.initCondition,
+                                                   tmpKeys.gParam1.ctrlCondition);
+        params[i].keys.gParam1.ctrlCondition = tmpKeys.gParam2.initCondition = PLCM(
+                                                   tmpKeys.gParam2.initCondition,
+                                                   tmpKeys.gParam2.ctrlCondition);
+        params[i].keys.gParam2.initCondition = tmpKeys.gParam1.initCondition = PLCM(
+                                                   tmpKeys.gParam1.initCondition,
+                                                   tmpKeys.gParam1.ctrlCondition);
+        params[i].keys.gParam2.ctrlCondition = tmpKeys.gParam2.initCondition = PLCM(
+                                                   tmpKeys.gParam2.initCondition,
+                                                   tmpKeys.gParam2.ctrlCondition);
+        // params[i].keys = Keys;
         params[i].config = &Config;
         params[i].threadId = i;
         threads[i] = pool.addThread(encryptoAssistant, &params[i]);
@@ -93,23 +122,39 @@ void *encryptoAssistant(__IN void *param) {
     rowStart = (params.size->height * params.threadId / params.nThreads), rowEnd = (
         params.size->height * (params.threadId + 1) / params.nThreads);
     colStart = 0, colEnd = params.size->width;
-    f64 *resultArray1 = new f64[params.config->iterations];
-    f64 *resultArray2 = new f64[params.config->iterations];
-    u8 *bytes1 = new u8[params.config->iterations * params.config->byteReserve];
-    u8 *bytes2 = new u8[params.config->iterations * params.config->byteReserve];
-    u8 *byteSeq = new u8[params.config->iterations * params.config->byteReserve];
+    f64 *resultArray1 = new f64[params.iterations];
+    f64 *resultArray2 = new f64[params.iterations];
+    u8 *bytes1 = new u8[params.iterations * params.config->byteReserve];
+    u8 *bytes2 = new u8[params.iterations * params.config->byteReserve];
+    u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
     u8 *diffusionSeedArray = new u8[3 * params.config->diffusionConfusionIterations];
 
-    const f64 initCondition1 = IteratePLCM(params.keys->gParam1.initCondition, params.keys->gParam1.ctrlCondition,
-                                           params.config->iterations, resultArray1);
-    const f64 initCondition2 = IteratePLCM(params.keys->gParam2.initCondition, params.keys->gParam2.ctrlCondition,
-                                           params.config->iterations, resultArray2);
-    CvtF64toBytes(resultArray1, bytes1, params.config->iterations, params.config->byteReserve);
-    CvtF64toBytes(resultArray2, bytes2, params.config->iterations, params.config->byteReserve);
+    // const Keys keysBackup = params.keys;
+    // assert(params.keys.gParam1.ctrlCondition <= 0.5 &&
+    //     params.keys.gParam2.ctrlCondition <= 0.5);
+    if (params.keys.gParam1.ctrlCondition > 0.5)
+        params.keys.gParam1.ctrlCondition = 1 - params.keys.gParam1.ctrlCondition;
+    if (params.keys.gParam2.ctrlCondition > 0.5)
+        params.keys.gParam2.ctrlCondition = 1 - params.keys.gParam2.ctrlCondition;
+    for (u32 i = 0; i < params.config->preIterations; i++) {
+        params.keys.gParam1.initCondition = PLCM(
+            params.keys.gParam1.initCondition,
+            params.keys.gParam1.ctrlCondition);
+        params.keys.gParam2.initCondition = PLCM(
+            params.keys.gParam2.initCondition,
+            params.keys.gParam2.ctrlCondition);
+    }
+
+    const f64 initCondition1 = IteratePLCM(params.keys.gParam1.initCondition, params.keys.gParam1.ctrlCondition,
+                                           params.iterations, resultArray1);
+    const f64 initCondition2 = IteratePLCM(params.keys.gParam2.initCondition, params.keys.gParam2.ctrlCondition,
+                                           params.iterations, resultArray2);
+    CvtF64toBytes(resultArray1, bytes1, params.iterations, params.config->byteReserve);
+    CvtF64toBytes(resultArray2, bytes2, params.iterations, params.config->byteReserve);
     XorByteSequence(bytes1, bytes2, byteSeq, params.config->byteReserve);
 
-    GenDiffusionSeeds(initCondition1, params.keys->gParam1.ctrlCondition,
-                      initCondition2, params.keys->gParam2.ctrlCondition,
+    GenDiffusionSeeds(initCondition1, params.keys.gParam1.ctrlCondition,
+                      initCondition2, params.keys.gParam2.ctrlCondition,
                       diffusionSeedArray, params.config->diffusionConfusionIterations);
     delete [] resultArray1;
     delete [] resultArray2;
@@ -121,7 +166,7 @@ void *encryptoAssistant(__IN void *param) {
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys->confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
         params.Finish.post();
     }
     // Diffusion
@@ -137,7 +182,7 @@ void *encryptoAssistant(__IN void *param) {
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys->confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
         params.Finish.post();
     }
     return new encryptoReturn{byteSeq, diffusionSeedArray};
