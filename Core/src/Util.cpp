@@ -59,3 +59,29 @@ void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &
               width) % size.
              width;
 }
+
+void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+               __IN const u32 startRow, __IN const u32 endRow,
+               __IN const u32 startCol, __IN const u32 endCol,
+               __IN const cv::Size &size, __IN const u32 confusionSeed) {
+    for (u32 i = startRow; i < endRow; i++) {
+        for (u32 j = startCol; j < endCol; j++) {
+            u32 newRow, newCol;
+            ConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
+            dstImage.at<cv::Vec3b>(i, j)[0] = srcImage.at<cv::Vec3b>(i, j)[0];
+            dstImage.at<cv::Vec3b>(i, j)[1] = srcImage.at<cv::Vec3b>(i, j)[1];
+            dstImage.at<cv::Vec3b>(i, j)[2] = srcImage.at<cv::Vec3b>(i, j)[2];
+        }
+    }
+}
+
+s32 Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+              __IN const u32 startRow, __IN const u32 endRow,
+              __IN const u32 startCol, __IN const u32 endCol) {
+    for (u32 i = startRow; i < endRow; i++) {
+        for (u32 j = startCol; j < endCol; j++) {
+
+        }
+    }
+}
+

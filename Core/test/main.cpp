@@ -14,7 +14,7 @@ Mutex mu;
 
 void *threadFunc(void *arg) {
     mu.lock();
-    mu.lock();
+    // mu.lock();
     u64 ret = 0;
     u64 a = 1e10 * rand();
     while (a--) {

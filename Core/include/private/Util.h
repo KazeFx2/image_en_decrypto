@@ -22,4 +22,9 @@ void GenDiffusionSeeds(__IN f64 initialCondition1, __IN f64 controlCondition1, _
 void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
                    __OUT u32 &newCol);
 
+void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+               __IN u32 startRow, __IN u32 endRow,
+               __IN u32 startCol, __IN u32 endCol,
+               __IN const cv::Size &size, __IN u32 confusionSeed);
+
 #endif //UTIL_H

@@ -26,7 +26,7 @@ typedef struct {
     u8 byteReserve;
     u32 iterations;
     u32 confusionIterations;
-    u32 diffusionIterations;
+    u32 diffusionConfusionIterations;
 } ParamControl;
 
 typedef struct {
