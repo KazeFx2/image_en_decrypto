@@ -14,4 +14,4 @@ file(WRITE vars.h
 static char homePath[] = \"${CMAKE_HOME_DIRECTORY}\";
 ")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ImageEn_DecryptoCore)
+target_link_libraries(${PROJECT_NAME} PRIVATE ImageEn_DecryptoCore CoreThreadPool)

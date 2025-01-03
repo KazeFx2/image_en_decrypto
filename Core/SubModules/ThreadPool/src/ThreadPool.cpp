@@ -1,10 +1,8 @@
 //
-// Created by Fx Kaze on 24-12-30.
+// Created by Fx Kaze on 25-1-3.
 //
 
-#include "private/ThreadPool.h"
-
-#include <mutex>
+#include "ThreadPool.h"
 
 #define W_SEM(t) (t).wait()
 #define P_SEM(t) (t).post()
@@ -22,34 +20,6 @@
 #define P_SEM_S(t) P_SEM((t).semaStart)
 #define P_SEM_F(t) P_SEM((t).semaFinish)
 #endif
-
-static std::mutex t_mtx;
-
-FastBitmap Mutex::bitmap;
-
-Mutex::~Mutex() {
-    t_mtx.lock();
-    bitmap[mtxId] = false;
-    t_mtx.unlock();
-    rk_sema_close(&sem);
-}
-
-u64 Mutex::getIdx() {
-    static u64 idx = 0;
-    t_mtx.lock();
-    for (u64 i = 0; i < idx; i++) {
-        if (!bitmap[i]) {
-            bitmap[i] = true;
-            t_mtx.unlock();
-            return i;
-        }
-    }
-    idx++;
-    const u64 ret = idx - 1;
-    bitmap[ret] = true;
-    t_mtx.unlock();
-    return ret;
-}
 
 ThreadPool::ThreadPool(const u_count_t nThreads): idx(getIdx()),
                                                   threads(nThreads) {

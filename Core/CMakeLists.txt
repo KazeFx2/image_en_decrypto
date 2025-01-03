@@ -17,8 +17,7 @@ set(SOURCE_DIRS
 )
 
 # add sources
-set(SOURCES
-        include/private/ThreadPool.h)
+set(SOURCES)
 foreach (S_DIR ${SOURCE_DIRS})
     file(GLOB_RECURSE S_FILES "${S_DIR}/*.c" "${S_DIR}/*.cpp")
     foreach (S_FILE ${S_FILES})
@@ -29,6 +28,8 @@ endforeach ()
 add_library(${PROJECT_NAME} STATIC ${SOURCES}
 )
 
+add_subdirectory(SubModules)
+
 target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBS}
 )
@@ -37,7 +38,7 @@ target_link_libraries(${PROJECT_NAME}
 #        include
 #)
 
-if(CoreTest)
+if (CoreTest)
     add_subdirectory(test)
 endif ()
 

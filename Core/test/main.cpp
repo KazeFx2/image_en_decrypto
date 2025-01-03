@@ -7,7 +7,8 @@
 #include "private/ImageEncrypto.h"
 #include "unistd.h"
 #include "vars.h"
-#include "private/ThreadPool.h"
+#include "ThreadPool.h"
+#include "Mutex.h"
 
 Mutex mu;
 
@@ -42,13 +43,13 @@ int main() {
     while (true) {
         int n = 64;
         size_t handles[n];
-        for (int i = 0; i < n; i++) {
-            handles[i] = sp.addThread(threadFunc, (void *) (i + n));
-        }
-        for (int i = 0; i < n; i++) {
-            // std::cout << sp.waitThread(handles[i]) << std::endl;
-            sp.waitThread(handles[i]);
-        }
+        // for (int i = 0; i < n; i++) {
+        //     handles[i] = sp.addThread(threadFunc, (void *) (i + n));
+        // }
+        // for (int i = 0; i < n; i++) {
+        //     // std::cout << sp.waitThread(handles[i]) << std::endl;
+        //     sp.waitThread(handles[i]);
+        // }
         for (int i = 0; i < n; i++) {
             handles[i] = sp.addThread(threadFunc, (void *) i, false);
         }
