@@ -37,5 +37,6 @@ typedef struct {
 
 #define ORIGINAL_SIZE ImageSize{0, 0}
 #define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random()}
+#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5}
 
 #endif //INCLUDES_H

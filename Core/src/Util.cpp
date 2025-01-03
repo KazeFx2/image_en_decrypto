@@ -68,19 +68,32 @@ void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
         for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             ConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
-            dstImage.at<cv::Vec3b>(i, j)[0] = srcImage.at<cv::Vec3b>(i, j)[0];
-            dstImage.at<cv::Vec3b>(i, j)[1] = srcImage.at<cv::Vec3b>(i, j)[1];
-            dstImage.at<cv::Vec3b>(i, j)[2] = srcImage.at<cv::Vec3b>(i, j)[2];
+            dstImage.at<cv::Vec3b>(newRow, newCol)[0] = srcImage.at<cv::Vec3b>(i, j)[0];
+            dstImage.at<cv::Vec3b>(newRow, newCol)[1] = srcImage.at<cv::Vec3b>(i, j)[1];
+            dstImage.at<cv::Vec3b>(newRow, newCol)[2] = srcImage.at<cv::Vec3b>(i, j)[2];
         }
     }
 }
 
-s32 Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
-              __IN const u32 startRow, __IN const u32 endRow,
-              __IN const u32 startCol, __IN const u32 endCol) {
-    for (u32 i = startRow; i < endRow; i++) {
-        for (u32 j = startCol; j < endCol; j++) {
+#define DIFFUSION(Prev) {\
+dstImage.at<cv::Vec3b>(startRow, startCol)[0] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(startRow, startCol)[0] + byteSequence[seqIdx]) % 256 ^ Prev[0];\
+seqIdx++;\
+dstImage.at<cv::Vec3b>(startRow, startCol)[1] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(startRow, startCol)[1] + byteSequence[seqIdx]) % 256 ^ Prev[1];\
+seqIdx++;\
+dstImage.at<cv::Vec3b>(startRow, startCol)[2] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(startRow, startCol)[2] + byteSequence[seqIdx]) % 256 ^ Prev[2];\
+seqIdx++;\
+}
 
+void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+               __IN const u32 startRow, __IN const u32 endRow,
+               __IN const u32 startCol, __IN const u32 endCol,
+               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx) {
+    DIFFUSION(diffusionSeed);
+    u32 prevI = startRow, prevJ = startCol;
+    for (u32 i = startRow; i < endRow; i++) {
+        for (u32 j = startCol + 1; j < endCol; j++) {
+            DIFFUSION(dstImage.at<cv::Vec3b>(prevI, prevJ));
+            prevI = i, prevJ = j;
         }
     }
 }

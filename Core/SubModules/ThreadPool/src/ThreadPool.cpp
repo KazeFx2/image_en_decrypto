@@ -39,13 +39,15 @@ ThreadPool::~ThreadPool() {
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     mtxContext.termAll = true;
+    const bool noExists = mtxContext.threadCount == 0;
     for (u_count_t i = 0; i < threads.size(); i++) {
         if (status(i) != Empty) {
             destroyThreadLocked(i);
         }
     }
     lockAll.unlock();
-    W_SEM(poolTermSem);
+    if (!noExists)
+        W_SEM(poolTermSem);
     for (u_count_t i = 0; i < threads.size(); i++) {
         delete threads[i];
         C_SEM(threads[i]->semaStart);
@@ -281,10 +283,10 @@ void *ThreadPool::threadFunc(void *arg) {
             }
             // If termAll
             if (pMtx.threadCount == 0 && pMtx.termAll) {
+                P_SEM(pool.poolTermSem);
                 tMtx.mtx.unlock();
                 pMtx.mtx.unlock();
                 pool.lockAll.reader().unlock();
-                P_SEM(pool.poolTermSem);
                 return nullptr;
             }
             tMtx.mtx.unlock();

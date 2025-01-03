@@ -32,7 +32,7 @@ add_subdirectory(SubModules)
 
 target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBS}
-        CoreSemaphore
+        CoreThreadPool
 )
 
 #target_include_directories(${PROJECT_NAME} PUBLIC

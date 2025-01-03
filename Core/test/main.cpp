@@ -36,29 +36,18 @@ int main() {
         }
     }
     std::cout << getcwd(nullptr, 0) << std::endl;
-    auto img = cv::imread("inputs/1.jpeg");
-    EncryptoImage(img, RANDOM_KEYS, ORIGINAL_SIZE);
-    int ct = 0;
-    ThreadPool sp(10);
-    while (true) {
-        int n = 64;
-        size_t handles[n];
-        // for (int i = 0; i < n; i++) {
-        //     handles[i] = sp.addThread(threadFunc, (void *) (i + n));
-        // }
-        // for (int i = 0; i < n; i++) {
-        //     // std::cout << sp.waitThread(handles[i]) << std::endl;
-        //     sp.waitThread(handles[i]);
-        // }
-        for (int i = 0; i < n; i++) {
-            handles[i] = sp.addThread(threadFunc, (void *) i, false);
-        }
-        system("clear");
-        std::cout << ct++ << std::endl;
-        std::cout << "current threads: " << sp.getNumThreads() << std::endl;
-        std::cout << "current working: " << sp.getNumThreads() - sp.getIdlyThreads() << std::endl;
-        // sp.reduceTo(10, true);
-        sp.waitFinish();
+    auto img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
+    if (img.data == nullptr) {
+        std::cout << "Read image failed." << std::endl;
+        return 1;
     }
+    imshow("original", img);
+    // cv::waitKey(0);
+    ThreadPool sp(10);
+    EncryptoImage(img, ORIGINAL_SIZE, RANDOM_KEYS, DEFAULT_CONFIG, 64, sp);
+    imshow("encrypted", img);
+    cv::waitKey(0);
+    sp.reduceTo(0);
+    sp.waitReduce();
     return 0;
 }

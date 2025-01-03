@@ -27,4 +27,9 @@ void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN u32 startCol, __IN u32 endCol,
                __IN const cv::Size &size, __IN u32 confusionSeed);
 
+void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+               __IN u32 startRow, __IN u32 endRow,
+               __IN u32 startCol, __IN u32 endCol,
+               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx);
+
 #endif //UTIL_H

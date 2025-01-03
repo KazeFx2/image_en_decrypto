@@ -36,7 +36,7 @@ private:
 
     static FastBitmap bitmap;
 
-    u64 static getIdx();
+    u64 static get_putIdx(bool isRet = false, u64 oldIdx = 0);
 };
 
 #endif //MUTEX_H

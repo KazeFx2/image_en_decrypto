@@ -3,14 +3,11 @@
 //
 
 #include "Mutex.h"
-#include <mutex>
-
-static std::mutex t_mtx;
 
 FastBitmap Mutex::bitmap;
 
 Mutex::Mutex(): sem(static_cast<u32>(1)) {
-    mtxId = getIdx();
+    mtxId = get_putIdx();
 #ifdef __DEBUG
         ct = 1;
         printf("[mutex]id: %zu, op: init, value: %d, addr: %p\n", mtxId, ct, this);
@@ -18,25 +15,29 @@ Mutex::Mutex(): sem(static_cast<u32>(1)) {
 }
 
 Mutex::~Mutex() {
-    t_mtx.lock();
-    bitmap[mtxId] = false;
-    t_mtx.unlock();
+    get_putIdx(true, mtxId);
 }
 
-u64 Mutex::getIdx() {
+u64 Mutex::get_putIdx(const bool isRet, const u64 oldIdx) {
     static u64 idx = 0;
-    t_mtx.lock();
+    static Semaphore semaphore(1);
+    semaphore.wait();
+    if (isRet == true) {
+        bitmap[oldIdx] = false;
+        semaphore.post();
+        return oldIdx;
+    }
     for (u64 i = 0; i < idx; i++) {
         if (!bitmap[i]) {
             bitmap[i] = true;
-            t_mtx.unlock();
+            semaphore.post();
             return i;
         }
     }
     idx++;
     const u64 ret = idx - 1;
     bitmap[ret] = true;
-    t_mtx.unlock();
+    semaphore.post();
     return ret;
 }
 
