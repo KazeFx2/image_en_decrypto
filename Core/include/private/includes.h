@@ -64,6 +64,6 @@ for (u32 j = 0; j < Config.nThread; j++)\
 
 #define ORIGINAL_SIZE ImageSize{0, 0}
 #define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2}
-#define DEFAULT_CONFIG ParamControl{6, 200, 3, 1, 32}
+#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 32}
 
 #endif //INCLUDES_H

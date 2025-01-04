@@ -8,11 +8,14 @@
 
 using namespace cv;
 
+#ifdef __DEBUG
 static FILE *gfd;
 static ::Mutex mu;
+#endif
 
 void *encryptoAssistant(__IN void *param);
 
+#ifdef __DEBUG
 #define DUMP_MAT {\
     snprintf(name, sizeof(name), "%d_en_dump_mat.txt", dumpId++);\
     snprintf(path, sizeof(path), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/%s", name);\
@@ -20,12 +23,17 @@ void *encryptoAssistant(__IN void *param);
     DumpMat(fd, name, *dst);\
     fclose(fd);\
 }
+#else
+#define DUMP_MAT
+#endif
 
 threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
+#ifdef __DEBUG
     char name[256];
     snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Encrypto_Procedure.txt");
     gfd = fopen(name, "w+");
+#endif
 
     cv::Size ImageSize;
     Mat tmpImage;
@@ -38,9 +46,10 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
                 encryptoAssistant);
 
     // Encrypto confusion
+#ifdef __DEBUG
     u32 dumpId = 0;
-    // char name[64];
     char path[256];
+#endif
     DUMP_MAT;
     for (u32 i = 0; i < Config.confusionIterations; i++) {
         DOLOOP;
@@ -63,7 +72,9 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     delete[] params;
     Image = src->clone();
 
+#ifdef __DEBUG
     fclose(gfd);
+#endif
     // returns
     return ret;
 }
@@ -78,6 +89,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
     // Encrypto
     u32 seqIdx = 0;
     // Confusion
+#ifdef __DEBUG
     char name[256];
     snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Encrypto_%lu.txt", params.threadId);
     FILE *fd = fopen(name, "w+");
@@ -91,6 +103,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
     );
     fprintf(fd, "[END ENCRYPT]\n");
     fclose(fd);
+#endif
 
     for (u32 i = 0; i < params.config->confusionIterations; i++) {
         params.Start.wait();
@@ -107,6 +120,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
         Diffusion(**params.dst, **params.src,
                   rowStart, rowEnd, colStart, colEnd,
                   diffusionSeed, byteSeq, seqIdx);
+#ifdef __DEBUG
         mu.lock();
         fprintf(gfd, "[DiffusionSeed]id: %lu, Round: %u, %02X, %02X, %02X, idx: %u, ", params.threadId,
                 i,
@@ -128,6 +142,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
         }
         fprintf(gfd, "\n");
         mu.unlock();
+#endif
         params.Finish.post();
         params.Start.wait();
         Confusion(**params.dst,
