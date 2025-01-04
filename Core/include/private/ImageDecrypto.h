@@ -7,9 +7,8 @@
 
 #include "includes.h"
 #include "ThreadPool.h"
-#include <string>
 
-void DecryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
-                   __IN const ParamControl &Config, __IN ThreadPool &pool);
+threadReturn **DecryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+                             __IN const ParamControl &Config, __IN ThreadPool &pool);
 
 #endif //IMAGE_DECRYPTO_H

@@ -57,5 +57,7 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
 void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
                __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray);
 
+void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config);
+
 void DumpBytes(__IN const char *name, __IN const u8 *array, __IN u32 size);
 #endif //UTIL_H

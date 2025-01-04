@@ -20,14 +20,14 @@ public:
         ~element() = default;
 
         operator bool() const {
-            return static_cast<bool>(*data & 0x1 << offset);
+            return static_cast<bool>(*data & static_cast<uptr>(0x1) << offset);
         }
 
         bool operator=(const bool val) const {
             if (val) {
-                *data |= 0x1 << offset;
+                *data |= static_cast<uptr>(0x1) << offset;
             } else {
-                *data &= ~(0x1 << offset);
+                *data &= ~(static_cast<uptr>(0x1) << offset);
             }
             return val;
         }

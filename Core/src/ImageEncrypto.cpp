@@ -10,8 +10,8 @@ using namespace cv;
 
 void *encryptoAssistant(__IN void *param);
 
-void EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
-                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
+threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+                             __IN const ParamControl &Config, __IN ThreadPool &pool) {
     cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
@@ -41,11 +41,7 @@ void EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Ke
     delete[] params;
     Image = src->clone();
     // returns
-    for (u32 i = 0; i < Config.nThread; i++) {
-        delete []ret[i]->byteSeq;
-        delete []ret[i]->diffusionSeedArray;
-    }
-    delete[] ret;
+    return ret;
 }
 
 void *encryptoAssistant(__IN_OUT void *param) {

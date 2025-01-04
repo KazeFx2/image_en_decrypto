@@ -55,17 +55,22 @@ void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &
                    __OUT u32 &newRow,
                    __OUT u32 &newCol) {
     newRow = (row + col) % size.height;
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height)));
-    newCol = ((col + tmp) % size.width + size.width) % size.width;
+    // const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height)));
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(M_PI * newRow / size.height / 2)));
+    // newCol = ((col + tmp) % size.width + size.width) % size.width;
+    newCol = (col + tmp) % size.width;
 }
 
 void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &size,
                          __IN const u32 confusionSeed,
                          __OUT u32 &newRow,
                          __OUT u32 &newCol) {
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height)));
-    newRow = ((row - col + tmp) % size.height + size.height) % size.height;
-    newCol = ((col - tmp) % size.width + size.width) % size.width;
+    // const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height)));
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(M_PI * row / size.height / 2)));
+    // newRow = ((row - col + tmp) % size.height + size.height) % size.height;
+    // newCol = ((col - tmp) % size.width + size.width) % size.width;
+    newCol = (col + size.width - tmp % size.width) % size.width;
+    newRow = (row + size.height - newCol) % size.height;
 }
 
 void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
@@ -130,13 +135,13 @@ void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
 #define INV_DIFFUSION(i, j, Prev) {\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[2] = \
-    (srcImage.at<cv::Vec3b>(i, j)[2] ^ byteSequence[seqIdx] ^ Prev[2]) + 256 - (byteSequence[seqIdx]);\
+    ((srcImage.at<cv::Vec3b>(i, j)[2] ^ byteSequence[seqIdx] ^ Prev[2]) + 256 - (byteSequence[seqIdx])) % 256;\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[1] = \
-    (srcImage.at<cv::Vec3b>(i, j)[1] ^ byteSequence[seqIdx] ^ Prev[1]) + 256 - (byteSequence[seqIdx]);\
+    ((srcImage.at<cv::Vec3b>(i, j)[1] ^ byteSequence[seqIdx] ^ Prev[1]) + 256 - (byteSequence[seqIdx])) % 256;\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[0] = \
-    (srcImage.at<cv::Vec3b>(i, j)[0] ^ byteSequence[seqIdx] ^ Prev[0]) + 256 - (byteSequence[seqIdx]);\
+    ((srcImage.at<cv::Vec3b>(i, j)[0] ^ byteSequence[seqIdx] ^ Prev[0]) + 256 - (byteSequence[seqIdx])) % 256;\
 }
 
 void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
@@ -258,6 +263,12 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
     delete [] resultArray2;
     delete [] bytes1;
     delete [] bytes2;
+}
+
+void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config) {
+    for (u32 i = 0; i < config.nThread; i++)
+        delete [] ret[i]->byteSeq, delete [] ret[i]->diffusionSeedArray;
+    delete [] ret;
 }
 
 void DumpBytes(__IN const char *name, __IN const u8 *array, __IN const u32 size) {
