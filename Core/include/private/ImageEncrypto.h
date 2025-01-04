@@ -9,9 +9,7 @@
 #include "ThreadPool.h"
 #include <string>
 
-void EncryptoImage(__IN_OUT cv::Mat &Image, __IN const std::string &QuantumBitsFile, __IN const ImageSize &Size);
-
 void EncryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
-                   __IN const ParamControl &Config, __IN const u32 nThread, __IN ThreadPool &pool);
+                   __IN const ParamControl &Config, __IN ThreadPool &pool);
 
 #endif //IMAGE_ENCRYPTO_H

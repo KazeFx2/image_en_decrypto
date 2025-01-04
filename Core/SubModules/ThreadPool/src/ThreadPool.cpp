@@ -58,7 +58,7 @@ ThreadPool::~ThreadPool() {
     C_SEM(poolTermSem);
 }
 
-ThreadPool::u_count_t ThreadPool::addThread(void *(fun)(void *), void *param, const bool wait) {
+ThreadPool::u_count_t ThreadPool::addThread(funcHandler func, void *param, const bool wait) {
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     if (mtxContext.termAll) {
@@ -68,7 +68,7 @@ ThreadPool::u_count_t ThreadPool::addThread(void *(fun)(void *), void *param, co
     for (u_count_t i = 0; i < threads.size(); i++) {
         if (status(i) == Idly) {
             mtxContext.idlyCount--;
-            function(i) = fun;
+            function(i) = func;
             paramReturn(i) = param;
             this->wait(i) = wait;
             status(i) = Working;
@@ -81,7 +81,7 @@ ThreadPool::u_count_t ThreadPool::addThread(void *(fun)(void *), void *param, co
         if (status(i) == Empty) {
             startThread(i);
             mtxContext.threadCount++;
-            function(i) = fun;
+            function(i) = func;
             paramReturn(i) = param;
             this->wait(i) = wait;
             status(i) = Working;
@@ -95,7 +95,7 @@ ThreadPool::u_count_t ThreadPool::addThread(void *(fun)(void *), void *param, co
     threads.push_back(new ThreadContext);
     initThread(*threads[last], last);
     mtxContext.threadCount++;
-    function(last) = fun;
+    function(last) = func;
     paramReturn(last) = param;
     this->wait(last) = wait;
     status(last) = Working;

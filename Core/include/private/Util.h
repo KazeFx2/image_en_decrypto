@@ -6,6 +6,7 @@
 #define UTIL_H
 
 #include "includes.h"
+#include "ThreadPool.h"
 
 f64 PLCM(__IN f64 initialCondition, __IN f64 controlCondition);
 
@@ -22,14 +23,39 @@ void GenDiffusionSeeds(__IN f64 initialCondition1, __IN f64 controlCondition1, _
 void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
                    __OUT u32 &newCol);
 
+void InvertConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed,
+                         __OUT u32 &newRow,
+                         __OUT u32 &newCol);
+
 void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN u32 startRow, __IN u32 endRow,
                __IN u32 startCol, __IN u32 endCol,
                __IN const cv::Size &size, __IN u32 confusionSeed);
+
+void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+                     __IN u32 startRow, __IN u32 endRow,
+                     __IN u32 startCol, __IN u32 endCol,
+                     __IN const cv::Size &size, __IN u32 confusionSeed);
 
 void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN u32 startRow, __IN u32 endRow,
                __IN u32 startCol, __IN u32 endCol,
                __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx);
 
+void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+                     __IN u32 startRow, __IN u32 endRow,
+                     __IN u32 startCol, __IN u32 endCol,
+                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx);
+
+void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &ImageSize,
+                 __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads, __IN_OUT threadParams *params,
+                 __IN const ::ImageSize &Size,
+                 __IN const Keys &Keys,
+                 __IN const ParamControl &Config, __IN u32 nThread, __IN ThreadPool &pool,
+                 __IN void *(*func)(void *));
+
+void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
+               __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray);
+
+void DumpBytes(__IN const char *name, __IN const u8 *array, __IN u32 size);
 #endif //UTIL_H
