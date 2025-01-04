@@ -14,7 +14,7 @@ typedef struct {
 } Item;
 
 int main(int argc, const char *argv[]) {
-    const u32 H = 300;
+    const u32 H = 50;
     chdir(homePath);
     auto img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
     if (img.data == nullptr) {

@@ -130,13 +130,13 @@ void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
 #define INV_DIFFUSION(i, j, Prev) {\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[2] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[2] ^ byteSequence[seqIdx] ^ Prev[2]) + 256 - (byteSequence[seqIdx])) % 256;\
+    ((srcImage.at<cv::Vec3b>(i, j)[2] ^ byteSequence[seqIdx] ^ Prev[2]) + 256 - (byteSequence[seqIdx]));\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[1] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[1] ^ byteSequence[seqIdx] ^ Prev[1]) + 256 - (byteSequence[seqIdx])) % 256;\
+    ((srcImage.at<cv::Vec3b>(i, j)[1] ^ byteSequence[seqIdx] ^ Prev[1]) + 256 - (byteSequence[seqIdx]));\
 seqIdx--;\
 dstImage.at<cv::Vec3b>(i, j)[0] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[0] ^ byteSequence[seqIdx] ^ Prev[0]) + 256 - (byteSequence[seqIdx])) % 256;\
+    ((srcImage.at<cv::Vec3b>(i, j)[0] ^ byteSequence[seqIdx] ^ Prev[0]) + 256 - (byteSequence[seqIdx]));\
 }
 
 void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
@@ -180,8 +180,9 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
     tmpImage = Image.clone();
     ImageSize = Image.size();
     dst = &tmpImage, src = &Image;
-    const u32 iterations = static_cast<int>(3 * ImageSize.width * ImageSize.height * Config.diffusionConfusionIterations
-                                            / (nThread * Config.byteReserve)) + 1;
+    const u32 iterations = static_cast<int>(3 * (ImageSize.width + nThread) * (ImageSize.height) * Config.
+                                            diffusionConfusionIterations
+                                            / (nThread * Config.byteReserve));
     ::Keys iterated_keys = Keys;
     // pre-iterate
     for (u32 i = 0; i < Config.preIterations; i++) {

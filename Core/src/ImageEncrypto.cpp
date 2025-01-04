@@ -8,6 +8,9 @@
 
 using namespace cv;
 
+static FILE *gfd;
+static ::Mutex mu;
+
 void *encryptoAssistant(__IN void *param);
 
 #define DUMP_MAT {\
@@ -20,6 +23,10 @@ void *encryptoAssistant(__IN void *param);
 
 threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    char name[256];
+    snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Encrypto_Procedure.txt");
+    gfd = fopen(name, "w+");
+
     cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
@@ -32,7 +39,7 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
 
     // Encrypto confusion
     u32 dumpId = 0;
-    char name[64];
+    // char name[64];
     char path[256];
     DUMP_MAT;
     for (u32 i = 0; i < Config.confusionIterations; i++) {
@@ -55,6 +62,8 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     delete[] threads;
     delete[] params;
     Image = src->clone();
+
+    fclose(gfd);
     // returns
     return ret;
 }
@@ -98,6 +107,27 @@ void *encryptoAssistant(__IN_OUT void *param) {
         Diffusion(**params.dst, **params.src,
                   rowStart, rowEnd, colStart, colEnd,
                   diffusionSeed, byteSeq, seqIdx);
+        mu.lock();
+        fprintf(gfd, "[DiffusionSeed]id: %lu, Round: %u, %02X, %02X, %02X, idx: %u, ", params.threadId,
+                i,
+                diffusionSeed[0],
+                diffusionSeed[1], diffusionSeed[2], seqIdx);
+        fprintf(gfd, "ori_data: ");
+        for (u32 _i = rowStart; _i < rowEnd; _i++) {
+            for (u32 j = colStart; j < colEnd; j++) {
+                fprintf(gfd, "%02X%02X%02X", (*params.src)->at<Vec3b>(_i, j)[0], (*params.src)->at<Vec3b>(_i, j)[1],
+                        (*params.src)->at<Vec3b>(_i, j)[2]);
+            }
+        }
+        fprintf(gfd, ", enc_data: ");
+        for (u32 _i = rowStart; _i < rowEnd; _i++) {
+            for (u32 j = colStart; j < colEnd; j++) {
+                fprintf(gfd, "%02X%02X%02X", (*params.dst)->at<Vec3b>(_i, j)[0], (*params.dst)->at<Vec3b>(_i, j)[1],
+                        (*params.dst)->at<Vec3b>(_i, j)[2]);
+            }
+        }
+        fprintf(gfd, "\n");
+        mu.unlock();
         params.Finish.post();
         params.Start.wait();
         Confusion(**params.dst,
