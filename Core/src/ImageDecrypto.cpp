@@ -10,6 +10,14 @@ using namespace cv;
 
 void *decryptoAssistant(__IN void *param);
 
+#define DUMP_MAT {\
+    snprintf(name, sizeof(name), "%d_de_dump_mat.txt", dumpId--);\
+    snprintf(path, sizeof(path), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/%s", name);\
+    FILE *fd = fopen(path, "w+");\
+    DumpMat(fd, name, *dst);\
+    fclose(fd);\
+}
+
 threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
     cv::Size ImageSize;
@@ -23,15 +31,22 @@ threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
                 decryptoAssistant);
 
     // Decrypto inv_confusion & inv_diffusion
+    u32 dumpId = 13;
+    char name[64];
+    char path[256];
+    DUMP_MAT;
     for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
         DOLOOP;
+        DUMP_MAT;
         swap(src, dst);
         DOLOOP;
+        DUMP_MAT;
         swap(src, dst);
     }
     // Inv_confusion
     for (u32 i = 0; i < Config.confusionIterations; i++) {
         DOLOOP;
+        DUMP_MAT;
         swap(src, dst);
     }
     for (u32 i = 0; i < Config.nThread; i++) {
@@ -54,6 +69,21 @@ void *decryptoAssistant(__IN_OUT void *param) {
     // Decrypto
     u32 seqIdx = 3 * (rowEnd - rowStart) * (colEnd - colStart) * params.config->diffusionConfusionIterations;
     // Inv-confusion & inv-diffusion
+
+    char name[256];
+    snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Decrypto_%lu.txt", params.threadId);
+    FILE *fd = fopen(name, "w+");
+    fprintf(fd, "[DECRYPT]id: %lu, seqIdx: %d\n", params.threadId, seqIdx);
+    fprintf(fd, "startRow: %u, endRow: %u, startCol: %u, endCol: %u\n", rowStart, rowEnd, colStart, colEnd);
+    DumpBytes(
+        fd, "byteSeq", byteSeq, params.iterations * params.config->byteReserve
+    );
+    DumpBytes(
+        fd, "diffusionSeedArray", diffusionSeedArray, 3 * params.config->diffusionConfusionIterations
+    );
+    fprintf(fd, "[END DECRYPT]\n");
+    fclose(fd);
+
     for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--) {
         u8 diffusionSeed[3];
         memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);

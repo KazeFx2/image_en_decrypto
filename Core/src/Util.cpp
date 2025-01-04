@@ -55,9 +55,7 @@ void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &
                    __OUT u32 &newRow,
                    __OUT u32 &newCol) {
     newRow = (row + col) % size.height;
-    // const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height)));
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(M_PI * newRow / size.height / 2)));
-    // newCol = ((col + tmp) % size.width + size.width) % size.width;
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.height;
     newCol = (col + tmp) % size.width;
 }
 
@@ -65,10 +63,7 @@ void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::
                          __IN const u32 confusionSeed,
                          __OUT u32 &newRow,
                          __OUT u32 &newCol) {
-    // const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height)));
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(M_PI * row / size.height / 2)));
-    // newRow = ((row - col + tmp) % size.height + size.height) % size.height;
-    // newCol = ((col - tmp) % size.width + size.width) % size.width;
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height))) % size.height;
     newCol = (col + size.width - tmp % size.width) % size.width;
     newRow = (row + size.height - newCol) % size.height;
 }
@@ -104,11 +99,11 @@ void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
 }
 
 #define DIFFUSION(i, j, Prev) {\
-dstImage.at<cv::Vec3b>(i, j)[0] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(i, j)[0] + byteSequence[seqIdx]) % 256 ^ Prev[0];\
+dstImage.at<cv::Vec3b>(i, j)[0] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[0] + byteSequence[seqIdx]) % 256) ^ Prev[0];\
 seqIdx++;\
-dstImage.at<cv::Vec3b>(i, j)[1] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(i, j)[1] + byteSequence[seqIdx]) % 256 ^ Prev[1];\
+dstImage.at<cv::Vec3b>(i, j)[1] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[1] + byteSequence[seqIdx]) % 256) ^ Prev[1];\
 seqIdx++;\
-dstImage.at<cv::Vec3b>(i, j)[2] = byteSequence[seqIdx] ^ (srcImage.at<cv::Vec3b>(i, j)[2] + byteSequence[seqIdx]) % 256 ^ Prev[2];\
+dstImage.at<cv::Vec3b>(i, j)[2] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[2] + byteSequence[seqIdx]) % 256) ^ Prev[2];\
 seqIdx++;\
 }
 
@@ -271,14 +266,51 @@ void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config) {
     delete [] ret;
 }
 
-void DumpBytes(__IN const char *name, __IN const u8 *array, __IN const u32 size) {
-    printf("DumpBytes start\n");
-    printf("Name: %s\n", name);
-    printf("Bytes size: %u\n", size);
-    printf("Data:\n");
+void DumpBytes(__IN FILE *fd, __IN const char *name, __IN const u8 *array, __IN const u32 size) {
+    fprintf(fd, "DumpBytes start\n");
+    fprintf(fd, "Name: %s\n", name);
+    fprintf(fd, "Bytes size: %u\n", size);
+    fprintf(fd, "Data:\n");
     for (u32 i = 0; i < size; i++) {
-        printf("%02X ", array[i]);
+        fprintf(fd, "%02X ", array[i]);
     }
-    printf("\n");
-    printf("DumpBytes end\n");
+    fprintf(fd, "\n");
+    fprintf(fd, "DumpBytes end\n");
+}
+
+#define sprintf(a, ...) snprintf(a, 1024, ##__VA_ARGS__)
+
+void DumpBytes(__IN void *buf, __IN const char *name, __IN const u8 *array, __IN const u32 size) {
+    char *p = static_cast<char *>(buf);
+    p += sprintf(p, "DumpBytes start\n");
+    p += sprintf(p, "Name: %s\n", name);
+    p += sprintf(p, "Bytes size: %u\n", size);
+    p += sprintf(p, "Data:\n");
+    for (u32 i = 0; i < size; i++) {
+        p += sprintf(p, "%02X ", array[i]);
+    }
+    p += sprintf(p, "\n");
+    p += sprintf(p, "DumpBytes end\n");
+}
+
+void DumpBytes(__IN const char *name, __IN const u8 *array, __IN const u32 size) {
+    DumpBytes(stdout, name, array, size);
+}
+
+void DumpMat(FILE *fd, const char *name, const cv::Mat &mat) {
+    fprintf(fd, "DumpMat start\n");
+    fprintf(fd, "Name: %s\n", name);
+    fprintf(fd, "Mat size: row: %u, col: %u\n", mat.rows, mat.cols);
+    fprintf(fd, "Data:\n[\n");
+    // auto type = mat.type();
+    // auto depth = mat.depth();
+    for (u32 i = 0; i < mat.rows; i++) {
+        for (u32 j = 0; j < mat.cols; j++) {
+            fprintf(fd, "(%d, %d, %d) ", mat.at<cv::Vec3b>(i, j)[0], mat.at<cv::Vec3b>(i, j)[1],
+                    mat.at<cv::Vec3b>(i, j)[2]);
+        }
+        fprintf(fd, "\n");
+    }
+    fprintf(fd, "]\n");
+    fprintf(fd, "DumpMat end\n");
 }

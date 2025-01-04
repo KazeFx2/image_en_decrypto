@@ -59,5 +59,12 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
 
 void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config);
 
+void DumpBytes(__IN FILE *fd, __IN const char *name, __IN const u8 *array, __IN u32 size);
+
+void DumpBytes(__IN void *buf, __IN const char *name, __IN const u8 *array, __IN u32 size);
+
 void DumpBytes(__IN const char *name, __IN const u8 *array, __IN u32 size);
+
+void DumpMat(__IN FILE *fd, __IN const char *name, __IN const cv::Mat &mat);
+
 #endif //UTIL_H

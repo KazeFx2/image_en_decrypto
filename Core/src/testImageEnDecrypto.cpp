@@ -2,24 +2,24 @@
 // Created by Fx Kaze on 24-12-30.
 //
 
-#include "private/ImageEncrypto.h"
+#include "private/testImageEnDecrypto.h"
 
 #include "private/Util.h"
 
 using namespace cv;
 
-void *encryptoAssistant(__IN void *param);
+void *en_decryptoAssistant(__IN void *param);
 
 #define DUMP_MAT {\
-    snprintf(name, sizeof(name), "%d_en_dump_mat.txt", dumpId++);\
+    snprintf(name, sizeof(name), "test_%d_en_de_dump_mat.txt", dumpId++);\
     snprintf(path, sizeof(path), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/%s", name);\
     FILE *fd = fopen(path, "w+");\
     DumpMat(fd, name, *dst);\
     fclose(fd);\
 }
 
-threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
-                             __IN const ParamControl &Config, __IN ThreadPool &pool) {
+threadReturn **testEnDecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+                                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
     cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
@@ -28,25 +28,53 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     threadReturn **ret = new threadReturn *[Config.nThread];
 
     PreGenerate(Image, tmpImage, ImageSize, dst, src, threads, params, Size, Keys, Config, Config.nThread, pool,
-                encryptoAssistant);
+                en_decryptoAssistant);
 
     // Encrypto confusion
     u32 dumpId = 0;
     char name[64];
     char path[256];
+    // row
     DUMP_MAT;
     for (u32 i = 0; i < Config.confusionIterations; i++) {
+        // en
         DOLOOP;
         DUMP_MAT;
+        swap(src, dst);
+        // de
+        DOLOOP;
+        DUMP_MAT;
+        swap(src, dst);
+        // en
+        DOLOOP;
+        // DUMP_MAT;
         swap(src, dst);
     }
     // Diffusion & Confusion
     for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
+        // en
         DOLOOP;
         DUMP_MAT;
         swap(src, dst);
+        // de
         DOLOOP;
         DUMP_MAT;
+        swap(src, dst);
+        // en
+        DOLOOP;
+        // DUMP_MAT;
+        swap(src, dst);
+        // en
+        DOLOOP;
+        DUMP_MAT;
+        swap(src, dst);
+        // de
+        DOLOOP;
+        DUMP_MAT;
+        swap(src, dst);
+        // en
+        DOLOOP;
+        // DUMP_MAT;
         swap(src, dst);
     }
     for (u32 i = 0; i < Config.nThread; i++) {
@@ -59,7 +87,7 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     return ret;
 }
 
-void *encryptoAssistant(__IN_OUT void *param) {
+void *en_decryptoAssistant(__IN_OUT void *param) {
     threadParams &params = *static_cast<threadParams *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
@@ -89,6 +117,16 @@ void *encryptoAssistant(__IN_OUT void *param) {
                   **params.src,
                   rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
         params.Finish.post();
+        params.Start.wait();
+        InvertConfusion(**params.dst,
+                        **params.src,
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+        params.Start.wait();
+        Confusion(**params.dst,
+                  **params.src,
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
     }
     // Diffusion & confusion
     for (u32 i = 0; i < params.config->diffusionConfusionIterations; i++) {
@@ -98,6 +136,27 @@ void *encryptoAssistant(__IN_OUT void *param) {
         Diffusion(**params.dst, **params.src,
                   rowStart, rowEnd, colStart, colEnd,
                   diffusionSeed, byteSeq, seqIdx);
+        params.Finish.post();
+        params.Start.wait();
+        InvertDiffusion(**params.dst, **params.src,
+                        rowStart, rowEnd, colStart, colEnd,
+                        diffusionSeed, byteSeq, seqIdx);
+        params.Finish.post();
+        params.Start.wait();
+        Diffusion(**params.dst, **params.src,
+                  rowStart, rowEnd, colStart, colEnd,
+                  diffusionSeed, byteSeq, seqIdx);
+        params.Finish.post();
+        ///
+        params.Start.wait();
+        Confusion(**params.dst,
+                  **params.src,
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+        params.Start.wait();
+        InvertConfusion(**params.dst,
+                        **params.src,
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
         params.Finish.post();
         params.Start.wait();
         Confusion(**params.dst,

@@ -6,6 +6,7 @@
 #include "private/Util.h"
 #include "Bitmap.h"
 #include "../vars.h"
+#include "private/Random.h"
 
 typedef struct {
     u32 r;
@@ -13,7 +14,7 @@ typedef struct {
 } Item;
 
 int main(int argc, const char *argv[]) {
-    const u32 H = 400;
+    const u32 H = 300;
     FastBitmap bitmap(H * H);
     Item map[H * H];
     for (u32 i = 0; i < H; i++) {
@@ -43,11 +44,13 @@ int main(int argc, const char *argv[]) {
         std::cout << "Read image failed." << std::endl;
         return 1;
     }
+    resize(img, img, cv::Size(H, H));
     auto en = img.clone();
-    Confusion(en, img, 0, H, 0, H, {H, H}, 0x1234);
-    imwrite("outputs/1_en.jpeg", en);
+    u32 k = Rand32();
+    Confusion(en, img, 0, H, 0, H, {H, H}, k);
+    imwrite("outputs/1_en_fu.jpeg", en);
     auto de = en.clone();
-    InvertConfusion(de, en, 0, H, 0, H, {H, H}, 0x1234);
-    imwrite("outputs/2_en.jpeg", de);
+    InvertConfusion(de, en, 0, H, 0, H, {H, H}, k);
+    imwrite("outputs/1_de_fu.jpeg", de);
     return 0;
 }

@@ -21,7 +21,7 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
-    const u32 W = 512;
+    const u32 W = 400;
     ImageSize size{W, W};
 
     auto encrypted = crypter.encrypt(img, size);
