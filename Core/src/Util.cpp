@@ -34,9 +34,12 @@ void CvtF64toBytes(__IN const f64 *iterationResultArray, __OUT u8 *bytes, __IN c
     }
 }
 
-void XorByteSequence(__IN const u8 *bytesA, __IN const u8 *bytesB, __OUT u8 *bytesOut, __IN const u32 length) {
+void XorByteSequence(__IN_OUT u8 *bytesA, __IN const u8 *bytesB, __IN const u32 length, __OUT u8 *bytesOut) {
     for (u32 i = 0; i < length; i++) {
-        bytesOut[i] = bytesA[i] ^ bytesB[i];
+        if (bytesOut != nullptr)
+            bytesOut[i] = bytesA[i] ^ bytesB[i];
+        else
+            bytesA[i] ^= bytesB[i];
     }
 }
 
@@ -64,7 +67,7 @@ void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::
                          __OUT u32 &newRow,
                          __OUT u32 &newCol) {
     const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height))) % size.height;
-    newCol = (col + size.width - tmp % size.width) % size.width;
+    newCol = (col + size.width - tmp) % size.width;
     newRow = (row + size.height - newCol) % size.height;
 }
 
@@ -163,12 +166,12 @@ void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
     INV_DIFFUSION(nextI, nextJ, diffusionSeed);
 }
 
-void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &ImageSize,
+void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
                  __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads, __IN_OUT threadParams *params,
-                 __IN const ::ImageSize &Size,
                  __IN const Keys &Keys,
-                 __IN const ParamControl &Config, __IN const u32 nThread, __IN ThreadPool &pool,
+                 __IN const ParamControl &Config, __IN ThreadPool &pool,
                  __IN void *(*func)(void *)) {
+    const u32 nThread = Config.nThread;
     // resize image if needed
     if (Size.width != 0 && Size.height != 0) {
         const u32 H = std::min(Size.height, Size.width);
@@ -178,9 +181,9 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
         resize(Image, Image, cv::Size(H, H));
     }
     tmpImage = Image.clone();
-    ImageSize = Image.size();
+    Size = Image.size();
     dst = &tmpImage, src = &Image;
-    const u32 iterations = static_cast<int>(3 * (ImageSize.width + nThread) * (ImageSize.height) * Config.
+    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * (Size.height) * Config.
                                             diffusionConfusionIterations
                                             / (nThread * Config.byteReserve));
     ::Keys iterated_keys = Keys;
@@ -196,7 +199,7 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
     for (u32 i = 0; i < nThread; i++) {
         params[i].dst = &dst;
         params[i].src = &src;
-        params[i].size = &ImageSize;
+        params[i].size = &Size;
         params[i].threadId = i;
         params[i].iterations = iterations;
         params[i].keys.confusionSeed = Keys.confusionSeed;
@@ -220,15 +223,151 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
     }
 }
 
-void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
-               __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray) {
+void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
+                 __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads,
+                 __IN_OUT threadParamsWithKey *params,
+                 __IN const Keys &Keys,
+                 __IN threadReturn **threadKeys,
+                 __IN const ParamControl &Config, __IN ThreadPool &pool,
+                 __IN void *(*func)(void *)) {
+    const u32 nThread = Config.nThread;
+    // resize image if needed
+    if (Size.width != 0 && Size.height != 0) {
+        const u32 H = std::min(Size.height, Size.width);
+        resize(Image, Image, cv::Size(H, H));
+    } else {
+        const u32 H = std::min(Image.size().height, Image.size().width);
+        resize(Image, Image, cv::Size(H, H));
+    }
+    tmpImage = Image.clone();
+    Size = Image.size();
+    dst = &tmpImage, src = &Image;
+    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * (Size.height) * Config.
+                                            diffusionConfusionIterations
+                                            / (nThread * Config.byteReserve));
+
+    for (u32 i = 0; i < nThread; i++) {
+        params[i].params.dst = &dst;
+        params[i].params.src = &src;
+        params[i].params.size = &Size;
+        params[i].params.threadId = i;
+        params[i].params.iterations = iterations;
+        params[i].params.keys.confusionSeed = Keys.confusionSeed;
+        params[i].params.config = &Config;
+        params[i].params.threadId = i;
+        params[i].ret = threadKeys[i];
+        threads[i] = pool.addThread(func, &params[i]);
+    }
+}
+
+typedef struct {
+    Keys keys;
+    const ParamControl *config;
+    u32 iterations;
+} KeyAssParam;
+
+static void *KeyAssist(void *param) {
+    auto &[keys, config, iterations] = *static_cast<KeyAssParam *>(param);
+
+    u8 *byteSeq = new u8[iterations * config->byteReserve];
+    u8 *diffusionSeedArray = new u8[3 * config->diffusionConfusionIterations];
+
+    f64 *resultArray1 = new f64[iterations];
+    f64 *resultArray2 = new f64[iterations];
+    u8 *bytesTmp = new u8[iterations * config->byteReserve];
+
+    // const Keys keysBackup = params.keys;
+    if (keys.gParam1.ctrlCondition > 0.5)
+        keys.gParam1.ctrlCondition = 1 - keys.gParam1.ctrlCondition;
+    if (keys.gParam2.ctrlCondition > 0.5)
+        keys.gParam2.ctrlCondition = 1 - keys.gParam2.ctrlCondition;
+    for (u32 i = 0; i < config->preIterations; i++) {
+        keys.gParam1.initCondition = PLCM(
+            keys.gParam1.initCondition,
+            keys.gParam1.ctrlCondition);
+        keys.gParam2.initCondition = PLCM(
+            keys.gParam2.initCondition,
+            keys.gParam2.ctrlCondition);
+    }
+
+    const f64 initCondition1 = IteratePLCM(keys.gParam1.initCondition, keys.gParam1.ctrlCondition,
+                                           iterations, resultArray1);
+    const f64 initCondition2 = IteratePLCM(keys.gParam2.initCondition, keys.gParam2.ctrlCondition,
+                                           iterations, resultArray2);
+    CvtF64toBytes(resultArray1, bytesTmp, iterations, config->byteReserve);
+    CvtF64toBytes(resultArray2, byteSeq, iterations, config->byteReserve);
+    XorByteSequence(byteSeq, bytesTmp, iterations * config->byteReserve);
+
+    GenDiffusionSeeds(initCondition1, keys.gParam1.ctrlCondition,
+                      initCondition2, keys.gParam2.ctrlCondition,
+                      diffusionSeedArray, config->diffusionConfusionIterations);
+    delete [] resultArray1;
+    delete [] resultArray2;
+    delete [] bytesTmp;
+
+    return new threadReturn{byteSeq, diffusionSeedArray};
+}
+
+threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
+                                  __IN const Keys &Keys,
+                                  __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    const u32 nThread = Config.nThread;
+    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * Size.height * Config.
+                                            diffusionConfusionIterations
+                                            / (nThread * Config.byteReserve));
+    KeyAssParam *params = new KeyAssParam[nThread];
+    ThreadPool::thread_descriptor_t *threads = new ThreadPool::thread_descriptor_t[nThread];
+    threadReturn **threadReturns = new threadReturn *[nThread];
+
+    ::Keys iterated_keys = Keys;
+    // pre-iterate
+    for (u32 i = 0; i < Config.preIterations; i++) {
+        iterated_keys.gParam1.initCondition = PLCM(iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
+        iterated_keys.gParam2.initCondition = PLCM(iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
+    }
+    for (u32 i = 0; i < nThread; i++) {
+        params[i].iterations = iterations;
+        params[i].keys.confusionSeed = Keys.confusionSeed;
+        // generate params
+        params[i].keys.gParam1.initCondition = iterated_keys.gParam1.initCondition = PLCM(
+                                                   iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
+        params[i].keys.gParam1.ctrlCondition = iterated_keys.gParam2.initCondition = PLCM(
+                                                   iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
+        params[i].keys.gParam2.initCondition = iterated_keys.gParam1.initCondition = PLCM(
+                                                   iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
+        params[i].keys.gParam2.ctrlCondition = iterated_keys.gParam2.initCondition = PLCM(
+                                                   iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
+        params[i].config = &Config;
+        threads[i] = pool.addThread(KeyAssist, &params[i]);
+    }
+    for (u32 i = 0; i < nThread; i++) {
+        threadReturns[i] = static_cast<threadReturn *>(pool.waitThread(threads[i]));
+    }
+    delete[] params;
+    delete[] threads;
+
+    return threadReturns;
+}
+
+void CalcRowCols(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
+                 __IN const threadParams &params) {
     rowStart = (params.size->height * params.threadId / params.config->nThread), rowEnd = (
         params.size->height * (params.threadId + 1) / params.config->nThread);
     colStart = 0, colEnd = params.size->width;
+}
+
+void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
+               __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray) {
+    CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
     f64 *resultArray1 = new f64[params.iterations];
     f64 *resultArray2 = new f64[params.iterations];
-    u8 *bytes1 = new u8[params.iterations * params.config->byteReserve];
-    u8 *bytes2 = new u8[params.iterations * params.config->byteReserve];
+    u8 *bytesTmp = new u8[params.iterations * params.config->byteReserve];
 
     // const Keys keysBackup = params.keys;
     if (params.keys.gParam1.ctrlCondition > 0.5)
@@ -248,17 +387,16 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
                                            params.iterations, resultArray1);
     const f64 initCondition2 = IteratePLCM(params.keys.gParam2.initCondition, params.keys.gParam2.ctrlCondition,
                                            params.iterations, resultArray2);
-    CvtF64toBytes(resultArray1, bytes1, params.iterations, params.config->byteReserve);
-    CvtF64toBytes(resultArray2, bytes2, params.iterations, params.config->byteReserve);
-    XorByteSequence(bytes1, bytes2, byteSeq, params.iterations * params.config->byteReserve);
+    CvtF64toBytes(resultArray1, bytesTmp, params.iterations, params.config->byteReserve);
+    CvtF64toBytes(resultArray2, byteSeq, params.iterations, params.config->byteReserve);
+    XorByteSequence(byteSeq, bytesTmp, params.iterations * params.config->byteReserve, byteSeq);
 
     GenDiffusionSeeds(initCondition1, params.keys.gParam1.ctrlCondition,
                       initCondition2, params.keys.gParam2.ctrlCondition,
                       diffusionSeedArray, params.config->diffusionConfusionIterations);
     delete [] resultArray1;
     delete [] resultArray2;
-    delete [] bytes1;
-    delete [] bytes2;
+    delete [] bytesTmp;
 }
 
 void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config) {

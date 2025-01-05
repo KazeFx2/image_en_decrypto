@@ -13,6 +13,8 @@ static FILE *gfd;
 static ::Mutex mu;
 #endif
 
+void *decryptoAssistantWithKeys(__IN void *param);
+
 void *decryptoAssistant(__IN void *param);
 
 #ifdef __DEBUG
@@ -27,22 +29,49 @@ void *decryptoAssistant(__IN void *param);
 #define DUMP_MAT
 #endif
 
-threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+void DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key, __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    Mat tmpImage;
+    Mat *dst, *src;
+    u32 *threads = new u32[Config.nThread];
+    threadParamsWithKey *params = new threadParamsWithKey[Config.nThread];
+
+    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
+                decryptoAssistantWithKeys);
+
+    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
+        DOLOOP_KEY;
+        swap(src, dst);
+        DOLOOP_KEY;
+        swap(src, dst);
+    }
+    for (u32 i = 0; i < Config.confusionIterations; i++) {
+        DOLOOP_KEY;
+        swap(src, dst);
+    }
+    for (u32 i = 0; i < Config.nThread; i++) {
+        pool.waitThread(threads[i]);
+    }
+    delete[] threads;
+    delete[] params;
+    Image = src->clone();
+}
+
+threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
-#if __DEBUG
+#ifdef __DEBUG
     char name[256];
     snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Decrypto_Procedure.txt");
     gfd = fopen(name, "w+");
 #endif
 
-    cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
     threadParams *params = new threadParams[Config.nThread];
     threadReturn **ret = new threadReturn *[Config.nThread];
 
-    PreGenerate(Image, tmpImage, ImageSize, dst, src, threads, params, Size, Keys, Config, Config.nThread, pool,
+    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 decryptoAssistant);
 
     // Decrypto inv_confusion & inv_diffusion
@@ -71,7 +100,7 @@ threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     delete[] threads;
     delete[] params;
     Image = src->clone();
-#if __DEBUG
+#ifdef __DEBUG
     fclose(gfd);
 #endif
     // returns
@@ -154,4 +183,53 @@ void *decryptoAssistant(__IN_OUT void *param) {
         params.Finish.post();
     }
     return new threadReturn{byteSeq, diffusionSeedArray};
+}
+
+void *decryptoAssistantWithKeys(__IN_OUT void *param) {
+    auto &[params, ret] = *static_cast<threadParamsWithKey *>(param);
+    u32 rowStart, rowEnd, colStart, colEnd;
+    CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
+    u8 *byteSeq = ret->byteSeq;
+    u8 *diffusionSeedArray = ret->diffusionSeedArray;
+
+    u32 seqIdx = 3 * (rowEnd - rowStart) * (colEnd - colStart) * params.config->diffusionConfusionIterations;
+#ifdef __DEBUG
+    char name[256];
+    snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Decrypto_%lu.txt", params.threadId);
+    FILE *fd = fopen(name, "w+");
+    fprintf(fd, "[DECRYPT]id: %lu, seqIdx: %d, confSeed: %d\n", params.threadId, seqIdx, params.keys.confusionSeed);
+    fprintf(fd, "startRow: %u, endRow: %u, startCol: %u, endCol: %u\n", rowStart, rowEnd, colStart, colEnd);
+    DumpBytes(
+        fd, "byteSeq", byteSeq, 3 * (rowEnd - rowStart) * (colEnd - colStart) * params.config->diffusionConfusionIterations
+    );
+    DumpBytes(
+        fd, "diffusionSeedArray", diffusionSeedArray, 3 * params.config->diffusionConfusionIterations
+    );
+    fprintf(fd, "[END DECRYPT]\n");
+    fclose(fd);
+#endif
+    for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--) {
+        u8 diffusionSeed[3];
+        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        params.Start.wait();
+        InvertConfusion(**params.dst,
+                        **params.src,
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+        params.Start.wait();
+        InvertDiffusion(**params.dst, **params.src,
+                        rowStart, rowEnd, colStart, colEnd,
+                        diffusionSeed, byteSeq, seqIdx);
+        params.Finish.post();
+        if (i == 0)
+            break;
+    }
+    for (u32 i = 0; i < params.config->confusionIterations; i++) {
+        params.Start.wait();
+        InvertConfusion(**params.dst,
+                        **params.src,
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+    }
+    return nullptr;
 }

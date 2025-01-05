@@ -18,16 +18,15 @@ void *en_decryptoAssistant(__IN void *param);
     fclose(fd);\
 }
 
-threadReturn **testEnDecryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+threadReturn **testEnDecryptoImage(__IN_OUT Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Keys,
                                    __IN const ParamControl &Config, __IN ThreadPool &pool) {
-    cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
     threadParams *params = new threadParams[Config.nThread];
     threadReturn **ret = new threadReturn *[Config.nThread];
 
-    PreGenerate(Image, tmpImage, ImageSize, dst, src, threads, params, Size, Keys, Config, Config.nThread, pool,
+    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 en_decryptoAssistant);
 
     // Encrypto confusion

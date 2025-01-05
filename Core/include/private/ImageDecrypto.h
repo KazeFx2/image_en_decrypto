@@ -8,7 +8,11 @@
 #include "includes.h"
 #include "ThreadPool.h"
 
-threadReturn **DecryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+void DecryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Key,
+                   __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool);
+
+threadReturn **DecryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool);
 
 #endif //IMAGE_DECRYPTO_H

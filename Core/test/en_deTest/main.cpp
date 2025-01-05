@@ -28,7 +28,7 @@ int main(int argc, const char *argv[]) {
     resize(img, img, cv::Size(H, H));
     auto en = img.clone();
     ThreadPool sp(10);
-    ImageSize size = {H, H};
+    cv::Size size = {H, H};
     Keys k = RANDOM_KEYS;
     ParamControl conf = DEFAULT_CONFIG;
     DestroyReturn(testEnDecryptoImage(

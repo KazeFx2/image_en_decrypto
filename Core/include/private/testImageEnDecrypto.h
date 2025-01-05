@@ -8,7 +8,7 @@
 #include "includes.h"
 #include "ThreadPool.h"
 
-threadReturn **testEnDecryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+threadReturn **testEnDecryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Keys,
                                    __IN const ParamControl &Config, __IN ThreadPool &pool);
 
 #endif //IMAGE_TEST_EN_DECRYPTO_H

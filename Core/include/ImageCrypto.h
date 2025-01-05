@@ -14,16 +14,29 @@
 
 class ImageCrypto {
 public:
-    ImageCrypto(ThreadPool *threadPool): threadPool(threadPool), config(DEFAULT_CONFIG), keys(RANDOM_KEYS) {
+    ImageCrypto(ThreadPool *threadPool): threadPool(threadPool), size(new ORIGINAL_SIZE), config(DEFAULT_CONFIG),
+                                         keys(RANDOM_KEYS) {
+        preProcess();
     };
 
-    ImageCrypto(ThreadPool *threadPool, const ParamControl &config): threadPool(threadPool), config(config),
-                                                                     keys(RANDOM_KEYS) {
+    ImageCrypto(ThreadPool *threadPool, const cv::Size &size): threadPool(threadPool),
+                                                               size(new cv::Size(size)), config(DEFAULT_CONFIG),
+                                                               keys(RANDOM_KEYS) {
+        preProcess();
     };
 
-    ImageCrypto(ThreadPool *threadPool, const ParamControl &config, const Keys &keys): threadPool(threadPool),
-        config(config),
-        keys(keys) {
+    ImageCrypto(ThreadPool *threadPool, const cv::Size &size, const ParamControl &config): threadPool(threadPool),
+        size(new cv::Size(size)), config(config),
+        keys(RANDOM_KEYS) {
+        preProcess();
+    };
+
+    ImageCrypto(ThreadPool *threadPool, const cv::Size size, const ParamControl &config,
+                const Keys &keys): threadPool(threadPool),
+                                   size(new cv::Size(size)),
+                                   config(config),
+                                   keys(keys) {
+        preProcess();
     };
 
     ParamControl getConfig() const {
@@ -35,11 +48,19 @@ public:
     }
 
     void setKeys(const Keys &keys) {
+        if (rets != nullptr) {
+            DestroyReturn(rets, config);
+        }
         this->keys = keys;
+        preProcess();
     }
 
     void setKeys(const ParamControl &config) {
+        if (rets != nullptr) {
+            DestroyReturn(rets, config);
+        }
         this->config = config;
+        preProcess();
     }
 
     ThreadPool *getThreadPool() const {
@@ -50,25 +71,44 @@ public:
         this->threadPool = threadPool;
     }
 
-    cv::Mat encrypt(const cv::Mat &image, const ImageSize size = ORIGINAL_SIZE) const {
+    cv::Size getSize() const {
+        return *size;
+    }
+
+    void setSize(const cv::Size size) {
+        if (rets != nullptr) {
+            DestroyReturn(rets, config);
+        }
+        *this->size = size;
+        preProcess();
+    }
+
+    cv::Mat encrypt(const cv::Mat &image) const {
         cv::Mat imageMat = image.clone();
-        DestroyReturn(EncryptoImage(imageMat, size, keys, config, *threadPool), config);
+        EncryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         return imageMat;
     }
 
-    cv::Mat decrypt(const cv::Mat &image, const ImageSize size = ORIGINAL_SIZE) const {
+    cv::Mat decrypt(const cv::Mat &image) const {
         cv::Mat imageMat = image.clone();
-        DestroyReturn(DecryptoImage(imageMat, size, keys, config, *threadPool), config);
+        DecryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         return imageMat;
     }
 
     ~ImageCrypto() {
+        delete size;
     }
 
 private:
+    void preProcess() {
+        rets = GenerateThreadKeys(*size, keys, config, *threadPool);
+    }
+
     ThreadPool *threadPool;
+    cv::Size *size;
     ParamControl config;
     Keys keys;
+    threadReturn **rets;
 };
 
 #endif //IMAGECRYPTO_H

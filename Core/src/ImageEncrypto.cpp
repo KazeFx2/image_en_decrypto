@@ -15,6 +15,8 @@ static ::Mutex mu;
 
 void *encryptoAssistant(__IN void *param);
 
+void *encryptoAssistantWithKeys(__IN void *param);
+
 #ifdef __DEBUG
 #define DUMP_MAT {\
     snprintf(name, sizeof(name), "%d_en_dump_mat.txt", dumpId++);\
@@ -27,7 +29,37 @@ void *encryptoAssistant(__IN void *param);
 #define DUMP_MAT
 #endif
 
-threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+void EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key, __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    Mat tmpImage;
+    Mat *dst, *src;
+    u32 *threads = new u32[Config.nThread];
+    threadParamsWithKey *params = new threadParamsWithKey[Config.nThread];
+
+    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
+                encryptoAssistantWithKeys);
+
+    // Encrypto confusion
+    for (u32 i = 0; i < Config.confusionIterations; i++) {
+        DOLOOP_KEY;
+        swap(src, dst);
+    }
+    // Diffusion & Confusion
+    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
+        DOLOOP_KEY;
+        swap(src, dst);
+        DOLOOP_KEY;
+        swap(src, dst);
+    }
+    for (u32 i = 0; i < Config.nThread; i++) {
+        pool.waitThread(threads[i]);
+    }
+    delete[] threads;
+    delete[] params;
+    Image = src->clone();
+}
+
+threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
 #ifdef __DEBUG
     char name[256];
@@ -35,14 +67,13 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN const ImageSize &Size,__I
     gfd = fopen(name, "w+");
 #endif
 
-    cv::Size ImageSize;
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
     threadParams *params = new threadParams[Config.nThread];
     threadReturn **ret = new threadReturn *[Config.nThread];
 
-    PreGenerate(Image, tmpImage, ImageSize, dst, src, threads, params, Size, Keys, Config, Config.nThread, pool,
+    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 encryptoAssistant);
 
     // Encrypto confusion
@@ -151,4 +182,54 @@ void *encryptoAssistant(__IN_OUT void *param) {
         params.Finish.post();
     }
     return new threadReturn{byteSeq, diffusionSeedArray};
+}
+
+void *encryptoAssistantWithKeys(__IN_OUT void *param) {
+    auto &[params, ret] = *static_cast<threadParamsWithKey *>(param);
+    u32 rowStart, rowEnd, colStart, colEnd;
+    CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
+    u8 *byteSeq = ret->byteSeq;
+    u8 *diffusionSeedArray = ret->diffusionSeedArray;
+
+    // Encrypto
+    u32 seqIdx = 0;
+    // Confusion
+#ifdef __DEBUG
+    char name[256];
+    snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Encrypto_%lu.txt", params.threadId);
+    FILE *fd = fopen(name, "w+");
+    fprintf(fd, "[ENCRYPT]id: %lu, seqIdx: %d, confSeed: %d\n", params.threadId, seqIdx, params.keys.confusionSeed);
+    fprintf(fd, "startRow: %u, endRow: %u, startCol: %u, endCol: %u\n", rowStart, rowEnd, colStart, colEnd);
+    DumpBytes(
+        fd, "byteSeq", byteSeq, 3 * (rowEnd - rowStart) * (colEnd - colStart) * params.config->diffusionConfusionIterations
+    );
+    DumpBytes(
+        fd, "diffusionSeedArray", diffusionSeedArray, 3 * params.config->diffusionConfusionIterations
+    );
+    fprintf(fd, "[END ENCRYPT]\n");
+    fclose(fd);
+#endif
+    for (u32 i = 0; i < params.config->confusionIterations; i++) {
+        params.Start.wait();
+        Confusion(**params.dst,
+                  **params.src,
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+    }
+    // Diffusion & confusion
+    for (u32 i = 0; i < params.config->diffusionConfusionIterations; i++) {
+        u8 diffusionSeed[3];
+        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        params.Start.wait();
+        Diffusion(**params.dst, **params.src,
+                  rowStart, rowEnd, colStart, colEnd,
+                  diffusionSeed, byteSeq, seqIdx);
+        params.Finish.post();
+        params.Start.wait();
+        Confusion(**params.dst,
+                  **params.src,
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+        params.Finish.post();
+    }
+    return nullptr;
 }

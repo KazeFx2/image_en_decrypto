@@ -9,14 +9,16 @@
 #include "types.h"
 #include "Semaphore.h"
 
+// #define __DEBUG
+
 #define __IN
 #define __OUT
 #define __IN_OUT
 
-typedef struct {
-    u32 width;
-    u32 height;
-} ImageSize;
+// typedef struct {
+//     u32 width;
+//     u32 height;
+// } ImageSize;
 
 typedef struct {
     f64 initCondition;
@@ -54,6 +56,11 @@ typedef struct {
     __OUT u8 *diffusionSeedArray;
 } threadReturn;
 
+typedef struct {
+    threadParams params;
+    const threadReturn *ret;
+} threadParamsWithKey;
+
 #define DOLOOP \
 {\
 for (u32 j = 0; j < Config.nThread; j++)\
@@ -62,8 +69,16 @@ for (u32 j = 0; j < Config.nThread; j++)\
     params[j].Finish.wait();\
 }
 
-#define ORIGINAL_SIZE ImageSize{0, 0}
+#define DOLOOP_KEY \
+{\
+for (u32 j = 0; j < Config.nThread; j++)\
+    params[j].params.Start.post();\
+for (u32 j = 0; j < Config.nThread; j++)\
+    params[j].params.Finish.wait();\
+}
+
+#define ORIGINAL_SIZE cv::Size{0, 0}
 #define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2}
-#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 32}
+#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 8}
 
 #endif //INCLUDES_H

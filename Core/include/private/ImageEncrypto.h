@@ -8,7 +8,11 @@
 #include "includes.h"
 #include "ThreadPool.h"
 
-threadReturn **EncryptoImage(__IN_OUT cv::Mat &Image, __IN const ImageSize &Size,__IN const Keys &Keys,
+void EncryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Key,
+                   __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool);
+
+threadReturn **EncryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool);
 
 #endif //IMAGE_ENCRYPTO_H
