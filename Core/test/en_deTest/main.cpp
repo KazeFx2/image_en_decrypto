@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
     //               ), conf);
     auto img = imread("inputs/test.png", cv::IMREAD_UNCHANGED);
     ThreadPool sp(8);
-    ImageCrypto cy(&sp);
+    ImageCrypto cy(sp);
     auto en = cy.encrypt(img);
     imwrite("outputs/test_en.png", en);
     imwrite("outputs/test_en.jpg", en);

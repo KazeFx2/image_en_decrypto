@@ -86,14 +86,17 @@ void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::
 void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN const u32 startRow, __IN const u32 endRow,
                __IN const u32 startCol, __IN const u32 endCol,
-               __IN const cv::Size &size, __IN const u32 confusionSeed) {
+               __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     for (u32 i = startRow; i < endRow; i++) {
         for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             ConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
-            dstImage.at<cv::Vec3b>(newRow, newCol)[0] = srcImage.at<cv::Vec3b>(i, j)[0];
-            dstImage.at<cv::Vec3b>(newRow, newCol)[1] = srcImage.at<cv::Vec3b>(i, j)[1];
-            dstImage.at<cv::Vec3b>(newRow, newCol)[2] = srcImage.at<cv::Vec3b>(i, j)[2];
+            auto dst = dstImage.ptr(static_cast<s32>(newRow), static_cast<s32>(newCol));
+            auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));
+            u8 n = nChannel;
+            while (n--) {
+                *dst++ = *src++;
+            }
         }
     }
 }
@@ -101,31 +104,37 @@ void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
 void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                      __IN const u32 startRow, __IN const u32 endRow,
                      __IN const u32 startCol, __IN const u32 endCol,
-                     __IN const cv::Size &size, __IN const u32 confusionSeed) {
+                     __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     for (u32 i = startRow; i < endRow; i++) {
         for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             InvertConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
-            dstImage.at<cv::Vec3b>(newRow, newCol)[0] = srcImage.at<cv::Vec3b>(i, j)[0];
-            dstImage.at<cv::Vec3b>(newRow, newCol)[1] = srcImage.at<cv::Vec3b>(i, j)[1];
-            dstImage.at<cv::Vec3b>(newRow, newCol)[2] = srcImage.at<cv::Vec3b>(i, j)[2];
+            auto dst = dstImage.ptr(static_cast<s32>(newRow), static_cast<s32>(newCol));
+            auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));
+            u8 n = nChannel;
+            while (n--) {
+                *dst++ = *src++;
+            }
         }
     }
 }
 
 #define DIFFUSION(i, j, Prev) {\
-dstImage.at<cv::Vec3b>(i, j)[0] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[0] + byteSequence[seqIdx]) % 256) ^ Prev[0];\
-seqIdx++;\
-dstImage.at<cv::Vec3b>(i, j)[1] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[1] + byteSequence[seqIdx]) % 256) ^ Prev[1];\
-seqIdx++;\
-dstImage.at<cv::Vec3b>(i, j)[2] = byteSequence[seqIdx] ^ ((srcImage.at<cv::Vec3b>(i, j)[2] + byteSequence[seqIdx]) % 256) ^ Prev[2];\
-seqIdx++;\
+    auto dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j));\
+    auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));\
+    auto prev = Prev;\
+    auto n = nChannel;\
+    while (n--) {\
+        *dst++ = byteSequence[seqIdx] ^ ((*src++ + byteSequence[seqIdx]) % 256) ^ *prev++;\
+        seqIdx++;\
+    }\
 }
 
 void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN const u32 startRow, __IN const u32 endRow,
                __IN const u32 startCol, __IN const u32 endCol,
-               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx) {
+               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+               __IN const u8 nChannel) {
     DIFFUSION(startRow, startCol, diffusionSeed);
     u32 i = startRow, j = startCol;
     if (j + 1 == endCol)
@@ -135,7 +144,7 @@ void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
     u32 prevI = startRow, prevJ = startCol;
     for (; i < endRow; i++) {
         for (; j < endCol; j++) {
-            DIFFUSION(i, j, dstImage.at<cv::Vec3b>(prevI, prevJ));
+            DIFFUSION(i, j, dstImage.ptr(prevI, prevJ));
             prevI = i, prevJ = j;
         }
         j = startCol;
@@ -143,21 +152,21 @@ void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
 }
 
 #define INV_DIFFUSION(i, j, Prev) {\
-seqIdx--;\
-dstImage.at<cv::Vec3b>(i, j)[2] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[2] ^ byteSequence[seqIdx] ^ Prev[2]) + 256 - (byteSequence[seqIdx]));\
-seqIdx--;\
-dstImage.at<cv::Vec3b>(i, j)[1] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[1] ^ byteSequence[seqIdx] ^ Prev[1]) + 256 - (byteSequence[seqIdx]));\
-seqIdx--;\
-dstImage.at<cv::Vec3b>(i, j)[0] = \
-    ((srcImage.at<cv::Vec3b>(i, j)[0] ^ byteSequence[seqIdx] ^ Prev[0]) + 256 - (byteSequence[seqIdx]));\
+    auto dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;\
+    auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;\
+    auto prev = Prev + nChannel - 1;\
+    auto n = nChannel;\
+    while (n--) {\
+        seqIdx--;\
+        *dst-- = (*src-- ^ byteSequence[seqIdx] ^ *prev--) + 256 - byteSequence[seqIdx];\
+    }\
 }
 
 void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                      __IN const u32 startRow, __IN const u32 endRow,
                      __IN const u32 startCol, __IN const u32 endCol,
-                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx) {
+                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+                     __IN const u8 nChannel) {
     u32 nextI = endRow - 1, nextJ = endCol - 1;
     u32 i = endRow - 1, j = endCol - 1;
     if (j == startCol)
@@ -166,7 +175,7 @@ void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
         j--;
     for (; ; i--) {
         for (; ; j--) {
-            INV_DIFFUSION(nextI, nextJ, srcImage.at<cv::Vec3b>(i, j));
+            INV_DIFFUSION(nextI, nextJ, srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)));
             nextI = i, nextJ = j;
             if (j == startCol)
                 break;
@@ -272,8 +281,8 @@ typedef struct {
 static void *KeyAssist(void *param) {
     auto &[keys, config, iterations] = *static_cast<KeyAssParam *>(param);
 
-    u8 *byteSeq = new u8[iterations * config->byteReserve];
-    u8 *diffusionSeedArray = new u8[config->nChannel * config->diffusionConfusionIterations];
+    auto *byteSeq = new u8[iterations * config->byteReserve];
+    auto *diffusionSeedArray = new u8[config->nChannel * config->diffusionConfusionIterations];
 
     f64 *resultArray1 = new f64[iterations];
     f64 *resultArray2 = new f64[iterations];
@@ -317,9 +326,9 @@ threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
     const u32 nThread = Config.nThread;
     CALC_ITERATIONS;
 
-    KeyAssParam *params = new KeyAssParam[nThread];
-    ThreadPool::thread_descriptor_t *threads = new ThreadPool::thread_descriptor_t[nThread];
-    threadReturn **threadReturns = new threadReturn *[nThread];
+    auto *params = new KeyAssParam[nThread];
+    auto *threads = new ThreadPool::thread_descriptor_t[nThread];
+    auto **threadReturns = new threadReturn *[nThread];
 
     ::Keys iterated_keys = Keys;
     // pre-iterate
@@ -438,17 +447,99 @@ void DumpBytes(__IN const char *name, __IN const u8 *array, __IN const u32 size)
     DumpBytes(stdout, name, array, size);
 }
 
+#define PRT_ELEM(type, mat, fd, i, j) \
+    {\
+        switch ((type)) {\
+            case CV_8SC1:\
+                fprintf(fd, "(%d) ", (mat).at<cv::int8_t>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_8UC1:\
+                fprintf(fd, "(%d) ", (mat).at<cv::uint8_t>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_8SC2:\
+            case CV_8UC2:\
+                fprintf(fd, "(%d, %d) ", (mat).at<cv::Vec2b>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2b>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_8SC3:\
+            case CV_8UC3:\
+                fprintf(fd, "(%d, %d, %d) ", (mat).at<cv::Vec3b>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3b>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3b>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+            case CV_16SC1:\
+                fprintf(fd, "(%d) ", (mat).at<cv::int16_t>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_16UC1:\
+                fprintf(fd, "(%d) ", (mat).at<cv::uint16_t>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_16SC2:\
+                fprintf(fd, "(%d, %d) ", (mat).at<cv::Vec2w>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2w>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_16UC2:\
+                fprintf(fd, "(%d, %d) ", (mat).at<cv::Vec2s>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2s>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_16SC3:\
+                fprintf(fd, "(%d, %d, %d) ", (mat).at<cv::Vec3w>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3w>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3w>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+            case CV_16UC3:\
+                fprintf(fd, "(%d, %d, %d) ", (mat).at<cv::Vec3s>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3s>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3s>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+            case CV_32SC1:\
+                fprintf(fd, "(%d) ", (mat).at<cv::int32_t>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_32SC2:\
+                fprintf(fd, "(%d, %d) ", (mat).at<cv::Vec2i>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2i>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_32SC3:\
+                fprintf(fd, "(%d, %d, %d) ", (mat).at<cv::Vec3i>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3i>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3i>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+            case CV_32FC1:\
+                fprintf(fd, "(%f) ", (mat).at<float>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_32FC2:\
+                fprintf(fd, "(%f, %f) ", (mat).at<cv::Vec2f>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2f>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_32FC3:\
+                fprintf(fd, "(%f, %f, %f) ", (mat).at<cv::Vec3f>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3f>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3f>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+            case CV_64FC1:\
+                fprintf(fd, "(%lf) ", (mat).at<double>(static_cast<s32>(i), static_cast<s32>(j)));\
+                break;\
+            case CV_64FC2:\
+                fprintf(fd, "(%lf, %lf) ", (mat).at<cv::Vec2d>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec2d>(static_cast<s32>(i), static_cast<s32>(j))[1]);\
+                break;\
+            case CV_64FC3:\
+                fprintf(fd, "(%lf, %lf, %lf) ", (mat).at<cv::Vec3d>(static_cast<s32>(i), static_cast<s32>(j))[0], \
+                    (mat).at<cv::Vec3d>(static_cast<s32>(i), static_cast<s32>(j))[1], \
+                    (mat).at<cv::Vec3d>(static_cast<s32>(i), static_cast<s32>(j))[2]);\
+                break;\
+        }\
+    }
+
+
 void DumpMat(FILE *fd, const char *name, const cv::Mat &mat) {
     fprintf(fd, "DumpMat start\n");
     fprintf(fd, "Name: %s\n", name);
     fprintf(fd, "Mat size: row: %u, col: %u\n", mat.rows, mat.cols);
     fprintf(fd, "Data:\n[\n");
-    // auto type = mat.type();
-    // auto depth = mat.depth();
+    const auto type = mat.type();
     for (u32 i = 0; i < mat.rows; i++) {
         for (u32 j = 0; j < mat.cols; j++) {
-            fprintf(fd, "(%d, %d, %d) ", mat.at<cv::Vec3b>(i, j)[0], mat.at<cv::Vec3b>(i, j)[1],
-                    mat.at<cv::Vec3b>(i, j)[2]);
+            PRT_ELEM(type, mat, fd, i, j);
         }
         fprintf(fd, "\n");
     }

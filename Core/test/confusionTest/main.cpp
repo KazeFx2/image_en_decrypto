@@ -14,6 +14,13 @@ typedef struct {
 } Item;
 
 int main(int argc, const char *argv[]) {
+    cv::Mat test(10, 10, CV_8UC3);
+
+    printf("%p, %p\n", test.ptr(1, 2), &test.at<cv::Vec3b>(1, 2)[0]);
+    printf("%p, %p\n", test.ptr(1, 2) + 1, &test.at<cv::Vec3b>(1, 2)[1]);
+    printf("%p, %p\n", test.ptr(1, 2) + 2, &test.at<cv::Vec3b>(1, 2)[2]);
+
+
     const u32 W = 600, H = 300;
     FastBitmap bitmap(W * H);
     Item map[W * H];
@@ -49,10 +56,10 @@ int main(int argc, const char *argv[]) {
     auto en = img.clone();
     auto s = img.size();
     u32 k = Rand32();
-    Confusion(en, img, 0, s.height, 0, s.width, s, k);
+    Confusion(en, img, 0, s.height, 0, s.width, s, k, 3);
     imwrite("outputs/test_en_fu.jpeg", en);
     auto de = en.clone();
-    InvertConfusion(de, en, 0, s.height, 0, s.width, s, k);
+    InvertConfusion(de, en, 0, s.height, 0, s.width, s, k, 3);
     imwrite("outputs/test_de_fu.jpeg", de);
     return 0;
 }

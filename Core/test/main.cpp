@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
         {0.962, 0.415}
     };
 
-    ImageCrypto crypter(&pool, size, DEFAULT_CONFIG, keys);
+    ImageCrypto crypter(pool, size, DEFAULT_CONFIG, keys);
 
     std::cout << getcwd(nullptr, 0) << std::endl;
     auto img = imread("inputs/test.png", cv::IMREAD_UNCHANGED);
@@ -68,7 +68,7 @@ int main(int argc, const char **argv) {
         if (frame.empty()) {
             break;
         }
-        resize(frame, frame, cv::Size(356, 200));
+        resize(frame, frame, cv::Size(711, 400));
         auto encry = crypter.encrypt(frame);
         auto decry = crypter.decrypt(encry);
         imshow("original", frame);

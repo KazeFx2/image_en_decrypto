@@ -34,7 +34,7 @@ void EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    threadParamsWithKey *params = new threadParamsWithKey[Config.nThread];
+    auto *params = new threadParamsWithKey[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
                 encryptoAssistantWithKeys);
@@ -70,8 +70,8 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    threadParams *params = new threadParams[Config.nThread];
-    threadReturn **ret = new threadReturn *[Config.nThread];
+    auto *params = new threadParams[Config.nThread];
+    auto **ret = new threadReturn *[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 encryptoAssistant);
@@ -141,17 +141,17 @@ void *encryptoAssistant(__IN_OUT void *param) {
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
         params.Finish.post();
     }
     // Diffusion & confusion
     for (u32 i = 0; i < params.config->diffusionConfusionIterations; i++) {
-        u8 diffusionSeed[3];
-        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        u8 diffusionSeed[params.config->nChannel];
+        memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
         Diffusion(**params.dst, **params.src,
                   rowStart, rowEnd, colStart, colEnd,
-                  diffusionSeed, byteSeq, seqIdx);
+                  diffusionSeed, byteSeq, seqIdx, params.config->nChannel);
 #ifdef __DEBUG
         mu.lock();
         fprintf(gfd, "[DiffusionSeed]id: %lu, Round: %u, %02X, %02X, %02X, idx: %u, ", params.threadId,
@@ -179,7 +179,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
         params.Finish.post();
     }
     return new threadReturn{byteSeq, diffusionSeedArray};
@@ -216,22 +216,22 @@ void *encryptoAssistantWithKeys(__IN_OUT void *param) {
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
         params.Finish.post();
     }
     // Diffusion & confusion
     for (u32 i = 0; i < params.config->diffusionConfusionIterations; i++) {
-        u8 diffusionSeed[3];
-        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        u8 diffusionSeed[params.config->nChannel];
+        memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
         Diffusion(**params.dst, **params.src,
                   rowStart, rowEnd, colStart, colEnd,
-                  diffusionSeed, byteSeq, seqIdx);
+                  diffusionSeed, byteSeq, seqIdx, params.config->nChannel);
         params.Finish.post();
         params.Start.wait();
         Confusion(**params.dst,
                   **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
         params.Finish.post();
     }
     return nullptr;

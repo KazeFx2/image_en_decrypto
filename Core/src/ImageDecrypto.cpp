@@ -34,7 +34,7 @@ void DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    threadParamsWithKey *params = new threadParamsWithKey[Config.nThread];
+    auto *params = new threadParamsWithKey[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
                 decryptoAssistantWithKeys);
@@ -68,8 +68,8 @@ threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const
     Mat tmpImage;
     Mat *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    threadParams *params = new threadParams[Config.nThread];
-    threadReturn **ret = new threadReturn *[Config.nThread];
+    auto *params = new threadParams[Config.nThread];
+    auto **ret = new threadReturn *[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 decryptoAssistant);
@@ -136,12 +136,13 @@ void *decryptoAssistant(__IN_OUT void *param) {
 #endif
 
     for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--) {
-        u8 diffusionSeed[3];
-        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        u8 diffusionSeed[params.config->nChannel];
+        memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
         InvertConfusion(**params.dst,
                         **params.src,
-                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+                        params.config->nChannel);
         params.Finish.post();
         params.Start.wait();
 #ifdef __DEBUG
@@ -153,7 +154,7 @@ void *decryptoAssistant(__IN_OUT void *param) {
 #endif
         InvertDiffusion(**params.dst, **params.src,
                         rowStart, rowEnd, colStart, colEnd,
-                        diffusionSeed, byteSeq, seqIdx);
+                        diffusionSeed, byteSeq, seqIdx, params.config->nChannel);
 #ifdef __DEBUG
         fprintf(gfd, "ori_data: ");
         for (u32 _i = rowStart; _i < rowEnd; _i++) {
@@ -181,7 +182,8 @@ void *decryptoAssistant(__IN_OUT void *param) {
         params.Start.wait();
         InvertConfusion(**params.dst,
                         **params.src,
-                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+                        params.config->nChannel);
         params.Finish.post();
     }
     return new threadReturn{byteSeq, diffusionSeedArray};
@@ -213,17 +215,18 @@ void *decryptoAssistantWithKeys(__IN_OUT void *param) {
     fclose(fd);
 #endif
     for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--) {
-        u8 diffusionSeed[3];
-        memcpy(diffusionSeed, diffusionSeedArray + i * 3, 3);
+        u8 diffusionSeed[params.config->nChannel];
+        memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
         InvertConfusion(**params.dst,
                         **params.src,
-                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+                        params.config->nChannel);
         params.Finish.post();
         params.Start.wait();
         InvertDiffusion(**params.dst, **params.src,
                         rowStart, rowEnd, colStart, colEnd,
-                        diffusionSeed, byteSeq, seqIdx);
+                        diffusionSeed, byteSeq, seqIdx, params.config->nChannel);
         params.Finish.post();
         if (i == 0)
             break;
@@ -232,7 +235,8 @@ void *decryptoAssistantWithKeys(__IN_OUT void *param) {
         params.Start.wait();
         InvertConfusion(**params.dst,
                         **params.src,
-                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed);
+                        rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+                        params.config->nChannel);
         params.Finish.post();
     }
     return nullptr;

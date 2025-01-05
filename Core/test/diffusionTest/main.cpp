@@ -45,12 +45,12 @@ int main(int argc, const char *argv[]) {
     u32 seqIdx = 0;
     Diffusion(en, img,
               rowStart, rowEnd, colStart, colEnd,
-              diffusionSeedArray, byteSeq, seqIdx);
+              diffusionSeedArray, byteSeq, seqIdx, 3);
     imwrite("outputs/test_en_di.jpeg", en);
     auto de = en.clone();
     InvertDiffusion(de, en,
                     rowStart, rowEnd, colStart, colEnd,
-                    diffusionSeedArray, byteSeq, seqIdx);
+                    diffusionSeedArray, byteSeq, seqIdx, 3);
     imwrite("outputs/test_de_di.jpeg", de);
     // FILE *fd = fopen("outputs/test_dump_mat_ori.txt", "w+");
     // DumpMat(fd, "None", img);

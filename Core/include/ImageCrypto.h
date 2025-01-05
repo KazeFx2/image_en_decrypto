@@ -14,25 +14,25 @@
 
 class ImageCrypto {
 public:
-    ImageCrypto(ThreadPool *threadPool): threadPool(threadPool), size(new ORIGINAL_SIZE), config(DEFAULT_CONFIG),
+    ImageCrypto(ThreadPool &threadPool): threadPool(&threadPool), size(new ORIGINAL_SIZE), config(DEFAULT_CONFIG),
                                          keys(RANDOM_KEYS) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool *threadPool, const cv::Size &size): threadPool(threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size &size): threadPool(&threadPool),
                                                                size(new cv::Size(size)), config(DEFAULT_CONFIG),
                                                                keys(RANDOM_KEYS) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool *threadPool, const cv::Size &size, const ParamControl &config): threadPool(threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size &size, const ParamControl &config): threadPool(&threadPool),
         size(new cv::Size(size)), config(config),
         keys(RANDOM_KEYS) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool *threadPool, const cv::Size size, const ParamControl &config,
-                const Keys &keys): threadPool(threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size size, const ParamControl &config,
+                const Keys &keys): threadPool(&threadPool),
                                    size(new cv::Size(size)),
                                    config(config),
                                    keys(keys) {
@@ -63,12 +63,12 @@ public:
         preProcess();
     }
 
-    ThreadPool *getThreadPool() const {
-        return threadPool;
+    ThreadPool &getThreadPool() const {
+        return *threadPool;
     }
 
-    void setThreadPool(ThreadPool *threadPool) {
-        this->threadPool = threadPool;
+    void setThreadPool(ThreadPool &threadPool) {
+        this->threadPool = &threadPool;
     }
 
     cv::Size getSize() const {
@@ -83,12 +83,37 @@ public:
         preProcess();
     }
 
+    void setChannel(const u8 nChannel) {
+        if (rets != nullptr) {
+            DestroyReturn(rets, config);
+        }
+        config.nChannel = nChannel;
+        preProcess();
+    }
+
+    u8 getChannel() const {
+        return config.nChannel;
+    }
+
+    void setAll(const cv::Size &size, const ParamControl &config, const Keys &keys) {
+        if (rets != nullptr) {
+            DestroyReturn(rets, config);
+        }
+        *(this->size) = size;
+        this->config = config;
+        this->keys = keys;
+        preProcess();
+    }
+
     cv::Mat encrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
+        u8 nChannel = image.channels();
         if (imageSize == ORIGINAL_SIZE) {
             imageSize = image.size();
         }
-        if (imageSize != *size) {
-            setSize(imageSize);
+        if (imageSize != *size || nChannel != config.nChannel) {
+            auto tmpC = config;
+            tmpC.nChannel = nChannel;
+            setAll(imageSize, tmpC, keys);
         }
         cv::Mat imageMat = image.clone();
         EncryptoImage(imageMat, *size, keys, rets, config, *threadPool);
@@ -96,11 +121,14 @@ public:
     }
 
     cv::Mat decrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
+        u8 nChannel = image.channels();
         if (imageSize == ORIGINAL_SIZE) {
             imageSize = image.size();
         }
-        if (imageSize != *size) {
-            setSize(imageSize);
+        if (imageSize != *size || nChannel != config.nChannel) {
+            auto tmpC = config;
+            tmpC.nChannel = nChannel;
+            setAll(imageSize, tmpC, keys);
         }
         cv::Mat imageMat = image.clone();
         DecryptoImage(imageMat, *size, keys, rets, config, *threadPool);
