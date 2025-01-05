@@ -18,9 +18,13 @@ void CvtF64toBytes(__IN const f64 *iterationResultArray, __OUT u8 *bytes, __IN u
 void XorByteSequence(__IN_OUT u8 *bytesA, __IN const u8 *bytesB, __IN u32 length, __OUT u8 *bytesOut = nullptr);
 
 void GenDiffusionSeeds(__IN f64 initialCondition1, __IN f64 controlCondition1, __IN f64 initialCondition2,
-                       __IN f64 controlCondition2, __OUT u8 *diffusionSeedArray, __IN u32 diffusionIteration);
+                       __IN f64 controlCondition2, __OUT u8 *diffusionSeedArray, __IN u32 diffusionIteration,
+                       __IN u8 nChannel);
 
 void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
+                   __OUT u32 &newCol);
+
+void ConfusionFuncTest(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
                    __OUT u32 &newCol);
 
 void InvertConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed,

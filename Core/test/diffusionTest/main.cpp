@@ -14,14 +14,15 @@ typedef struct {
 } Item;
 
 int main(int argc, const char *argv[]) {
-    const u32 H = 50;
+    // const u32 H = 50;
     chdir(homePath);
-    auto img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
+    auto img = imread("inputs/test.png", cv::IMREAD_UNCHANGED);
     if (img.data == nullptr) {
         std::cout << "Read image failed." << std::endl;
         return 1;
     }
-    resize(img, img, cv::Size(H, H));
+    // resize(img, img, cv::Size(H, H));
+    auto s = img.size();
     auto en = img.clone();
     Keys k = RANDOM_KEYS;
     ParamControl conf = DEFAULT_CONFIG;
@@ -32,7 +33,7 @@ int main(int argc, const char *argv[]) {
         nullptr,
         &size,
         0,
-        3 * H * H,
+        (u32) 3 * s.width * s.height,
         k,
         &conf,
     };
@@ -45,17 +46,17 @@ int main(int argc, const char *argv[]) {
     Diffusion(en, img,
               rowStart, rowEnd, colStart, colEnd,
               diffusionSeedArray, byteSeq, seqIdx);
-    imwrite("outputs/1_en_di.jpeg", en);
+    imwrite("outputs/test_en_di.jpeg", en);
     auto de = en.clone();
     InvertDiffusion(de, en,
                     rowStart, rowEnd, colStart, colEnd,
                     diffusionSeedArray, byteSeq, seqIdx);
-    imwrite("outputs/1_de_di.jpeg", de);
-    FILE *fd = fopen("outputs/test_dump_mat_ori.txt", "w+");
-    DumpMat(fd, "None", img);
-    fclose(fd);
-    fd = fopen("outputs/test_dump_mat_dec.txt", "w+");
-    DumpMat(fd, "None", de);
-    fclose(fd);
+    imwrite("outputs/test_de_di.jpeg", de);
+    // FILE *fd = fopen("outputs/test_dump_mat_ori.txt", "w+");
+    // DumpMat(fd, "None", img);
+    // fclose(fd);
+    // fd = fopen("outputs/test_dump_mat_dec.txt", "w+");
+    // DumpMat(fd, "None", de);
+    // fclose(fd);
     return 0;
 }

@@ -114,7 +114,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
     threadParams &params = *static_cast<threadParams *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
-    u8 *diffusionSeedArray = new u8[3 * params.config->diffusionConfusionIterations];
+    u8 *diffusionSeedArray = new u8[params.config->nChannel * params.config->diffusionConfusionIterations];
     PreAssist(rowStart, rowEnd, colStart, colEnd, params, byteSeq, diffusionSeedArray);
 
     // Encrypto
@@ -130,7 +130,8 @@ void *encryptoAssistant(__IN_OUT void *param) {
         fd, "byteSeq", byteSeq, params.iterations * params.config->byteReserve
     );
     DumpBytes(
-        fd, "diffusionSeedArray", diffusionSeedArray, 3 * params.config->diffusionConfusionIterations
+        fd, "diffusionSeedArray", diffusionSeedArray,
+        params.config->nChannel * params.config->diffusionConfusionIterations
     );
     fprintf(fd, "[END ENCRYPT]\n");
     fclose(fd);
@@ -201,10 +202,12 @@ void *encryptoAssistantWithKeys(__IN_OUT void *param) {
     fprintf(fd, "[ENCRYPT]id: %lu, seqIdx: %d, confSeed: %d\n", params.threadId, seqIdx, params.keys.confusionSeed);
     fprintf(fd, "startRow: %u, endRow: %u, startCol: %u, endCol: %u\n", rowStart, rowEnd, colStart, colEnd);
     DumpBytes(
-        fd, "byteSeq", byteSeq, 3 * (rowEnd - rowStart) * (colEnd - colStart) * params.config->diffusionConfusionIterations
+        fd, "byteSeq", byteSeq,
+        params.iterations * params.config->byteReserve
     );
     DumpBytes(
-        fd, "diffusionSeedArray", diffusionSeedArray, 3 * params.config->diffusionConfusionIterations
+        fd, "diffusionSeedArray", diffusionSeedArray,
+        params.config->nChannel * params.config->diffusionConfusionIterations
     );
     fprintf(fd, "[END ENCRYPT]\n");
     fclose(fd);

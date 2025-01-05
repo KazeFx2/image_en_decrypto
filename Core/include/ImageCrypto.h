@@ -83,13 +83,25 @@ public:
         preProcess();
     }
 
-    cv::Mat encrypt(const cv::Mat &image) const {
+    cv::Mat encrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
+        if (imageSize == ORIGINAL_SIZE) {
+            imageSize = image.size();
+        }
+        if (imageSize != *size) {
+            setSize(imageSize);
+        }
         cv::Mat imageMat = image.clone();
         EncryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         return imageMat;
     }
 
-    cv::Mat decrypt(const cv::Mat &image) const {
+    cv::Mat decrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
+        if (imageSize == ORIGINAL_SIZE) {
+            imageSize = image.size();
+        }
+        if (imageSize != *size) {
+            setSize(imageSize);
+        }
         cv::Mat imageMat = image.clone();
         DecryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         return imageMat;

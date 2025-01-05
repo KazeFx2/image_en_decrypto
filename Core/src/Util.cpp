@@ -6,6 +6,10 @@
 #include "private/Random.h"
 #include <cmath>
 
+#define CALC_ITERATIONS const u32 iterations = static_cast<int>(Config.nChannel * (Size.width + nThread + 1) * (Size.height) * Config.\
+    diffusionConfusionIterations \
+    / (nThread * Config.byteReserve))
+
 f64 PLCM(__IN const f64 initialCondition, __IN const f64 controlCondition) {
     assert(initialCondition >= 0 && initialCondition <= 1 && controlCondition > 0 && controlCondition < 0.5);
     if (initialCondition < controlCondition) {
@@ -45,8 +49,8 @@ void XorByteSequence(__IN_OUT u8 *bytesA, __IN const u8 *bytesB, __IN const u32 
 
 void GenDiffusionSeeds(__IN f64 initialCondition1, __IN const f64 controlCondition1, __IN f64 initialCondition2,
                        __IN const f64 controlCondition2, __OUT u8 *diffusionSeedArray,
-                       __IN const u32 diffusionIteration) {
-    for (u32 i = 0; i < 3 * diffusionIteration; i++) {
+                       __IN const u32 diffusionIteration, __IN const u8 nChannel) {
+    for (u32 i = 0; i < nChannel * diffusionIteration; i++) {
         initialCondition1 = PLCM(initialCondition1, controlCondition1);
         initialCondition2 = PLCM(initialCondition2, controlCondition2);
         diffusionSeedArray[i] = *reinterpret_cast<u8 *>(&initialCondition1) ^ *reinterpret_cast<u8 *>(&
@@ -58,7 +62,15 @@ void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &
                    __OUT u32 &newRow,
                    __OUT u32 &newCol) {
     newRow = (row + col) % size.height;
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.height;
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.width;
+    newCol = (col + tmp) % size.width;
+}
+
+void ConfusionFuncTest(__IN const u32 row, __IN const u32 col, __IN const cv::Size &size, __IN const u32 confusionSeed,
+                       __OUT u32 &newRow,
+                       __OUT u32 &newCol) {
+    newRow = (row + col) % size.height;
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.width;
     newCol = (col + tmp) % size.width;
 }
 
@@ -66,9 +78,9 @@ void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::
                          __IN const u32 confusionSeed,
                          __OUT u32 &newRow,
                          __OUT u32 &newCol) {
-    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height))) % size.height;
+    const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height))) % size.width;
     newCol = (col + size.width - tmp) % size.width;
-    newRow = (row + size.height - newCol) % size.height;
+    newRow = (row + size.height - newCol % size.height) % size.height;
 }
 
 void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
@@ -174,18 +186,18 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
     const u32 nThread = Config.nThread;
     // resize image if needed
     if (Size.width != 0 && Size.height != 0) {
-        const u32 H = std::min(Size.height, Size.width);
-        resize(Image, Image, cv::Size(H, H));
-    } else {
-        const u32 H = std::min(Image.size().height, Image.size().width);
-        resize(Image, Image, cv::Size(H, H));
+        // const u32 H = std::min(Size.height, Size.width);
+        resize(Image, Image, Size);
     }
+    // else {
+    // const u32 H = std::min(Image.size().height, Image.size().width);
+    // resize(Image, Image, cv::Size(H, H));
+    // }
     tmpImage = Image.clone();
     Size = Image.size();
     dst = &tmpImage, src = &Image;
-    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * (Size.height) * Config.
-                                            diffusionConfusionIterations
-                                            / (nThread * Config.byteReserve));
+    CALC_ITERATIONS;
+
     ::Keys iterated_keys = Keys;
     // pre-iterate
     for (u32 i = 0; i < Config.preIterations; i++) {
@@ -232,19 +244,10 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
                  __IN void *(*func)(void *)) {
     const u32 nThread = Config.nThread;
     // resize image if needed
-    if (Size.width != 0 && Size.height != 0) {
-        const u32 H = std::min(Size.height, Size.width);
-        resize(Image, Image, cv::Size(H, H));
-    } else {
-        const u32 H = std::min(Image.size().height, Image.size().width);
-        resize(Image, Image, cv::Size(H, H));
-    }
+    resize(Image, Image, Size);
     tmpImage = Image.clone();
-    Size = Image.size();
     dst = &tmpImage, src = &Image;
-    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * (Size.height) * Config.
-                                            diffusionConfusionIterations
-                                            / (nThread * Config.byteReserve));
+    CALC_ITERATIONS;
 
     for (u32 i = 0; i < nThread; i++) {
         params[i].params.dst = &dst;
@@ -270,7 +273,7 @@ static void *KeyAssist(void *param) {
     auto &[keys, config, iterations] = *static_cast<KeyAssParam *>(param);
 
     u8 *byteSeq = new u8[iterations * config->byteReserve];
-    u8 *diffusionSeedArray = new u8[3 * config->diffusionConfusionIterations];
+    u8 *diffusionSeedArray = new u8[config->nChannel * config->diffusionConfusionIterations];
 
     f64 *resultArray1 = new f64[iterations];
     f64 *resultArray2 = new f64[iterations];
@@ -300,7 +303,7 @@ static void *KeyAssist(void *param) {
 
     GenDiffusionSeeds(initCondition1, keys.gParam1.ctrlCondition,
                       initCondition2, keys.gParam2.ctrlCondition,
-                      diffusionSeedArray, config->diffusionConfusionIterations);
+                      diffusionSeedArray, config->diffusionConfusionIterations, config->nChannel);
     delete [] resultArray1;
     delete [] resultArray2;
     delete [] bytesTmp;
@@ -312,9 +315,8 @@ threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
                                   __IN const Keys &Keys,
                                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
     const u32 nThread = Config.nThread;
-    const u32 iterations = static_cast<int>(3 * (Size.width + nThread) * Size.height * Config.
-                                            diffusionConfusionIterations
-                                            / (nThread * Config.byteReserve));
+    CALC_ITERATIONS;
+
     KeyAssParam *params = new KeyAssParam[nThread];
     ThreadPool::thread_descriptor_t *threads = new ThreadPool::thread_descriptor_t[nThread];
     threadReturn **threadReturns = new threadReturn *[nThread];
@@ -393,7 +395,7 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
 
     GenDiffusionSeeds(initCondition1, params.keys.gParam1.ctrlCondition,
                       initCondition2, params.keys.gParam2.ctrlCondition,
-                      diffusionSeedArray, params.config->diffusionConfusionIterations);
+                      diffusionSeedArray, params.config->diffusionConfusionIterations, params.config->nChannel);
     delete [] resultArray1;
     delete [] resultArray2;
     delete [] bytesTmp;

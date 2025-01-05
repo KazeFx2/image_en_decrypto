@@ -31,6 +31,7 @@ typedef struct {
     u32 confusionIterations;
     u32 diffusionConfusionIterations;
     u32 nThread;
+    u8 nChannel;
 } ParamControl;
 
 typedef struct {
@@ -79,6 +80,6 @@ for (u32 j = 0; j < Config.nThread; j++)\
 
 #define ORIGINAL_SIZE cv::Size{0, 0}
 #define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2}
-#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 8}
+#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 8, 3}
 
 #endif //INCLUDES_H

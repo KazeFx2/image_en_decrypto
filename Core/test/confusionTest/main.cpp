@@ -14,43 +14,45 @@ typedef struct {
 } Item;
 
 int main(int argc, const char *argv[]) {
-    const u32 H = 300;
-    FastBitmap bitmap(H * H);
-    Item map[H * H];
+    const u32 W = 600, H = 300;
+    FastBitmap bitmap(W * H);
+    Item map[W * H];
     for (u32 i = 0; i < H; i++) {
-        for (u32 j = 0; j < H; j++) {
+        for (u32 j = 0; j < W; j++) {
             u32 nr, nc;
-            cv::Size size(H, H);
-            ConfusionFunc(i, j, size, 0x1234, nr, nc);
-            if (bitmap[nr * H + nc]) {
+            cv::Size size(W, H);
+            ConfusionFunc(i, j, size, 0x134, nr, nc);
+            if (bitmap[nr * W + nc]) {
                 printf("[Conflict]row: %d, col: %d, -> row: %d, col: %d (old row: %d, old col: %d)\n", i, j, nr, nc,
-                       map[nr * H + nc].r, map[nr * H + nc].c);
+                       map[nr * W + nc].r, map[nr * W + nc].c);
             } else {
-                map[nr * H + nc] = {i, j};
+                map[nr * W + nc] = {i, j};
             }
-            bitmap[nr * H + nc] = true;
+            bitmap[nr * W + nc] = true;
         }
     }
     for (u32 i = 0; i < H; i++) {
-        for (u32 j = 0; j < H; j++) {
-            if (!bitmap[i * H + j]) {
+        for (u32 j = 0; j < W; j++) {
+            if (!bitmap[i * W + j]) {
                 printf("[Lost]row: %d, col: %d\n", i, j);
             }
         }
     }
+    // return 0;
     chdir(homePath);
-    auto img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
+    auto img = imread("inputs/test2.png", cv::IMREAD_UNCHANGED);
     if (img.data == nullptr) {
         std::cout << "Read image failed." << std::endl;
         return 1;
     }
-    resize(img, img, cv::Size(H, H));
+    // resize(img, img, cv::Size(H, H));
     auto en = img.clone();
+    auto s = img.size();
     u32 k = Rand32();
-    Confusion(en, img, 0, H, 0, H, {H, H}, k);
-    imwrite("outputs/1_en_fu.jpeg", en);
+    Confusion(en, img, 0, s.height, 0, s.width, s, k);
+    imwrite("outputs/test_en_fu.jpeg", en);
     auto de = en.clone();
-    InvertConfusion(de, en, 0, H, 0, H, {H, H}, k);
-    imwrite("outputs/1_de_fu.jpeg", de);
+    InvertConfusion(de, en, 0, s.height, 0, s.width, s, k);
+    imwrite("outputs/test_de_fu.jpeg", de);
     return 0;
 }
