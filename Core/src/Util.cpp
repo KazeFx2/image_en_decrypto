@@ -88,11 +88,11 @@ void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN const u32 startCol, __IN const u32 endCol,
                __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     for (u32 i = startRow; i < endRow; i++) {
+        auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(startCol));
         for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             ConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
             auto dst = dstImage.ptr(static_cast<s32>(newRow), static_cast<s32>(newCol));
-            auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));
             u8 n = nChannel;
             while (n--) {
                 *dst++ = *src++;
@@ -106,11 +106,11 @@ void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                      __IN const u32 startCol, __IN const u32 endCol,
                      __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     for (u32 i = startRow; i < endRow; i++) {
+        auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(startCol));
         for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             InvertConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
             auto dst = dstImage.ptr(static_cast<s32>(newRow), static_cast<s32>(newCol));
-            auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));
             u8 n = nChannel;
             while (n--) {
                 *dst++ = *src++;
@@ -119,72 +119,217 @@ void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
     }
 }
 
-#define DIFFUSION(i, j, Prev) {\
-    auto dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j));\
-    auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j));\
-    auto prev = Prev;\
+class iterator {
+public:
+    iterator(cv::Mat &Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
+             u8 *diffusionSeed, const u8 nChannel, const u8 offset = 0,
+             const bool front = false): mat(Mat), startRow(startRow), endRow(endRow), startCol(startCol),
+                                        endCol(endCol),
+                                        diffusionSeed(diffusionSeed), nChannel(nChannel), front(front),
+                                        nCt(offset % nChannel) {
+        if (front) {
+            nowPtr = Mat.ptr(static_cast<s32>(startRow), static_cast<s32>(startCol)) + nCt;
+            nowRow = startRow, nowCol = startCol;
+        } else {
+            nowPtr = Mat.ptr(static_cast<s32>(endRow - 1), static_cast<s32>(endCol - 1)) + nCt;
+            nowRow = endRow - 1, nowCol = endCol - 1;
+        }
+    }
+
+    iterator(cv::Mat &Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
+             u8 *diffusionSeed, const u8 nChannel, const u32 nowRow,
+             const u32 nowCol, const u8 offset = 0): mat(Mat), startRow(startRow), endRow(endRow), startCol(startCol),
+                                                     endCol(endCol),
+                                                     diffusionSeed(diffusionSeed), nChannel(nChannel), front(false),
+                                                     nCt(offset % nChannel) {
+        nowPtr = Mat.ptr(static_cast<s32>(nowRow), static_cast<s32>(nowCol)) + nCt;
+        this->nowRow = nowRow, this->nowCol = nowCol;
+    }
+
+    operator u8 *() const {
+        if (front) {
+            return diffusionSeed + nCt;
+        }
+        return nowPtr;
+    }
+
+    u8 *operator++() {
+        if (front) {
+            nCt++;
+            const auto tmp = nCt;
+            if (nCt == nChannel) {
+                nCt = 0;
+                front = false;
+            }
+            return diffusionSeed + tmp;
+        }
+        nCt++;
+        if (nCt == nChannel) {
+            nCt = 0;
+            nowCol++;
+            if (nowCol == endCol) {
+                nowCol = startCol;
+                nowRow++;
+                if (nowRow == endRow) {
+                    nowRow = endRow - 1;
+                    nowCol = endCol - 1;
+                }
+                nowPtr = mat.ptr(static_cast<s32>(nowRow), static_cast<s32>(nowCol));
+                return nowPtr;
+            }
+            return ++nowPtr;
+        }
+        return ++nowPtr;
+    }
+
+    u8 *operator++(int) {
+        u8 *tmp = *this;
+        operator++();
+        return tmp;
+    }
+
+    u8 *operator--() {
+        if (front) {
+            if (nCt == 0) {
+                return diffusionSeed;
+            }
+            const auto tmp = nCt;
+            nCt--;
+            return diffusionSeed + tmp;
+        }
+        if (nCt == 0) {
+            nCt = nChannel - 1;
+            if (nowCol == startCol) {
+                if (nowRow == startRow) {
+                    front = true;
+                    return diffusionSeed + nChannel;
+                }
+                nowCol = endCol - 1;
+                nowRow--;
+                nowPtr = mat.ptr(static_cast<s32>(nowRow), static_cast<s32>(nowCol)) + nCt;
+                return nowPtr;
+            }
+            nowCol--;
+            return --nowPtr;
+        }
+        nCt--;
+        return --nowPtr;
+    }
+
+    u8 *operator--(int) {
+        u8 *tmp = *this;
+        operator--();
+        return tmp;
+    }
+
+private:
+    cv::Mat &mat;
+    u32 startRow, endRow, startCol, endCol;
+    u8 *diffusionSeed;
+    u32 nowRow, nowCol;
+    u8 nChannel;
+    bool front;
+    u8 nCt;
+    u8 *nowPtr;
+};
+
+#define DIFFUSION(dst, src, Prev) {\
     auto n = nChannel;\
     while (n--) {\
-        *dst++ = byteSequence[seqIdx] ^ ((*src++ + byteSequence[seqIdx]) % 256) ^ *prev++;\
+        *(dst)++ = byteSequence[seqIdx] ^ ((*(src)++ + byteSequence[seqIdx]) % 256) ^ *(Prev)++;\
         seqIdx++;\
     }\
 }
 
-void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+void Diffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                __IN const u32 startRow, __IN const u32 endRow,
                __IN const u32 startCol, __IN const u32 endCol,
-               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+               __IN u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
                __IN const u8 nChannel) {
-    DIFFUSION(startRow, startCol, diffusionSeed);
-    u32 i = startRow, j = startCol;
-    if (j + 1 == endCol)
-        i++;
-    else
-        j++;
-    u32 prevI = startRow, prevJ = startCol;
-    for (; i < endRow; i++) {
+    // auto src = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, startRow, startCol,
+    //                     false);
+    // auto dst = iterator(dstImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, startRow, startCol,
+    //                     false);
+    // auto prev = iterator(dstImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, 0, true);
+    // u32 times = (endRow - startRow) * (endCol - startCol) * nChannel;
+    // while (times--) {
+    //     *dst++ = byteSequence[seqIdx] ^ ((*src++ + byteSequence[seqIdx]) % 256) ^ *prev++;
+    //     seqIdx++;
+    // }
+    auto dst = dstImage.ptr(static_cast<s32>(startRow), static_cast<s32>(startCol));
+    auto src = srcImage.ptr(static_cast<s32>(startRow), static_cast<s32>(startCol));
+    auto nPrev = dst;
+    DIFFUSION(dst, src, diffusionSeed);
+    auto prev = nPrev;
+    u32 i = startRow, j = startCol + 1;
+    while (true) {
         for (; j < endCol; j++) {
-            DIFFUSION(i, j, dstImage.ptr(prevI, prevJ));
-            prevI = i, prevJ = j;
+            DIFFUSION(dst, src, prev);
         }
-        j = startCol;
+        i++;
+        if (i == endRow) {
+            break;
+        }
+        j = startCol + 1;
+        dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(startCol));
+        src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(startCol));
+        nPrev = dst;
+        DIFFUSION(dst, src, prev);
+        prev = nPrev;
     }
 }
 
-#define INV_DIFFUSION(i, j, Prev) {\
-    auto dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;\
-    auto src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;\
-    auto prev = Prev + nChannel - 1;\
+#define INV_DIFFUSION(dst, src, Prev) {\
     auto n = nChannel;\
     while (n--) {\
         seqIdx--;\
-        *dst-- = (*src-- ^ byteSequence[seqIdx] ^ *prev--) + 256 - byteSequence[seqIdx];\
+        *(dst)-- = (*(src)-- ^ byteSequence[seqIdx] ^ *(Prev)--) + 256 - byteSequence[seqIdx];\
     }\
 }
 
-void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+void InvertDiffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                      __IN const u32 startRow, __IN const u32 endRow,
                      __IN const u32 startCol, __IN const u32 endCol,
-                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+                     __IN u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
                      __IN const u8 nChannel) {
-    u32 nextI = endRow - 1, nextJ = endCol - 1;
+    // auto src = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, nChannel - 1);
+    // auto dst = iterator(dstImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, nChannel - 1);
+    // auto prev = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, 0);
+    // --prev;
+    // u32 times = (endRow - startRow) * (endCol - startCol) * nChannel;
+    // while (times--) {
+    //     seqIdx--;
+    //     *dst-- = (*src-- ^ byteSequence[seqIdx] ^ *prev--) + 256 - byteSequence[seqIdx];
+    // }
     u32 i = endRow - 1, j = endCol - 1;
-    if (j == startCol)
-        i--;
-    else
-        j--;
-    for (; ; i--) {
-        for (; ; j--) {
-            INV_DIFFUSION(nextI, nextJ, srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)));
-            nextI = i, nextJ = j;
-            if (j == startCol)
+    auto nextDst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;
+    auto nextSrc = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;
+    auto dst = nextDst - nChannel;
+    auto src = nextSrc - nChannel;
+    goto INNER;
+    while (true) {
+        for (;; j--) {
+            INV_DIFFUSION(nextDst, nextSrc, src)
+        INNER:
+            if (j == startCol) {
                 break;
+            }
         }
-        if (i == startRow)
+        if (i == startRow) {
             break;
+        }
+        i--;
         j = endCol - 1;
+        dst = dstImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;
+        src = srcImage.ptr(static_cast<s32>(i), static_cast<s32>(j)) + nChannel - 1;
+        const auto srcBak = src;
+        INV_DIFFUSION(nextDst, nextSrc, src)
+        nextDst = dst;
+        nextSrc = srcBak;
+        goto INNER;
     }
-    INV_DIFFUSION(nextI, nextJ, diffusionSeed);
+    diffusionSeed += nChannel - 1;
+    INV_DIFFUSION(nextDst, nextSrc, diffusionSeed)
 }
 
 void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
@@ -195,13 +340,8 @@ void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT c
     const u32 nThread = Config.nThread;
     // resize image if needed
     if (Size.width != 0 && Size.height != 0) {
-        // const u32 H = std::min(Size.height, Size.width);
         resize(Image, Image, Size);
     }
-    // else {
-    // const u32 H = std::min(Image.size().height, Image.size().width);
-    // resize(Image, Image, cv::Size(H, H));
-    // }
     tmpImage = Image.clone();
     Size = Image.size();
     dst = &tmpImage, src = &Image;

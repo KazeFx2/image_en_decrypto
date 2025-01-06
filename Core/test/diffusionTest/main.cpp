@@ -16,7 +16,8 @@ typedef struct {
 int main(int argc, const char *argv[]) {
     // const u32 H = 50;
     chdir(homePath);
-    auto img = imread("inputs/test.png", cv::IMREAD_UNCHANGED);
+    auto img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
+    cv::resize(img, img, {100, 100});
     if (img.data == nullptr) {
         std::cout << "Read image failed." << std::endl;
         return 1;
@@ -52,11 +53,11 @@ int main(int argc, const char *argv[]) {
                     rowStart, rowEnd, colStart, colEnd,
                     diffusionSeedArray, byteSeq, seqIdx, 3);
     imwrite("outputs/test_de_di.jpeg", de);
-    // FILE *fd = fopen("outputs/test_dump_mat_ori.txt", "w+");
-    // DumpMat(fd, "None", img);
-    // fclose(fd);
-    // fd = fopen("outputs/test_dump_mat_dec.txt", "w+");
-    // DumpMat(fd, "None", de);
-    // fclose(fd);
+    FILE *fd = fopen("outputs/test_dump_mat_ori.txt", "w+");
+    DumpMat(fd, "None", img);
+    fclose(fd);
+    fd = fopen("outputs/test_dump_mat_dec.txt", "w+");
+    DumpMat(fd, "None", de);
+    fclose(fd);
     return 0;
 }

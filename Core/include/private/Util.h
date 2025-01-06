@@ -25,7 +25,7 @@ void ConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u
                    __OUT u32 &newCol);
 
 void ConfusionFuncTest(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed, __OUT u32 &newRow,
-                   __OUT u32 &newCol);
+                       __OUT u32 &newCol);
 
 void InvertConfusionFunc(__IN u32 row, __IN u32 col, __IN const cv::Size &size, __IN u32 confusionSeed,
                          __OUT u32 &newRow,
@@ -41,15 +41,15 @@ void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                      __IN u32 startCol, __IN u32 endCol,
                      __IN const cv::Size &size, __IN u32 confusionSeed, __IN u8 nChannel);
 
-void Diffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+void Diffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                __IN u32 startRow, __IN u32 endRow,
                __IN u32 startCol, __IN u32 endCol,
-               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx, __IN u8 nChannel);
+               __IN u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx, __IN u8 nChannel);
 
-void InvertDiffusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
+void InvertDiffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                      __IN u32 startRow, __IN u32 endRow,
                      __IN u32 startCol, __IN u32 endCol,
-                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx, __IN u8 nChannel);
+                     __IN u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx, __IN u8 nChannel);
 
 void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
                  __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads,
