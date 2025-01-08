@@ -34,7 +34,7 @@ private:
     u64 mtxId;
     Semaphore sem;
 
-    static FastBitmap bitmap;
+    // static FastBitmap bitmap;
 
     u64 static get_putIdx(bool isRet = false, u64 oldIdx = 0);
 };

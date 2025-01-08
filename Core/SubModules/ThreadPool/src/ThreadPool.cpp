@@ -21,6 +21,17 @@
 #define P_SEM_F(t) P_SEM((t).semaFinish)
 #endif
 
+#define CHECK_THROW_TERM(msg, ...) \
+    if (mtxContext.termAll) {\
+        __VA_ARGS__;\
+        char tmp[256];\
+        snprintf(tmp, sizeof(tmp), "%s: " msg " a destroy(ing/ed) thread pool is not allowed",\
+            __FUNCTION__);\
+        throw std::runtime_error(tmp);\
+    }
+
+#define CHECK_THROW_TERM_TH(msg, ...) CHECK_THROW_TERM(msg " a thread from", __VA_ARGS__)
+
 ThreadPool::ThreadPool(const u_count_t nThreads): idx(getIdx()),
                                                   threads(nThreads) {
     mtxContext.threadCount = nThreads;
@@ -58,11 +69,16 @@ ThreadPool::~ThreadPool() {
     C_SEM(poolTermSem);
 }
 
-ThreadPool::u_count_t ThreadPool::addThread(funcHandler func, void *param, const bool wait) {
+ThreadPool::thread_descriptor_t ThreadPool::addThread(const funcHandler func, void *param, const bool wait) {
+    if (mtxContext.termAll) {
+        // throw std::runtime_error("ThreadPool::addThread: trying to add a thread into a destroying thread pool.");
+        return ~static_cast<u_count_t>(0x0);
+    }
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     if (mtxContext.termAll) {
         lockAll.unlock();
+        // throw std::runtime_error("ThreadPool::addThread: trying to add a thread into a destroying thread pool.");
         return ~static_cast<u_count_t>(0x0);
     }
     for (u_count_t i = 0; i < threads.size(); i++) {
@@ -105,10 +121,11 @@ ThreadPool::u_count_t ThreadPool::addThread(funcHandler func, void *param, const
 }
 
 void *ThreadPool::waitThread(const thread_descriptor_t index) {
-    // const auto lockAll = this->lockAll.writer();
+    CHECK_THROW_TERM_TH("wait");
     if (index >= threads.size()) { return nullptr; }
     lockAll.reader().lock();
     lock(index);
+    CHECK_THROW_TERM_TH("wait", unlock(index), lockAll.reader().unlock());
     if (!wait(index)) {
         unlock(index);
         lockAll.reader().unlock();
@@ -141,6 +158,7 @@ void *ThreadPool::waitThread(const thread_descriptor_t index) {
 }
 
 bool ThreadPool::destroyThread(const thread_descriptor_t index, const bool onlyIdly) {
+    CHECK_THROW_TERM_TH("destroy");
     if (index >= threads.size()) { return false; }
     lockAll.reader().lock();
     lock(index);
@@ -151,6 +169,7 @@ bool ThreadPool::destroyThread(const thread_descriptor_t index, const bool onlyI
 }
 
 bool ThreadPool::destroyThreadLocked(const thread_descriptor_t index, const bool allLocked, const bool onlyIdly) {
+    // CHECK_THROW_TERM_TH("destroy");
     if (index >= threads.size()) { return false; }
     if (status(index) == Empty) {
         return false;
@@ -181,8 +200,10 @@ bool ThreadPool::destroyThreadLocked(const thread_descriptor_t index, const bool
 }
 
 void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
+    CHECK_THROW_TERM("reduce threads in");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
+    CHECK_THROW_TERM("reduce threads in", lockAll.unlock());
     if (tar < 0 || tar >= mtxContext.threadCount) {
         lockAll.unlock();
         return;
@@ -198,8 +219,10 @@ void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
 }
 
 void ThreadPool::waitReduce() {
+    CHECK_THROW_TERM("wait reduce from");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
+    CHECK_THROW_TERM("wait reduce from", lockAll.unlock());
     if (mtxContext.reduce < 0 || mtxContext.reduce >= mtxContext.threadCount) {
         lockAll.unlock();
         return;
@@ -216,8 +239,10 @@ void ThreadPool::waitReduce() {
 }
 
 void ThreadPool::waitFinish() {
+    CHECK_THROW_TERM("wait finish of all threads from");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
+    CHECK_THROW_TERM("wait finish of all threads from", lockAll.unlock());
     if (mtxContext.idlyCount == mtxContext.threadCount) {
         lockAll.unlock();
         return;
@@ -228,13 +253,16 @@ void ThreadPool::waitFinish() {
 }
 
 ThreadPool::u_count_t ThreadPool::getNumThreads() const {
+    CHECK_THROW_TERM("operate");
     return mtxContext.threadCount;
 }
 
 ThreadPool::u_count_t ThreadPool::getIdlyThreads() {
+    CHECK_THROW_TERM("operate");
     const auto lockAll = this->lockAll.writer();
     u_count_t ret = 0;
     lockAll.lock();
+    CHECK_THROW_TERM("operate", lockAll.unlock());
     for (u_count_t i = 0; i < threads.size(); i++) {
         if (status(i) == Idly) {
             ret++;
@@ -259,15 +287,16 @@ void *ThreadPool::threadFunc(void *arg) {
     ThreadPool &pool = *thread.pool;
     ThreadMtx &tMtx = thread.mtxContext;
     PoolMtx &pMtx = pool.mtxContext;
+    const u_count_t poolId = pool.idx;
     while (true) {
         W_SEM_S(thread);
         // Check if terminate
         pool.lockAll.reader().lock();
         pMtx.mtx.lock();
         tMtx.mtx.lock();
-        if (pMtx.termAll
-            || tMtx.forceTerminate
-            || (tMtx.func != nullptr && pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount)) {
+        if (tMtx.func == nullptr && (pMtx.termAll
+                                     || tMtx.forceTerminate
+                                     || (pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount))) {
             resetThread(tMtx);
             // Do terminate
         DO_TERMINATE:
@@ -283,10 +312,11 @@ void *ThreadPool::threadFunc(void *arg) {
             }
             // If termAll
             if (pMtx.threadCount == 0 && pMtx.termAll) {
-                P_SEM(pool.poolTermSem);
                 tMtx.mtx.unlock();
                 pMtx.mtx.unlock();
                 pool.lockAll.reader().unlock();
+                pool.lockAll.writer().lock();
+                P_SEM(pool.poolTermSem);
                 return nullptr;
             }
             tMtx.mtx.unlock();
@@ -356,19 +386,19 @@ void ThreadPool::resetThread(ThreadMtx &tMtx) {
     tMtx.waitNeed = true;
 }
 
-u8 &ThreadPool::status(const u_count_t id) const {
+volatile u8 &ThreadPool::status(const u_count_t id) const {
     return threads[id]->mtxContext.status;
 }
 
-bool &ThreadPool::terminate(const u_count_t id) const {
+volatile bool &ThreadPool::terminate(const u_count_t id) const {
     return threads[id]->mtxContext.forceTerminate;
 }
 
-bool &ThreadPool::wait(const u_count_t id) const {
+volatile bool &ThreadPool::wait(const u_count_t id) const {
     return threads[id]->mtxContext.waitNeed;
 }
 
-ThreadPool::funcHandler &ThreadPool::function(const u_count_t id) const {
+volatile ThreadPool::funcHandler &ThreadPool::function(const u_count_t id) const {
     return threads[id]->mtxContext.func;
 }
 
@@ -384,7 +414,7 @@ void *&ThreadPool::paramReturn(const u_count_t id) const {
     return threads[id]->mtxContext.param_return;
 }
 
-ThreadPool::u_count_t &ThreadPool::refers(const u_count_t id) const {
+volatile ThreadPool::u_count_t &ThreadPool::refers(const u_count_t id) const {
     return threads[id]->mtxContext.refers;
 }
 

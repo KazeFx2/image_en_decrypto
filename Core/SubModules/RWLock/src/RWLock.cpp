@@ -25,18 +25,18 @@ void RWLock::ReaderLock() {
     switch (strategy) {
         case WriterFist:
             if (wCount > 0 || wWait > 0) {
-                rWait++;
+                ++rWait;
                 onWait = true;
             } else
-                rCount++;
+                ++rCount;
             break;
         case ReaderFist:
         default:
             if (wCount > 0) {
-                rWait++;
+                ++rWait;
                 onWait = true;
             } else
-                rCount++;
+                ++rCount;
             break;
     }
     mtx.unlock();
@@ -47,10 +47,10 @@ void RWLock::ReaderLock() {
 
 void RWLock::ReaderUnlock() {
     mtx.lock();
-    rCount--;
+    --rCount;
     if (rCount == 0 && wWait > 0) {
-        wWait--;
-        wCount++;
+        --wWait;
+        ++wCount;
         WriterSem.post();
     }
     mtx.unlock();
@@ -62,18 +62,18 @@ void RWLock::WriterLock() {
     switch (strategy) {
         case WriterFist:
             if (rCount > 0 || wCount > 0) {
-                wWait++;
+                ++wWait;
                 onWait = true;
             } else
-                wCount++;
+                ++wCount;
             break;
         case ReaderFist:
         default:
             if (rCount > 0 || wCount > 0 || rWait > 0) {
-                wWait++;
+                ++wWait;
                 onWait = true;
             } else
-                wCount++;
+                ++wCount;
             break;
     }
     mtx.unlock();
@@ -84,15 +84,15 @@ void RWLock::WriterLock() {
 
 void RWLock::WriterUnlock() {
     mtx.lock();
-    wCount--;
+    --wCount;
     if (wWait > 0) {
-        wWait--;
-        wCount++;
+        --wWait;
+        ++wCount;
         WriterSem.post();
     } else if (rWait > 0) {
         while (rWait > 0) {
-            rWait--;
-            rCount++;
+            --rWait;
+            ++rCount;
             ReaderSem.post();
         }
     }

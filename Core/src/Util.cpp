@@ -552,7 +552,7 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
 
 void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config) {
     for (u32 i = 0; i < config.nThread; i++)
-        delete [] ret[i]->byteSeq, delete [] ret[i]->diffusionSeedArray;
+        delete [] ret[i]->byteSeq, delete [] ret[i]->diffusionSeedArray, delete ret[i];
     delete [] ret;
 }
 

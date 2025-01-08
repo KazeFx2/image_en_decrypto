@@ -9,6 +9,8 @@
 
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
+#define SEMA_TIMEOUT DISPATCH_TIME_FOREVER
+// #define SEMA_TIMEOUT (dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)))
 #else
 #include <semaphore.h>
 #endif
@@ -36,7 +38,8 @@ rk_sema_init(struct rk_sema *s, uint32_t value) {
 static inline void
 rk_sema_wait(struct rk_sema *s) {
 #ifdef __APPLE__
-    dispatch_semaphore_wait(s->sem, DISPATCH_TIME_FOREVER);
+    if (dispatch_semaphore_wait(s->sem, SEMA_TIMEOUT))
+        throw std::runtime_error("semaphore wait timeout");
 #else
     int r;
 

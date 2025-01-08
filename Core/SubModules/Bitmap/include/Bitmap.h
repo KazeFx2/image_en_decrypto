@@ -17,7 +17,8 @@ public:
 
         element(const element &other) = delete;
 
-        ~element() = default;
+        ~element() {
+        };
 
         operator bool() const {
             return static_cast<bool>(*data & static_cast<uptr>(0x1) << offset);

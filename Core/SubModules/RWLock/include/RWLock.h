@@ -62,7 +62,8 @@ public:
 private:
     using u_count_t = u32;
     u8 strategy;
-    u_count_t rCount, wCount, rWait, wWait;
+    volatile u_count_t rCount, wCount, rWait, wWait;
+    // std::atomic_uint32_t rCount, wCount, rWait, wWait;
     Mutex mtx;
     Semaphore ReaderSem, WriterSem;
 };

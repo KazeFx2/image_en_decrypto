@@ -5,6 +5,8 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
+#include <functional>
+
 #include "private/types.h"
 #include "RWLock.h"
 #include "pthread.h"
@@ -18,13 +20,75 @@ public:
 
     typedef void *(*funcHandler)(void *);
 
+    template<typename R>
+    class threadDescriptor {
+    public:
+        threadDescriptor(ThreadPool *pool, const thread_descriptor_t descriptor): pool(pool), descriptor(descriptor) {
+        }
+
+        R wait() {
+            if constexpr (std::is_same_v<R, void>) {
+                pool->waitThread(descriptor);
+                return nullptr;
+            } else {
+                typedef struct {
+                    R &&ret;
+                } returnType;
+                auto *tmp = static_cast<returnType *>(pool->waitThread(descriptor));
+                auto &&ret = tmp->ret;
+                delete tmp;
+                return ret;
+            }
+        }
+
+        ~threadDescriptor() {
+        }
+
+    private:
+        ThreadPool *pool;
+        thread_descriptor_t descriptor;
+    };
+
     explicit ThreadPool(u_count_t nThreads);
 
     ThreadPool(const ThreadPool &) = delete;
 
     ~ThreadPool();
 
-    thread_descriptor_t addThread(funcHandler fun, void *param, bool wait = true);
+    thread_descriptor_t addThread(funcHandler func, void *param, bool wait = true);
+
+    /* WARN: T& and T&& are not supported */
+    template<typename Func, typename... Args>
+    threadDescriptor<std::result_of_t<Func(Args...)> > addThreadEX(Func &&f, bool wait = true, Args &&... args) {
+        using ReturnType = std::result_of_t<Func(Args...)>;
+        using BindType = decltype(std::bind(std::forward<Func>(f), std::forward<Args>(args)...));
+        typedef struct {
+            BindType func;
+        } ParamType;
+        auto *param = new BindType(std::forward<Func>(f), std::forward<Args>(args)...);
+        auto descriptor = addThread([](void *params) -> void *{
+            auto *innerParam = static_cast<ParamType *>(params);
+            if constexpr (std::is_void_v<ReturnType>) {
+                innerParam->func();
+                delete innerParam;
+                return nullptr;
+            } else {
+                typedef struct {
+                    ReturnType &&ret;
+                } returnType;
+                auto *ret = new returnType{
+                    innerParam->func()
+
+                };
+                delete innerParam;
+                return ret;
+            }
+        }, param, wait);
+        if (!~descriptor) {
+            delete param;
+        }
+        return threadDescriptor<std::result_of_t<Func(Args...)> >(this, descriptor);
+    }
 
     void *waitThread(thread_descriptor_t index);
 
@@ -49,11 +113,11 @@ private:
     } ThreadStatus;
 
     typedef struct {
-        u8 status;
-        u_count_t refers;
-        bool forceTerminate;
-        bool waitNeed;
-        funcHandler func;
+        volatile u8 status;
+        volatile u_count_t refers;
+        volatile bool forceTerminate;
+        volatile bool waitNeed;
+        volatile funcHandler func;
         void *param_return;
         Mutex mtx;
     } ThreadMtx;
@@ -68,16 +132,16 @@ private:
     } ThreadContext;
 
     typedef struct {
-        u_count_t threadCount;
-        u_count_t idlyCount;
-        u_count_t waitReduceRefers;
-        u_count_t waitFinishRefers;
-        s_count_t reduce;
-        bool termAll;
+        volatile u_count_t threadCount;
+        volatile u_count_t idlyCount;
+        volatile u_count_t waitReduceRefers;
+        volatile u_count_t waitFinishRefers;
+        volatile s_count_t reduce;
+        volatile bool termAll;
         Mutex mtx;
     } PoolMtx;
 
-    u_count_t idx;
+    volatile u_count_t idx;
     Semaphore poolTermSem, reduceWaitSem, finishWaitSem;
     PoolMtx mtxContext;
     RWLock lockAll;
@@ -88,13 +152,13 @@ private:
 
     void initThread(ThreadContext &th, u_count_t id);
 
-    u8 &status(u_count_t id) const;
+    volatile u8 &status(u_count_t id) const;
 
-    bool &terminate(u_count_t id) const;
+    volatile bool &terminate(u_count_t id) const;
 
-    bool &wait(u_count_t id) const;
+    volatile bool &wait(u_count_t id) const;
 
-    funcHandler &function(u_count_t id) const;
+    volatile funcHandler &function(u_count_t id) const;
 
     void lock(u_count_t id) const;
 
@@ -102,7 +166,7 @@ private:
 
     void *&paramReturn(u_count_t id) const;
 
-    u_count_t &refers(u_count_t id) const;
+    volatile u_count_t &refers(u_count_t id) const;
 
     static void resetThread(ThreadMtx &tMtx);
 

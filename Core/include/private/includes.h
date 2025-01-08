@@ -80,6 +80,19 @@ for (u32 j = 0; j < Config.nThread; j++)\
 
 #define ORIGINAL_SIZE cv::Size{0, 0}
 #define RANDOM_KEYS Keys{Rand16(), GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2, GenDoubleFloatFrom1To0Random(), GenDoubleFloatFrom1To0Random() / 2}
-#define DEFAULT_CONFIG ParamControl{6, 200, 3, 5, 8, 3}
+#define DEFAULT_CONFIG ParamControl{\
+    /* byteReserve */\
+    6,\
+    /* preIterations */\
+    200,\
+    /* confusionIterations */\
+    2,\
+    /* diffusionConfusionIterations */\
+    2,\
+    /* nThread */\
+    16,\
+    /* nChannel */\
+    3\
+}
 
 #endif //INCLUDES_H

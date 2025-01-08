@@ -4,7 +4,7 @@
 
 #include "Mutex.h"
 
-FastBitmap Mutex::bitmap;
+// FastBitmap Mutex::bitmap;
 
 Mutex::Mutex(): sem(static_cast<u32>(1)) {
     mtxId = get_putIdx();
@@ -21,6 +21,7 @@ Mutex::~Mutex() {
 u64 Mutex::get_putIdx(const bool isRet, const u64 oldIdx) {
     static u64 idx = 0;
     static Semaphore semaphore(1);
+    static FastBitmap bitmap;
     semaphore.wait();
     if (isRet == true) {
         bitmap[oldIdx] = false;

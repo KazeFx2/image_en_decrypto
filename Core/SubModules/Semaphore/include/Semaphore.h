@@ -5,6 +5,8 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
+#include <Bitmap.h>
+
 #include "private/types.h"
 #include "rk_sema.h"
 
@@ -27,7 +29,11 @@ public:
     void post();
 
 private:
-    rk_sema sem;
+    static u64 get_putIdx(u32 init, rk_sema *&out, bool isRet = false, u64 oldIdx = 0);
+
+    rk_sema *sem;
+    volatile u32 idx;
+    std::atomic_uint32_t ct;
 };
 
 #endif //SEMAPHORE_H
