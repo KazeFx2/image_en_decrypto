@@ -52,15 +52,14 @@ u64 Semaphore::get_putIdx(u32 init, rk_sema *&out, const bool isRet, const u64 o
         out = nullptr;
         return oldIdx;
     }
-    for (u64 i = 0; i < idx; i++) {
-        if (!bitmap[i]) {
-            bitmap[i] = true;
-            while (init > 0)
-                rk_sema_post(semaVec[i]), --init;
-            semaphore.post();
-            out = semaVec[i];
-            return i;
-        }
+    auto id = bitmap.findNextFalse(0, idx);
+    if (id != BITMAP_NOT_FOUND) {
+        bitmap[id] = true;
+        while (init > 0)
+            rk_sema_post(semaVec[id]), --init;
+        semaphore.post();
+        out = semaVec[id];
+        return id;
     }
     idx++;
     const u64 ret = idx - 1;

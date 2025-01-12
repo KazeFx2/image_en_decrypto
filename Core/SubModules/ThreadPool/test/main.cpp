@@ -74,9 +74,9 @@ int main(int argc, const char *argv[]) {\
         delete &ret;
 
         auto f = sp.addThreadEX([]()-> Test &{
-            auto *t = new Test;
+            // auto *t = new Test;
             throw std::runtime_error("test");
-            return *t;
+            // return *t;
         }).except([](std::exception &e, Test &t) {
             t.a[0] = 0;
         }).then([](Test &t) {

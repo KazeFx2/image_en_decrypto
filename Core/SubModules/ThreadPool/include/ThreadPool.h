@@ -11,7 +11,6 @@
 #include "RWLock.h"
 #include "pthread.h"
 #include <vector>
-#include <queue>
 
 class ThreadPool {
 public:
@@ -211,6 +210,7 @@ public:
                     } catch (std::exception &e) {
                         (*exceptFunc)(e);
                     }
+                    delete exceptFunc;
                 } else
                     innerParam->func();
                 if (thenFunc) {
@@ -235,15 +235,16 @@ public:
                 returnType *ret = nullptr;
                 if (exceptFunc) {
                     try {
-                        ret = new returnType {
+                        ret = new returnType{
                             innerParam->func()
                         };
                     } catch (std::exception &e) {
-                        ret = new returnType {
+                        ret = new returnType{
                             *(new std::decay_t<ReturnType>),
                         };
                         (*exceptFunc)(e, ret->ret);
                     }
+                    delete exceptFunc;
                 } else {
                     ret = new returnType{
                         innerParam->func(),
@@ -263,40 +264,6 @@ public:
             }, param);
         }
     }
-
-    //
-    // /* WARN: T&& is not supported */
-    // template<typename Func, typename... Args>
-    // threadDescriptor<std::result_of_t<Func(Args...)> > addThreadEX(Func &&f, bool wait = true, Args &&... args) {
-    //     using ReturnType = std::result_of_t<Func(Args...)>;
-    //     using BindType = decltype(std::bind(std::forward<Func>(f), std::forward<Args>(args)...));
-    //     typedef struct {
-    //         BindType func;
-    //     } ParamType;
-    //     auto *param = new BindType(std::forward<Func>(f), std::forward<Args>(args)...);
-    //     auto descriptor = addThread([](void *params) -> void *{
-    //         auto *innerParam = static_cast<ParamType *>(params);
-    //         if constexpr (std::is_void_v<ReturnType>) {
-    //             innerParam->func();
-    //             delete innerParam;
-    //             return nullptr;
-    //         } else {
-    //             typedef struct {
-    //                 ReturnType &&ret;
-    //             } returnType;
-    //             auto *ret = new returnType{
-    //                 innerParam->func()
-    //
-    //             };
-    //             delete innerParam;
-    //             return ret;
-    //         }
-    //     }, param, wait);
-    //     if (IS_THREAD_FAILED(descriptor)) {
-    //         delete param;
-    //     }
-    //     return threadDescriptor<std::result_of_t<Func(Args...)> >(this, descriptor);
-    // }
 
     bool isDescriptorAvailable(task_descriptor_t descriptor);
 

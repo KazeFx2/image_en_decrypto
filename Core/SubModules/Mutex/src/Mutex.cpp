@@ -28,12 +28,11 @@ u64 Mutex::get_putIdx(const bool isRet, const u64 oldIdx) {
         semaphore.post();
         return oldIdx;
     }
-    for (u64 i = 0; i < idx; i++) {
-        if (!bitmap[i]) {
-            bitmap[i] = true;
-            semaphore.post();
-            return i;
-        }
+    auto id = bitmap.findNextFalse(0, idx);
+    if (id != BITMAP_NOT_FOUND) {
+        bitmap[id] = true;
+        semaphore.post();
+        return id;
     }
     idx++;
     const u64 ret = idx - 1;
