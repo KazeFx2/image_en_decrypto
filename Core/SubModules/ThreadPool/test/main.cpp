@@ -58,44 +58,31 @@ Test *testD() {
     return new Test(std::move(ret));
 }
 
-auto testFunc() {
-    ThreadPool sp(10);
-
-    Test b;
-    // printf("%p\n", &b);
-
-    auto d = sp.addThreadEX([](Test a, Test &b)-> Test &{
-        auto *t = new Test;
-        *t = a;
-        return *t;
-    }, Test(), std::ref(b)).setWait().start();
-    // sp.setMax(12);
-    // sp.reduceTo(1);
-    // sp.waitReduce();
-    auto &&ret = d.wait();
-    delete &ret;
-    return sp.addThreadEX([&sp](int n)-> void {
-        printf("%d\n", n);
-        while (n--) {
-            sp.addThreadEX([n]()-> int {
-                printf("%d, Hello, World!\n", n);
-                throw std::runtime_error("HHHHHHHHHHHHHHH!");
-                return n;
-            }).setNoWait().except([n](const std::exception &e) {
-                printf("except: %s\n", e.what());
-                return new int(n);
-            }).then([](int n) {
-                printf("%d,Rec, World!\n", n);
-            }).start();
-        }
-    }, 10).setNoWait().start();
-}
-
 int main(int argc, const char *argv[]) {\
     while (true) {
-        // auto nm =
-        testFunc();
-        // nm.wait();
+        ThreadPool sp(10);
+
+        Test b;
+        // printf("%p\n", &b);
+
+        auto d = sp.addThreadEX([](Test a, Test &b)-> Test &{
+            auto *t = new Test;
+            *t = a;
+            return *t;
+        }, Test(), std::ref(b)).setWait().start();
+        auto &ret = d.wait();
+        delete &ret;
+
+        auto f = sp.addThreadEX([]()-> Test &{
+            auto *t = new Test;
+            throw std::runtime_error("test");
+            return *t;
+        }).except([](std::exception &e, Test &t) {
+            t.a[0] = 0;
+        }).then([](Test &t) {
+            printf("%d\n", t.a[0]);
+            delete &t;
+        }).start();
     }
     return 0;
 }

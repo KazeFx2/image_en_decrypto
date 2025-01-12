@@ -75,10 +75,10 @@ public:
     } PoolMtx;
 
     template<typename R>
-    class threadDescriptor {
+    class taskDescriptor {
     public:
         typedef struct {
-            std::function<std::remove_reference_t<R> *(std::exception &)> exceptFunc;
+            const void *exceptFunc;
             const void *thenFunc;
             bool wait;
         } ParamType;
@@ -87,8 +87,10 @@ public:
             R ret;
         } returnType;
 
-        threadDescriptor(ThreadPool *pool, const funcHandler func, void *param): pool(pool), func(func),
-            param(static_cast<ParamType *>(param)), descriptor(THREAD_FAILED), taskUnique(0), task(nullptr) {
+        taskDescriptor(ThreadPool *pool, const funcHandler func, void *param): pool(pool), func(func),
+                                                                               param(static_cast<ParamType *>(param)),
+                                                                               descriptor(THREAD_FAILED), taskUnique(0),
+                                                                               task(nullptr) {
         }
 
         R wait() {
@@ -106,23 +108,36 @@ public:
             }
         }
 
-        threadDescriptor &setWait() {
+        taskDescriptor &setWait() {
             param->wait = true;
             return *this;
         }
 
-        threadDescriptor &setNoWait() {
+        taskDescriptor &setNoWait() {
             param->wait = false;
             return *this;
         }
 
-        threadDescriptor &except(std::function<std::remove_reference_t<R> *(std::exception &)> &&exceptFunc) {
-            param->exceptFunc = exceptFunc;
+        template<typename Func>
+        taskDescriptor &except(const Func &&exceptFunc) {
+            if constexpr (std::is_same_v<R, void>) {
+                using FuncType = const std::function<void(std::exception &)>;
+                if (param->exceptFunc != nullptr) {
+                    delete static_cast<FuncType *>(param->exceptFunc);
+                }
+                param->exceptFunc = new FuncType(exceptFunc);
+            } else {
+                using FuncType = const std::function<void(std::exception &, R &)>;
+                if (param->exceptFunc != nullptr) {
+                    delete static_cast<FuncType *>(param->exceptFunc);
+                }
+                param->exceptFunc = new FuncType(exceptFunc);
+            }
             return *this;
         }
 
         template<typename Func>
-        threadDescriptor &then(const Func &thenFunc) {
+        taskDescriptor &then(const Func &&thenFunc) {
             if constexpr (std::is_same_v<R, void>) {
                 if (param->thenFunc != nullptr) {
                     delete static_cast<const std::function<void()> *>(param->thenFunc);
@@ -138,7 +153,7 @@ public:
             return *this;
         }
 
-        threadDescriptor &start() {
+        taskDescriptor &start() {
             descriptor = pool->addThread(func, param, param->wait, &task);
             if (descriptor == THREAD_FAILED) {
                 delete param;
@@ -148,7 +163,7 @@ public:
             return *this;
         }
 
-        ~threadDescriptor() {
+        ~taskDescriptor() {
         }
 
     private:
@@ -171,11 +186,11 @@ public:
 
     /* WARN: param T&& and return T& are not supported */
     template<typename Func, typename... Args>
-    threadDescriptor<std::result_of_t<Func(Args...)> > addThreadEX(Func &&f, Args &&... args) {
+    taskDescriptor<std::result_of_t<Func(Args...)> > addThreadEX(Func &&f, Args &&... args) {
         using ReturnType = std::result_of_t<Func(Args...)>;
         using BindType = decltype(std::bind(std::forward<Func>(f), std::forward<Args>(args)...));
         typedef struct {
-            std::function<std::remove_reference_t<ReturnType> *(std::exception &)> exceptFunc;
+            const void *exceptFunc;
             const void *thenFunc;
             bool wait;
             BindType func;
@@ -184,16 +199,17 @@ public:
             nullptr, nullptr, true, BindType(std::forward<Func>(f), std::forward<Args>(args)...)
         };
         if constexpr (std::is_same_v<ReturnType, void>) {
-            return threadDescriptor<void>(this, [](void *params) -> void *{
+            return taskDescriptor<void>(this, [](void *params) -> void *{
                 auto *innerParam = static_cast<ParamType *>(params);
-                auto &exceptFunc = innerParam->exceptFunc;
-                const std::function<void()> *thenFunc = static_cast<const std::function<void()> *>(innerParam->
+                const auto *exceptFunc = static_cast<const std::function<void
+                    (std::exception &)> *>(innerParam->exceptFunc);
+                const auto *thenFunc = static_cast<const std::function<void()> *>(innerParam->
                     thenFunc);
                 if (exceptFunc) {
                     try {
                         innerParam->func();
                     } catch (std::exception &e) {
-                        exceptFunc(e);
+                        (*exceptFunc)(e);
                     }
                 } else
                     innerParam->func();
@@ -205,29 +221,28 @@ public:
                 return nullptr;
             }, param);
         } else {
-            return threadDescriptor<ReturnType>(this, [](void *params) -> void *{
+            return taskDescriptor<ReturnType>(this, [](void *params) -> void *{
                 auto *innerParam = static_cast<ParamType *>(params);
-                auto &exceptFunc = innerParam->exceptFunc;
+                const auto *exceptFunc = static_cast<const std::function<void
+                    (std::exception &, ReturnType &)> *>(innerParam->exceptFunc);
+                const auto *thenFunc = static_cast<const std::function<void
+                    (ReturnType)> *>(
+                    innerParam->thenFunc);
                 auto &wait = innerParam->wait;
                 typedef struct {
                     ReturnType ret;
                 } returnType;
-                const std::function<void(ReturnType)> *thenFunc = static_cast<const std::function<void
-                    (ReturnType)> *>(
-                    innerParam->thenFunc);
                 returnType *ret = nullptr;
                 if (exceptFunc) {
                     try {
-                        ret = new returnType{
+                        ret = new returnType {
                             innerParam->func()
                         };
                     } catch (std::exception &e) {
-                        auto *eRet = exceptFunc(e);
-                        if (eRet) {
-                            ret = new returnType{
-                                *eRet,
-                            };
-                        }
+                        ret = new returnType {
+                            *(new std::decay_t<ReturnType>),
+                        };
+                        (*exceptFunc)(e, ret->ret);
                     }
                 } else {
                     ret = new returnType{
