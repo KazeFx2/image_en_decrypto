@@ -18,7 +18,7 @@ double GetCPUSecond() {
 int main(int argc, const char **argv) {
     chdir(homePath);
 
-    ThreadPool pool(64);
+    ThreadPool pool(16);
     const u32 W = 499;
     cv::Size size{W, W};
 

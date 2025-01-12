@@ -68,24 +68,30 @@ auto testFunc() {
         auto *t = new Test;
         *t = a;
         return *t;
-    }, true, Test(), std::ref(b));
+    }, Test(), std::ref(b)).setWait().start();
+    // sp.setMax(12);
+    // sp.reduceTo(1);
+    // sp.waitReduce();
     auto &&ret = d.wait();
     delete &ret;
     return sp.addThreadEX([&sp](int n)-> void {
         printf("%d\n", n);
         while (n--) {
-            sp.addThreadEX([]()-> void {
-                printf("Hello, World!\n");
-                auto n = 1000000;
-                while (n--) {
-
-                }
-            }, false);
+            sp.addThreadEX([n]()-> int {
+                printf("%d, Hello, World!\n", n);
+                throw std::runtime_error("HHHHHHHHHHHHHHH!");
+                return n;
+            }).setNoWait().except([n](const std::exception &e) {
+                printf("except: %s\n", e.what());
+                return new int(n);
+            }).then([](int n) {
+                printf("%d,Rec, World!\n", n);
+            }).start();
         }
-    }, true, 10);
+    }, 10).setNoWait().start();
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[]) {\
     while (true) {
         // auto nm =
         testFunc();

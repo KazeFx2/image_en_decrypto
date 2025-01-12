@@ -19,3 +19,7 @@ target_include_directories(
         PUBLIC
         include
 )
+
+if (${CoreTest})
+    add_subdirectory(test)
+endif ()

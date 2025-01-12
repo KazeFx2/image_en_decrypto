@@ -33,11 +33,15 @@
 #define CHECK_THROW_TERM_TH(msg, ...) CHECK_THROW_TERM(msg " a thread from", __VA_ARGS__)
 
 ThreadPool::ThreadPool(const u_count_t nThreads): idx(getIdx()),
+                                                  threadIdly(nThreads, true), threadEmpty(nThreads, false),
+                                                  waitingTasks(1, false), emptyTasks(1, true),
                                                   threads(nThreads) {
     mtxContext.threadCount = nThreads;
     mtxContext.idlyCount = nThreads;
+    mtxContext.maxCount = nThreads;
     mtxContext.waitReduceRefers = 0;
     mtxContext.waitFinishRefers = 0;
+    mtxContext.waitIdlyRefers = 0;
     mtxContext.reduce = -1;
     mtxContext.termAll = false;
     for (u_count_t i = 0; i < nThreads; i++) {
@@ -47,129 +51,195 @@ ThreadPool::ThreadPool(const u_count_t nThreads): idx(getIdx()),
 }
 
 ThreadPool::~ThreadPool() {
+    static int iii = 0;
+    iii++;
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     mtxContext.termAll = true;
     const bool noExists = mtxContext.threadCount == 0;
-    for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status(i) != Empty) {
-            destroyThreadLocked(i);
-        }
+    const bool doWait = mtxContext.idlyCount != mtxContext.threadCount;
+    if (doWait) {
+        mtxContext.waitFinishRefers++;
     }
     lockAll.unlock();
+    if (doWait) {
+        W_SEM(finishWaitSem);
+    }
+    for (u_count_t i = 0; i < threads.size(); i++) {
+        destroyThreadLocked(i);
+    }
     if (!noExists)
         W_SEM(poolTermSem);
+    else
+        lockAll.lock();
     for (u_count_t i = 0; i < threads.size(); i++) {
         delete threads[i];
         C_SEM(threads[i]->semaStart);
-        C_SEM(threads[i]->semaFinish);
+        C_SEM(threads[i]->mtxContext.task);
+    }
+    for (u_count_t i = 0; i < mtxContext.taskArray.size(); i++) {
+        delete mtxContext.taskArray[i];
     }
     C_SEM(finishWaitSem);
     C_SEM(reduceWaitSem);
     C_SEM(poolTermSem);
+    lockAll.unlock();
 }
 
-ThreadPool::thread_descriptor_t ThreadPool::addThread(const funcHandler func, void *param, const bool wait) {
-    if (mtxContext.termAll) {
-        // throw std::runtime_error("ThreadPool::addThread: trying to add a thread into a destroying thread pool.");
-        return ~static_cast<u_count_t>(0x0);
+ThreadPool::u_count_t ThreadPool::addTaskLocked(const funcHandler func, void *param, const bool wait) {
+    auto id = emptyTasks.findNextTrue(0, mtxContext.taskArray.size());
+    if (id == BITMAP_NOT_FOUND) {
+        id = mtxContext.taskArray.size();
+        mtxContext.taskArray.push_back(new TaskInfo{
+            func, param, wait, 0, THREAD_FAILED, 0, false
+        });
+        emptyTasks[id] = false;
+        waitingTasks[id] = true;
+        return id;
     }
+    mtxContext.taskArray[id]->func = func;
+    mtxContext.taskArray[id]->param_return = param;
+    mtxContext.taskArray[id]->wait = wait;
+    mtxContext.taskArray[id]->refers = 0;
+    mtxContext.taskArray[id]->threadId = THREAD_FAILED;
+    mtxContext.taskArray[id]->uniqueId++;
+    mtxContext.taskArray[id]->finished = false;
+    emptyTasks[id] = false;
+    waitingTasks[id] = true;
+    return id;
+}
+
+ThreadPool::task_descriptor_t ThreadPool::addThread(const funcHandler func, void *param, const bool wait,
+                                                    TaskInfo **taskOut) {
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     if (mtxContext.termAll) {
         lockAll.unlock();
-        // throw std::runtime_error("ThreadPool::addThread: trying to add a thread into a destroying thread pool.");
-        return ~static_cast<u_count_t>(0x0);
+        throw std::runtime_error("ThreadPool::addThread: trying to add a thread into a destroying thread pool.");
+        return THREAD_FAILED;
     }
-    for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status(i) == Idly) {
-            mtxContext.idlyCount--;
-            function(i) = func;
-            paramReturn(i) = param;
-            this->wait(i) = wait;
-            status(i) = Working;
-            P_SEM_S(*threads[i]);
-            lockAll.unlock();
-            return i;
-        }
+    const auto taskId = addTaskLocked(func, param, wait);
+    auto *task = mtxContext.taskArray[taskId];
+    if (taskOut != nullptr) {
+        *taskOut = task;
     }
-    for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status(i) == Empty) {
-            startThread(i);
-            mtxContext.threadCount++;
-            function(i) = func;
-            paramReturn(i) = param;
-            this->wait(i) = wait;
-            status(i) = Working;
-            P_SEM_S(*threads[i]);
-            lockAll.unlock();
-            return i;
-        }
+    count_t id = threadIdly.findNextTrue(0, threads.size());
+    while (id != BITMAP_NOT_FOUND && threads[id]->mtxContext.forceTerminate)
+        id = threadIdly.findNextTrue(id + 1, threads.size());
+    if (id != BITMAP_NOT_FOUND) {
+        mtxContext.idlyCount--;
+        threads[id]->mtxContext.task = task;
+        task->threadId = id;
+        status(id) = Working;
+        threadIdly[id] = false;
+        waitingTasks[taskId] = false;
+        P_SEM_S(*threads[id]);
+        lockAll.unlock();
+        return taskId;
+    }
+    id = threadEmpty.findNextTrue(0, threads.size());
+    if (id != BITMAP_NOT_FOUND) {
+        startThread(id);
+        mtxContext.threadCount++;
+        threads[id]->mtxContext.task = task;
+        task->threadId = id;
+        status(id) = Working;
+        threadIdly[id] = false;
+        waitingTasks[taskId] = false;
+        P_SEM_S(*threads[id]);
+        lockAll.unlock();
+        return taskId;
+    }
+    if (threads.size() >= mtxContext.maxCount) {
+        lockAll.unlock();
+        return taskId;
     }
     const u_count_t last = threads.size();
     // threads.push_back(ThreadContext());
     threads.push_back(new ThreadContext);
     initThread(*threads[last], last);
     mtxContext.threadCount++;
-    function(last) = func;
-    paramReturn(last) = param;
-    this->wait(last) = wait;
+    threads[last]->mtxContext.task = task;
+    task->threadId = last;
     status(last) = Working;
+    threadIdly[last] = false;
+    threadEmpty[last] = false;
+    waitingTasks[taskId] = false;
     P_SEM_S(*threads[last]);
     lockAll.unlock();
-    return last;
+    return taskId;
 }
 
-void *ThreadPool::waitThread(const thread_descriptor_t index) {
-    CHECK_THROW_TERM_TH("wait");
-    if (index >= threads.size()) { return nullptr; }
+bool ThreadPool::addThreadFromWaitingArrayLocked(const u_count_t current_id) {
+    const count_t id = waitingTasks.findNextTrue(0, mtxContext.taskArray.size());
+    if (id == BITMAP_NOT_FOUND) { return false; }
+    waitingTasks[id] = false;
+    auto *task = mtxContext.taskArray[id];
+    task->threadId = current_id;
+    threads[current_id]->mtxContext.task = task;
+    return true;
+}
+
+bool ThreadPool::isDescriptorAvailable(const task_descriptor_t descriptor) {
+    return !emptyTasks[descriptor];
+}
+
+void *ThreadPool::waitThread(const task_descriptor_t index) {
     lockAll.reader().lock();
-    lock(index);
-    CHECK_THROW_TERM_TH("wait", unlock(index), lockAll.reader().unlock());
-    if (!wait(index)) {
-        unlock(index);
+    CHECK_THROW_TERM_TH("wait", lockAll.reader().unlock());
+    if (index >= mtxContext.taskArray.size()) {
         lockAll.reader().unlock();
         return nullptr;
     }
+    lockTask(index);
+    if (!isDescriptorAvailable(index)) {
+        unlockTask(index);
+        lockAll.reader().unlock();
+        return nullptr;
+    }
+    if (!mtxContext.taskArray[index]->wait) {
+        unlockTask(index);
+        lockAll.reader().unlock();
+        return nullptr;
+    }
+    const auto &task = mtxContext.taskArray[index];
     void *ret;
-    if (status(index) & (Idly | Empty)) {
-        unlock(index);
-        lockAll.reader().unlock();
-        return nullptr;
-    }
-    if (status(index) == Returning) {
-        W_SEM_F(*threads[index]);
-        status(index) = Idly;
-        mtxContext.mtx.lock();
-        mtxContext.idlyCount++;
-        wakeFinishSem();
-        mtxContext.mtx.unlock();
-        ret = paramReturn(index);
-        unlock(index);
+    if (task->finished) {
+        ret = task->param_return;
+        W_SEM_F(*task);
+        emptyTasks[index] = true;
+        unlockTask(index);
         lockAll.reader().unlock();
         return ret;
     }
-    refers(index)++;
-    unlock(index);
+    task->refers++;
+    unlockTask(index);
     lockAll.reader().unlock();
-    W_SEM_F(*threads[index]);
-    ret = paramReturn(index);
+    W_SEM_F(*task);
+    ret = task->param_return;
+    lockAll.reader().lock();
+    lockTask(index);
+    task->refers--;
+    if (task->refers == 0) {
+        emptyTasks[index] = true;
+    }
+    unlockTask(index);
+    lockAll.reader().unlock();
     return ret;
 }
 
-bool ThreadPool::destroyThread(const thread_descriptor_t index, const bool onlyIdly) {
-    CHECK_THROW_TERM_TH("destroy");
+bool ThreadPool::destroyThread(const u_count_t index, const bool onlyIdly) {
     if (index >= threads.size()) { return false; }
     lockAll.reader().lock();
-    lock(index);
-    const bool ret = destroyThreadLocked(index, false, onlyIdly);
-    unlock(index);
+    lockThread(index);
+    CHECK_THROW_TERM_TH("destroy", unlockThread(index), lockAll.reader().unlock());
+    const bool ret = destroyThreadLocked(index, onlyIdly);
+    unlockThread(index);
     lockAll.reader().unlock();
     return ret;
 }
 
-bool ThreadPool::destroyThreadLocked(const thread_descriptor_t index, const bool allLocked, const bool onlyIdly) {
-    // CHECK_THROW_TERM_TH("destroy");
+bool ThreadPool::destroyThreadLocked(const u_count_t index, const bool onlyIdly) const {
     if (index >= threads.size()) { return false; }
     if (status(index) == Empty) {
         return false;
@@ -180,27 +250,11 @@ bool ThreadPool::destroyThreadLocked(const thread_descriptor_t index, const bool
     if (terminate(index))
         return true;
     terminate(index) = true;
-    if (status(index) == Returning) {
-        W_SEM_F(*threads[index]);
-        status(index) = Idly;
-        if (!allLocked) {
-            mtxContext.mtx.lock();
-            mtxContext.idlyCount++;
-            wakeFinishSem();
-            mtxContext.mtx.unlock();
-        } else {
-            mtxContext.idlyCount++;
-            wakeFinishSem();
-        }
-    } else if (status(index) == Working) {
-        wait(index) = false;
-    }
     P_SEM_S(*threads[index]);
     return true;
 }
 
 void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
-    CHECK_THROW_TERM("reduce threads in");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     CHECK_THROW_TERM("reduce threads in", lockAll.unlock());
@@ -211,15 +265,25 @@ void ThreadPool::reduceTo(const s_count_t tar, const bool force) {
     mtxContext.reduce = tar;
     u_count_t deduct = mtxContext.threadCount - tar;
     for (u_count_t i = 0; deduct != 0 && i < threads.size(); i++) {
-        if (destroyThreadLocked(i, true, !force)) {
+        if (destroyThreadLocked(i, !force)) {
             deduct--;
         }
     }
     lockAll.unlock();
 }
 
+void ThreadPool::setMax(const u_count_t max) {
+    lockAll.writer().lock();
+    mtxContext.maxCount = max;
+    mtxContext.reduce = -1;
+    while (mtxContext.waitReduceRefers > 0) {
+        P_SEM(reduceWaitSem);
+        mtxContext.waitReduceRefers--;
+    }
+    lockAll.writer().unlock();
+}
+
 void ThreadPool::waitReduce() {
-    CHECK_THROW_TERM("wait reduce from");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     CHECK_THROW_TERM("wait reduce from", lockAll.unlock());
@@ -229,7 +293,7 @@ void ThreadPool::waitReduce() {
     }
     u_count_t deduct = mtxContext.threadCount - mtxContext.reduce;
     for (u_count_t i = 0; deduct != 0 && i < threads.size(); i++) {
-        if (destroyThreadLocked(i, true, true)) {
+        if (destroyThreadLocked(i, true)) {
             deduct--;
         }
     }
@@ -239,7 +303,6 @@ void ThreadPool::waitReduce() {
 }
 
 void ThreadPool::waitFinish() {
-    CHECK_THROW_TERM("wait finish of all threads from");
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     CHECK_THROW_TERM("wait finish of all threads from", lockAll.unlock());
@@ -257,19 +320,14 @@ ThreadPool::u_count_t ThreadPool::getNumThreads() const {
     return mtxContext.threadCount;
 }
 
-ThreadPool::u_count_t ThreadPool::getIdlyThreads() {
+ThreadPool::u_count_t ThreadPool::getIdlyThreads() const {
     CHECK_THROW_TERM("operate");
-    const auto lockAll = this->lockAll.writer();
-    u_count_t ret = 0;
-    lockAll.lock();
-    CHECK_THROW_TERM("operate", lockAll.unlock());
-    for (u_count_t i = 0; i < threads.size(); i++) {
-        if (status(i) == Idly) {
-            ret++;
-        }
-    }
-    lockAll.unlock();
-    return ret;
+    return mtxContext.idlyCount;
+}
+
+ThreadPool::u_count_t ThreadPool::getMaxThreads() const {
+    CHECK_THROW_TERM("operate");
+    return mtxContext.maxCount;
 }
 
 ThreadPool::u_count_t ThreadPool::getIdx() {
@@ -287,20 +345,22 @@ void *ThreadPool::threadFunc(void *arg) {
     ThreadPool &pool = *thread.pool;
     ThreadMtx &tMtx = thread.mtxContext;
     PoolMtx &pMtx = pool.mtxContext;
-    const u_count_t poolId = pool.idx;
     while (true) {
         W_SEM_S(thread);
         // Check if terminate
         pool.lockAll.reader().lock();
         pMtx.mtx.lock();
         tMtx.mtx.lock();
-        if (tMtx.func == nullptr && (pMtx.termAll
+        if (tMtx.task == nullptr && (pMtx.termAll
                                      || tMtx.forceTerminate
                                      || (pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount))) {
-            resetThread(tMtx);
             // Do terminate
         DO_TERMINATE:
+            resetThread(tMtx);
             tMtx.status = Empty;
+            pool.threadIdly[thread.id] = false;
+            pool.threadEmpty[thread.id] = true;
+            pMtx.idlyCount--;
             pMtx.threadCount--;
             // If reduceWaited
             if (pMtx.reduce != -1 && pMtx.reduce >= pMtx.threadCount) {
@@ -325,43 +385,56 @@ void *ThreadPool::threadFunc(void *arg) {
             return nullptr;
         }
         // tMtx.status = Working;
+    QUICK_START:
         tMtx.mtx.unlock();
         pMtx.mtx.unlock();
         pool.lockAll.reader().unlock();
-        tMtx.param_return = tMtx.func(tMtx.param_return);
+        // perform function
+        tMtx.task->param_return = tMtx.task->func(tMtx.task->param_return);
         pool.lockAll.reader().lock();
         pMtx.mtx.lock();
         tMtx.mtx.lock();
-        if (tMtx.refers > 0) {
-            tMtx.status = Idly;
-            pMtx.idlyCount++;
-            pool.wakeFinishSem();
-            while (tMtx.refers > 0) {
-                P_SEM_F(thread);
-                tMtx.refers--;
+        tMtx.task->mtx.lock();
+        tMtx.task->finished = true;
+        // if this task has already waited by some threads, no matter if this task need wait,
+        // this task will be freed
+        if (tMtx.task->refers > 0) {
+            // notify threads
+            // task->refers will be reduced in method `waitThread`
+            auto tmp = tMtx.task->refers;
+            while (tmp > 0) {
+                P_SEM_F(*tMtx.task);
+                tmp--;
             }
-            tMtx.refers = 0;
-        } else if (tMtx.waitNeed) {
-            tMtx.status = Returning;
-            P_SEM_F(thread);
-        } else {
-            tMtx.status = Idly;
+        } else if (tMtx.task->wait) {
+            P_SEM_F(*tMtx.task);
+        }
+        tMtx.task->mtx.unlock();
+        if (tMtx.forceTerminate || (pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount)) {
             pMtx.idlyCount++;
             pool.wakeFinishSem();
-        }
-        resetThread(tMtx);
-        if (tMtx.forceTerminate || (pMtx.reduce != -1 && pMtx.reduce < pMtx.threadCount)) {
             goto DO_TERMINATE;
         }
+        if (!tMtx.forceTerminate && pool.addThreadFromWaitingArrayLocked(thread.id)) {
+            // if this task is redistributed
+            goto QUICK_START;
+        }
+        tMtx.status = Idly;
+        pool.threadIdly[thread.id] = true;
+        pMtx.idlyCount++;
+        pool.wakeFinishSem();
+        resetThread(tMtx);
         tMtx.mtx.unlock();
         pMtx.mtx.unlock();
         pool.lockAll.reader().unlock();
     }
 }
 
-void ThreadPool::startThread(const u_count_t id) const {
+void ThreadPool::startThread(const u_count_t id) {
     if (status(id) != Empty) { return; }
     status(id) = Idly;
+    threadEmpty[id] = false;
+    threadIdly[id] = true;
     pthread_create(&threads[id]->thread, nullptr, threadFunc, threads[id]);
     pthread_detach(threads[id]->thread);
 }
@@ -369,21 +442,16 @@ void ThreadPool::startThread(const u_count_t id) const {
 void ThreadPool::initThread(ThreadContext &th, const u_count_t id) {
     th.id = id;
     th.pool = this;
-    th.mtxContext.func = nullptr;
-    th.mtxContext.param_return = nullptr;
-    th.mtxContext.refers = 0;
+    th.mtxContext.task = nullptr;
     th.mtxContext.status = Empty;
     th.mtxContext.forceTerminate = false;
-    th.mtxContext.waitNeed = true;
     startThread(id);
 }
 
 void ThreadPool::resetThread(ThreadMtx &tMtx) {
-    tMtx.func = nullptr;
-    tMtx.refers = 0;
+    tMtx.task = nullptr;
     // tMtx.param_return = nullptr;
     tMtx.forceTerminate = false;
-    tMtx.waitNeed = true;
 }
 
 volatile u8 &ThreadPool::status(const u_count_t id) const {
@@ -394,28 +462,20 @@ volatile bool &ThreadPool::terminate(const u_count_t id) const {
     return threads[id]->mtxContext.forceTerminate;
 }
 
-volatile bool &ThreadPool::wait(const u_count_t id) const {
-    return threads[id]->mtxContext.waitNeed;
-}
-
-volatile ThreadPool::funcHandler &ThreadPool::function(const u_count_t id) const {
-    return threads[id]->mtxContext.func;
-}
-
-void ThreadPool::lock(const u_count_t id) const {
+void ThreadPool::lockThread(const u_count_t id) const {
     threads[id]->mtxContext.mtx.lock();
 }
 
-void ThreadPool::unlock(const u_count_t id) const {
+void ThreadPool::unlockThread(const u_count_t id) const {
     threads[id]->mtxContext.mtx.unlock();
 }
 
-void *&ThreadPool::paramReturn(const u_count_t id) const {
-    return threads[id]->mtxContext.param_return;
+void ThreadPool::lockTask(const task_descriptor_t id) const {
+    mtxContext.taskArray[id]->mtx.lock();
 }
 
-volatile ThreadPool::u_count_t &ThreadPool::refers(const u_count_t id) const {
-    return threads[id]->mtxContext.refers;
+void ThreadPool::unlockTask(const task_descriptor_t id) const {
+    mtxContext.taskArray[id]->mtx.unlock();
 }
 
 void ThreadPool::wakeFinishSem() {

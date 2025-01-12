@@ -467,7 +467,7 @@ threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
     CALC_ITERATIONS;
 
     auto *params = new KeyAssParam[nThread];
-    auto *threads = new ThreadPool::thread_descriptor_t[nThread];
+    auto *threads = new ThreadPool::task_descriptor_t[nThread];
     auto **threadReturns = new threadReturn *[nThread];
 
     ::Keys iterated_keys = Keys;

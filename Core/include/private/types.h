@@ -20,6 +20,9 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-typedef uintptr_t uptr;
+typedef u64 uptr;
+typedef s64 sptr;
+
+typedef u64 count_t;
 
 #endif //TYPES_H
