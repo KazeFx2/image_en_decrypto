@@ -40,6 +40,7 @@ public:
         bool finished;
         Semaphore semaFinish;
         Mutex mtx;
+        // priority: to be continued
     } TaskInfo;
 
     typedef struct {
@@ -162,8 +163,7 @@ public:
             return *this;
         }
 
-        ~taskDescriptor() {
-        }
+        ~taskDescriptor() = default;
 
     private:
         ThreadPool *pool;
