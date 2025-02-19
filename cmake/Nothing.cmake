@@ -1,0 +1,8 @@
+function(Nothing OUT_VAR IN_VAR)
+    foreach (TMP ${ARGV})
+        message(STATUS "ARGV: ${TMP}")
+    endforeach ()
+    message(STATUS "OUT_VAR: ${OUT_VAR}")
+    message(STATUS "IN_VAR: ${IN_VAR}")
+    set(${OUT_VAR} "MODIFIED" PARENT_SCOPE)
+endfunction()
