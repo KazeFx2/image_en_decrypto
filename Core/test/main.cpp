@@ -3,7 +3,7 @@
 //
 
 #include "unistd.h"
-#include "vars.h"
+#include "private/vars.h"
 #include "ThreadPool.h"
 #include "ImageCrypto.h"
 #include <sys/time.h>
@@ -43,7 +43,7 @@ int main(int argc, const char **argv) {
     imshow("encrypted", encrypted);
     imshow("decrypted", decrypted);
     cv::waitKey(0);
-    img = imread("inputs/1.jpeg", cv::IMREAD_UNCHANGED);
+    img = imread("inputs/3.png", cv::IMREAD_UNCHANGED);
     if (img.data == nullptr) {
         std::cout << "Read image failed." << std::endl;
         return 1;
@@ -68,7 +68,7 @@ int main(int argc, const char **argv) {
         if (frame.empty()) {
             break;
         }
-        resize(frame, frame, cv::Size(711, 400));
+        resize(frame, frame, cv::Size(960, 540));
         auto encry = crypter.encrypt(frame);
         auto decry = crypter.decrypt(encry);
         imshow("original", frame);

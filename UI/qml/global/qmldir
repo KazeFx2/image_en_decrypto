@@ -1,0 +1,16 @@
+singleton ItemsOriginal 1.0 ItemsOriginal.qml
+singleton ItemsFooter 1.0 ItemsFooter.qml
+singleton GlobalModel 1.0 GlobalModel.qml
+FluArea 1.0 FluArea.qml
+MyFluPivot 1.0 MyFluPivot.qml
+SeparateLine 1.0 SeparateLine.qml
+SubTitle SubTitle.qml
+ImageViewEx 1.0 ImageViewEx.qml
+GroupImageViewEX 1.0 GroupImageViewEX.qml
+FloatSelector 1.0 FloatSelector.qml
+ModSlider 1.0 ModSlider.qml
+TimeSlider 1.0 TimeSlider.qml
+IntSlider 1.0 IntSlider.qml
+ParamConf 1.0 ParamConf.qml
+MyUpMenu 1.0 MyUpMenu.qml
+VideoPlayer 1.0 VideoPlayer.qml

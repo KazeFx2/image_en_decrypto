@@ -27,7 +27,7 @@ FastBitmap::element FastBitmap::operator[](const u_size_t index) {
     return element(bitmap[idx], offset);
 }
 
-#define HIGH_BIT_MASK(reserve) (static_cast<uptr>((static_cast<sptr>(static_cast<uptr>(0x1) << (sizeof(uptr) * 8 - 1)) * -1) >> (reserve)))
+#define HIGH_BIT_MASK(reserve) (static_cast<uptr>((static_cast<iptr>(static_cast<uptr>(0x1) << (sizeof(uptr) * 8 - 1)) * -1) >> (reserve)))
 
 static u8 findFirstNonZeroBit(uptr value) {
     if (value == 0) { return 8 * sizeof(uptr); }

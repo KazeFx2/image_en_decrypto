@@ -8,13 +8,10 @@
 #include <random>
 #include "types.h"
 
-u64 Rand64();
-
-u32 Rand32();
-
-u16 Rand16();
-
-u8 Rand8();
+extern u64 (*Rand64)();
+extern u32 (*Rand32)();
+extern u16 (*Rand16)();
+extern u8 (*Rand8)();
 
 f64 GenDoubleFloatFrom0To1(u64 Val52Bits);
 

@@ -20,46 +20,53 @@
 //     u32 height;
 // } ImageSize;
 
-typedef struct {
+typedef struct
+{
     f64 initCondition;
     f64 ctrlCondition;
 } ParamGroup;
 
-typedef struct {
+typedef struct
+{
     u8 byteReserve;
     u32 preIterations;
     u32 confusionIterations;
     u32 diffusionConfusionIterations;
     u32 nThread;
     u8 nChannel;
+    bool cuda;
 } ParamControl;
 
-typedef struct {
+typedef struct
+{
     u32 confusionSeed;
     ParamGroup gParam1;
     ParamGroup gParam2;
 } Keys;
 
-typedef struct {
-    __OUT cv::Mat **dst;
-    __IN cv::Mat **src;
-    __IN cv::Size *size;
+typedef struct
+{
+    __OUT cv::Mat** dst;
+    __IN cv::Mat** src;
+    __IN cv::Size* size;
     __IN size_t threadId;
     __IN u32 iterations;
     __IN Keys keys;
-    __IN const ParamControl *config;
+    __IN const ParamControl* config;
     __IN Semaphore Start;
     __IN Semaphore Finish;
 } threadParams;
 
-typedef struct {
-    __OUT u8 *byteSeq;
-    __OUT u8 *diffusionSeedArray;
+typedef struct
+{
+    __OUT u8* byteSeq;
+    __OUT u8* diffusionSeedArray;
 } threadReturn;
 
-typedef struct {
+typedef struct
+{
     threadParams params;
-    const threadReturn *ret;
+    const threadReturn* ret;
 } threadParamsWithKey;
 
 #define DOLOOP \
@@ -86,13 +93,15 @@ for (u32 j = 0; j < Config.nThread; j++)\
     /* preIterations */\
     200,\
     /* confusionIterations */\
-    2,\
+    4,\
     /* diffusionConfusionIterations */\
-    2,\
+    3,\
     /* nThread */\
     16,\
     /* nChannel */\
-    3\
+    3,\
+    /* cuda */\
+    true\
 }
 
 #endif //INCLUDES_H

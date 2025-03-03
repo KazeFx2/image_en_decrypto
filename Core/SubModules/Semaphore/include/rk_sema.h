@@ -5,6 +5,9 @@
 #ifndef RK_SEMA_H
 #define RK_SEMA_H
 
+#include <cerrno>
+#include <asm-generic/errno-base.h>
+
 #include "private/types.h"
 
 #ifdef __APPLE__
@@ -15,17 +18,19 @@
 #include <semaphore.h>
 #endif
 
-struct rk_sema {
+struct rk_sema
+{
 #ifdef __APPLE__
     dispatch_semaphore_t sem;
 #else
-    sem_t                   sem;
+    sem_t sem;
 #endif
 };
 
 
 static inline void
-rk_sema_init(struct rk_sema *s, uint32_t value) {
+rk_sema_init(struct rk_sema* s, uint32_t value)
+{
 #ifdef __APPLE__
     dispatch_semaphore_t *sem = &s->sem;
 
@@ -36,21 +41,25 @@ rk_sema_init(struct rk_sema *s, uint32_t value) {
 }
 
 static inline void
-rk_sema_wait(struct rk_sema *s) {
+rk_sema_wait(struct rk_sema* s)
+{
 #ifdef __APPLE__
     if (dispatch_semaphore_wait(s->sem, SEMA_TIMEOUT))
         throw std::runtime_error("semaphore wait timeout");
 #else
     int r;
 
-    do {
+    do
+    {
         r = sem_wait(&s->sem);
-    } while (r == -1 && errno == EINTR);
+    }
+    while (r == -1 && errno == EINTR);
 #endif
 }
 
 static inline void
-rk_sema_post(struct rk_sema *s) {
+rk_sema_post(struct rk_sema* s)
+{
 #ifdef __APPLE__
     dispatch_semaphore_signal(s->sem);
 #else
@@ -59,7 +68,8 @@ rk_sema_post(struct rk_sema *s) {
 }
 
 static inline void
-rk_sema_close(struct rk_sema *s) {
+rk_sema_close(struct rk_sema* s)
+{
 #ifdef __APPLE__
     // nothing...
 #else

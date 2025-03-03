@@ -3,9 +3,10 @@
 //
 #include <private/ImageEncrypto.h>
 
+#include "unistd.h"
 #include "private/Util.h"
 #include "Bitmap.h"
-#include "../vars.h"
+#include "private/vars.h"
 #include "private/Random.h"
 
 typedef struct {

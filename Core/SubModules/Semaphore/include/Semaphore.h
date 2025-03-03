@@ -9,31 +9,35 @@
 
 #include "private/types.h"
 #include "rk_sema.h"
+#include <atomic>
 
-class Semaphore {
+class Semaphore
+{
 public:
     Semaphore(u32 init = 0);
 
     ~Semaphore();
 
-    Semaphore(const Semaphore &other) = delete;
+    Semaphore(const Semaphore& other) = delete;
 
-    Semaphore &operator=(const Semaphore &other) = delete;
+    Semaphore& operator=(const Semaphore& other) = delete;
 
-    Semaphore(Semaphore &&other) = delete;
+    Semaphore(Semaphore&& other);
 
-    Semaphore &operator=(Semaphore &&other) = delete;
+    Semaphore& operator=(Semaphore&& other) = delete;
 
     void wait();
 
     void post();
 
-private:
-    static u64 get_putIdx(u32 init, rk_sema *&out, bool isRet = false, u64 oldIdx = 0);
+    i32 value() const;
 
-    rk_sema *sem;
+private:
+    static u64 get_putIdx(u32 init, rk_sema*& out, bool isRet = false, u64 oldIdx = 0);
+
+    rk_sema* sem;
     volatile u32 idx;
-    std::atomic_uint32_t ct;
+    std::atomic_int32_t ct;
 };
 
 #endif //SEMAPHORE_H

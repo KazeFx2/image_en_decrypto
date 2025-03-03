@@ -23,7 +23,7 @@ public:
 
     Mutex &operator=(const Mutex &other) = delete;
 
-    Mutex(Mutex &&other) = delete;
+    Mutex(Mutex &&other);
 
     Mutex &operator=(Mutex &&other) = delete;
 
