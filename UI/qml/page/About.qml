@@ -91,7 +91,7 @@ FluScrollablePage {
 
                 FluText {
                     padding: 10
-                    text: "https://github.com/KazeFx2/OperatingSysHomework"
+                    text: "https://github.com/KazeFx2/image_en_decrypto/"
                     color: FluColors.Blue.normal
 
                     MouseArea {
