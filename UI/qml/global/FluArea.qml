@@ -18,9 +18,9 @@ Rectangle {
     border.color: FluTheme.dividerColor
     color: {
         if(Window.active){
-            return FluTheme.frameActiveColor
+            return FluTheme.frameActiveColor.alpha(0.6)
         }
-        return FluTheme.frameColor
+        return FluTheme.frameColor.alpha(0.6)
     }
     border.width: 1
     implicitHeight: height

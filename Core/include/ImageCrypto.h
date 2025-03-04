@@ -158,8 +158,6 @@ public:
 
     cv::Mat encrypt(const cv::Mat& image, cv::Size imageSize = ORIGINAL_SIZE)
     {
-        if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
-        else threadPool->reduceTo(config.nThread);
         u8 nChannel = image.channels();
         if (imageSize == ORIGINAL_SIZE)
         {
@@ -175,6 +173,8 @@ public:
         cv::Mat imageMat = image.clone();
         config.cuda = tmp_cuda;
         __setAll();
+        if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
+        else threadPool->reduceTo(config.nThread);
         EncryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         config.cuda = tmp_cuda;
         __setAll();
@@ -183,8 +183,6 @@ public:
 
     cv::Mat decrypt(const cv::Mat& image, cv::Size imageSize = ORIGINAL_SIZE)
     {
-        if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
-        else threadPool->reduceTo(config.nThread);
         u8 nChannel = image.channels();
         if (imageSize == ORIGINAL_SIZE)
         {
@@ -200,6 +198,8 @@ public:
         cv::Mat imageMat = image.clone();
         config.cuda = tmp_cuda;
         __setAll();
+        if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
+        else threadPool->reduceTo(config.nThread);
         DecryptoImage(imageMat, *size, keys, rets, config, *threadPool);
         config.cuda = tmp_cuda;
         __setAll();
