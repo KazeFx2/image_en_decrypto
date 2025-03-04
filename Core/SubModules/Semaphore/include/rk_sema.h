@@ -6,7 +6,9 @@
 #define RK_SEMA_H
 
 #include <cerrno>
+#ifndef __APPLE__
 #include <asm-generic/errno-base.h>
+#endif
 
 #include "private/types.h"
 

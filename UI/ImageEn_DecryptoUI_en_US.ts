@@ -2988,6 +2988,11 @@ My only desire is to be permitted to drive out the traitors and restore the Han.
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="qml/page/T_Settings.qml" line="341"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="qml/page/T_Settings.qml" line="355"/>
         <source>window tintOpacity</source>
         <translation type="unfinished"></translation>

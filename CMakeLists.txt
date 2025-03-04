@@ -25,6 +25,8 @@ if(CMAKE_CUDA_COMPILER)
     add_definitions(-D__USE_CUDA)
 else()
     message(STATUS "No CUDA support")
+    set(UseCuda OFF)
+    set(UseCuda OFF CACHE BOOL "" FORCE)
 endif()
 
 file(GLOB_RECURSE T_CMAKE_INCLUDE_FILES "cmake/*.cmake")

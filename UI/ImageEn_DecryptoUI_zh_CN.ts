@@ -3171,6 +3171,11 @@ My only desire is to be permitted to drive out the traitors and restore the Han.
         <translation type="unfinished">毛玻璃模糊</translation>
     </message>
     <message>
+        <location filename="qml/page/T_Settings.qml" line="341"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="qml/page/T_Settings.qml" line="355"/>
         <source>window tintOpacity</source>
         <translation type="unfinished">背景透明度</translation>
