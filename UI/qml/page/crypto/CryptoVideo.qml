@@ -371,7 +371,7 @@ FluScrollablePage {
                     }
                     FluMenuItem{
                         id: option_en
-                        text: qsTr("Encode")
+                        text: qsTr("Encrypt")
                         onClicked: {
                             cvt_type_sel.text = text
                             cvt_type_sel.currentIndex = 0
@@ -379,7 +379,7 @@ FluScrollablePage {
                     }
                     FluMenuItem{
                         id: option_de
-                        text: qsTr("Decode")
+                        text: qsTr("Decrypt")
                         onClicked: {
                             cvt_type_sel.text = text
                             cvt_type_sel.currentIndex = 1

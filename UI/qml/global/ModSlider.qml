@@ -10,7 +10,7 @@ T.Slider {
     property double max: 1.0
     property double r_value: 0.0
     property int i_value: 0
-    property string text: String(i_value)
+    property string text: String(min)
 
     onValueChanged: {
         if (!useInt) {

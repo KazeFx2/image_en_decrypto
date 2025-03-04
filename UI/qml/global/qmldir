@@ -14,3 +14,6 @@ IntSlider 1.0 IntSlider.qml
 ParamConf 1.0 ParamConf.qml
 MyUpMenu 1.0 MyUpMenu.qml
 VideoPlayer 1.0 VideoPlayer.qml
+ScrollableItems 1.0 ScrollableItems.qml
+AboutStaffItem 1.0 AboutStaffItem.qml
+NamedUrlItem 1.0 NamedUrlItem.qml

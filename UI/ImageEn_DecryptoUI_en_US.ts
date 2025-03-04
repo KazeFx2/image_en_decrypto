@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>About</name>
+    <message>
+        <location filename="qml/page/About.qml" line="7"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/About.qml" line="11"/>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/About.qml" line="66"/>
+        <source>What&apos;s this?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/About.qml" line="73"/>
+        <source>    This is an experimental course‘s homework of operating system. Meanwhile, I am learning the Qt programming, so I tried to combinate them together. Then this project is given birth to. In order to learn to work with &apos;git&apos; and &apos;camke&apos;, I uploaded it to the github. lisence? Maybe the MIT, I&apos;ll add it after I read the lisences and rules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/About.qml" line="80"/>
+        <source>    This is my first try to make my contributions(?) If there is any mistakes that I made, I&apos;ll be very grateful if you can tell me :)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/About.qml" line="111"/>
+        <source>Open Source Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>App</name>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/App.qml" line="61"/>
@@ -270,12 +303,14 @@
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="374"/>
-        <source>Encode</source>
+        <source>Encrypt</source>
+        <oldsource>Encode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="382"/>
-        <source>Decode</source>
+        <source>Decrypt</source>
+        <oldsource>Decode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1280,39 +1315,39 @@
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="86"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="94"/>
-        <location filename="qml/window/MainWindow.qml" line="73"/>
-        <location filename="qml/window/MainWindow.qml" line="81"/>
+        <location filename="qml/window/MainWindow.qml" line="75"/>
+        <location filename="qml/window/MainWindow.qml" line="83"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="87"/>
-        <location filename="qml/window/MainWindow.qml" line="74"/>
+        <location filename="qml/window/MainWindow.qml" line="76"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="88"/>
-        <location filename="qml/window/MainWindow.qml" line="75"/>
+        <location filename="qml/window/MainWindow.qml" line="77"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="78"/>
+        <location filename="qml/window/MainWindow.qml" line="80"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="78"/>
+        <location filename="qml/window/MainWindow.qml" line="80"/>
         <source>FluentUI is hidden from the tray, click on the tray to activate the window again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="95"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="337"/>
-        <location filename="qml/window/MainWindow.qml" line="82"/>
+        <location filename="qml/window/MainWindow.qml" line="84"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1523,6 +1558,181 @@ Updated content:
     <message>
         <location filename="3rd-party/FluentUI/src/qhotkey/qhotkey.cpp" line="314"/>
         <source>Failed to unregister %1. Error: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Settings</name>
+    <message>
+        <location filename="qml/page/Settings.qml" line="10"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="15"/>
+        <source>App Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="26"/>
+        <source>Use System AppBar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="42"/>
+        <source>Fits AppBar Windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="54"/>
+        <source>Friendly Reminder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="55"/>
+        <source>This action requires a restart of the program to take effect, is it restarted?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="57"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="58"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="65"/>
+        <source>Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="84"/>
+        <source>Dark Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="89"/>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="89"/>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="89"/>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="114"/>
+        <source>Theme Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="156"/>
+        <source>Customize the Theme Color:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="197"/>
+        <source>Open Blur Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="213"/>
+        <location filename="qml/page/Settings.qml" line="248"/>
+        <location filename="qml/page/Settings.qml" line="253"/>
+        <source>dwm-blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="225"/>
+        <source>window effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="249"/>
+        <source>window tintOpacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="268"/>
+        <source>window blurRadius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="299"/>
+        <source>Native Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="314"/>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="333"/>
+        <source>Navigation View Display Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="338"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="338"/>
+        <source>Compact</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="338"/>
+        <source>Minimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="338"/>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="363"/>
+        <source>Open Animation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="378"/>
+        <source>Localization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="407"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="420"/>
+        <source>Simplified Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="422"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="436"/>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="454"/>
+        <source>Show FPS</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2840,7 +3050,6 @@ My only desire is to be permitted to drive out the traitors and restore the Han.
     <name>T_Settings</name>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="11"/>
-        <location filename="qml/page/T_Settings.qml" line="10"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2856,151 +3065,88 @@ My only desire is to be permitted to drive out the traitors and restore the Han.
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="51"/>
-        <location filename="qml/page/T_Settings.qml" line="20"/>
         <source>Use System AppBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="67"/>
-        <location filename="qml/page/T_Settings.qml" line="36"/>
         <source>Fits AppBar Windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="78"/>
-        <location filename="qml/page/T_Settings.qml" line="47"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="79"/>
-        <location filename="qml/page/T_Settings.qml" line="48"/>
         <source>This action requires a restart of the program to take effect, is it restarted?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="81"/>
-        <location filename="qml/page/T_Settings.qml" line="50"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="82"/>
-        <location filename="qml/page/T_Settings.qml" line="51"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="101"/>
-        <location filename="qml/page/T_Settings.qml" line="70"/>
         <source>Dark Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="106"/>
-        <location filename="qml/page/T_Settings.qml" line="75"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="106"/>
-        <location filename="qml/page/T_Settings.qml" line="75"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="106"/>
-        <location filename="qml/page/T_Settings.qml" line="75"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="131"/>
-        <location filename="qml/page/T_Settings.qml" line="100"/>
         <source>Navigation View Display Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="136"/>
-        <location filename="qml/page/T_Settings.qml" line="105"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="136"/>
-        <location filename="qml/page/T_Settings.qml" line="105"/>
         <source>Compact</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="136"/>
-        <location filename="qml/page/T_Settings.qml" line="105"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="136"/>
-        <location filename="qml/page/T_Settings.qml" line="105"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/page/T_Settings.qml" line="171"/>
-        <location filename="qml/page/T_Settings.qml" line="140"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="174"/>
-        <source>Theme Colors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="210"/>
-        <source>Customize the Theme Color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="251"/>
-        <source>Native Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="277"/>
-        <source>Open Animation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="303"/>
-        <source>Open Blur Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="331"/>
-        <source>window effect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="319"/>
-        <location filename="qml/page/T_Settings.qml" line="354"/>
-        <location filename="qml/page/T_Settings.qml" line="359"/>
-        <source>dwm-blur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/T_Settings.qml" line="341"/>
         <source></source>
         <translation></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="355"/>
-        <source>window tintOpacity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/T_Settings.qml" line="372"/>
-        <source>window blurRadius</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

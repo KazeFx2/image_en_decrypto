@@ -17,7 +17,9 @@ FluWindow {
     minimumWidth: 668
     minimumHeight: 320
     launchMode: FluWindowType.SingleTask
-    fitsAppBarWindows: true
+    fitsAppBarWindows: SettingsHelper.getAppBarWindows()
+    tintOpacity: SettingsHelper.getWindowOpacity()
+    blurRadius: SettingsHelper.getBlurLevel()
     appBar: FluAppBar {
         height: 30
         showDark: true
@@ -221,7 +223,15 @@ FluWindow {
         id:fps_item
     }
 
+    Connections {
+        target: GlobalModel
+        function onShowFPSChanged(){
+            SettingsHelper.saveShowFPS(GlobalModel.showFPS)
+        }
+    }
+
     FluText{
+        visible: GlobalModel.showFPS
         text: "fps %1".arg(fps_item.fps)
         opacity: 0.3
         anchors{
