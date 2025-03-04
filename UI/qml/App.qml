@@ -55,7 +55,7 @@ FluLauncher {
         FluApp.windowIcon = "qrc:/main/res/image/favicon.ico"
         FluApp.useSystemAppBar = SettingsHelper.getUseSystemAppBar()
         FluTheme.darkMode = SettingsHelper.getDarkMode()
-        FluTheme.accentColor = SettingsHelper.getAccentColor()
+        // FluTheme.accentColor = SettingsHelper.getAccentColor()
         FluTheme.blurBehindWindowEnabled = SettingsHelper.getBlurWindow()
         FluTheme.nativeText = SettingsHelper.getNativeText()
         FluTheme.animationEnabled = SettingsHelper.getAnimation()

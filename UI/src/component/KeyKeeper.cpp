@@ -10,43 +10,36 @@ ThreadPool threadPool;
 
 std::map<QString, C_FullKey> keyMap;
 
-u8 __Rand8()
-{
+u8 __Rand8() {
     return QRandomGenerator::global()->bounded(0xff);
 }
 
-u16 __Rand16()
-{
+u16 __Rand16() {
     return QRandomGenerator::global()->bounded(0xffff);
 }
 
-u32 __Rand32()
-{
+u32 __Rand32() {
     return QRandomGenerator::global()->generate();
 }
 
-u64 __Rand64()
-{
+u64 __Rand64() {
     return QRandomGenerator64::global()->generate64();
 }
 
-void initRandom()
-{
+void initRandom() {
     Rand8 = __Rand8;
     Rand16 = __Rand16;
     Rand32 = __Rand32;
     Rand64 = __Rand64;
 }
 
-std::string calcSha256(FullKey key)
-{
+std::string calcSha256(FullKey key) {
     key.control.cuda = false;
-    return QCryptographicHash::hash(QByteArrayView(reinterpret_cast<const u8*>(&key), sizeof(FullKey)),
+    return QCryptographicHash::hash(QByteArrayView(reinterpret_cast<const u8 *>(&key), sizeof(FullKey)),
                                     QCryptographicHash::Sha256).toHex().toStdString();
 }
 
-KeyKeeper::KeyKeeper(QObject* parent) : QObject(parent)
-{
+KeyKeeper::KeyKeeper(QObject *parent) : QObject(parent) {
 }
 
 QString KeyKeeper::getKey(
@@ -55,27 +48,26 @@ QString KeyKeeper::getKey(
     u16 confuseSeed, u8 nThread,
     u8 byteReserve, u16 preIteration,
     u8 confuseIter, u8 diffConfIter
-)
-{
+) {
     const FullKey key{
-        .control = {
-            .byteReserve = byteReserve,
-            .preIterations = preIteration,
-            .confusionIterations = confuseIter,
-            .diffusionConfusionIterations = diffConfIter,
-            .nThread = nThread,
-            .nChannel = 3,
-            .cuda = false,
+        {
+            byteReserve,
+            preIteration,
+            confuseIter,
+            diffConfIter,
+            nThread,
+            3,
+            false,
         },
-        .keys = {
-            .confusionSeed = confuseSeed,
-            .gParam1 = {
-                .initCondition = initCond1,
-                .ctrlCondition = ctrlCond1,
+        {
+            confuseSeed,
+            {
+                initCond1,
+                ctrlCond1,
             },
-            .gParam2 = {
-                .initCondition = initCond2,
-                .ctrlCondition = ctrlCond2,
+            {
+                initCond2,
+                ctrlCond2,
             }
         }
     };
@@ -86,14 +78,12 @@ QString KeyKeeper::getKey(
     return k;
 }
 
-void KeyKeeper::saveParam(const QUrl& path, const QString& key_id)
-{
+void KeyKeeper::saveParam(const QUrl &path, const QString &key_id) {
     const auto key = keyMap[key_id];
     SaveConfKey(key.key.control, key.key.keys, path.toLocalFile().toStdString().c_str());
 }
 
-QVariantMap KeyKeeper::loadParam(const QUrl& path)
-{
+QVariantMap KeyKeeper::loadParam(const QUrl &path) {
     C_FullKey key;
     QVariantMap ret;
     LoadConfKey(key.key.control, key.key.keys, path.toLocalFile().toStdString().c_str());

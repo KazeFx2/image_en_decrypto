@@ -12,7 +12,11 @@ mt19937 engine(rd());
 uniform_int_distribution<u64> dist64(0, UINT64_MAX);
 uniform_int_distribution<u32> dist32(0, UINT32_MAX);
 uniform_int_distribution<u16> dist16(0, UINT16_MAX);
+#ifndef _WIN32
 uniform_int_distribution<u8> dist8(0, UINT8_MAX);
+#else
+uniform_int_distribution<u16> dist8(0, UINT8_MAX);
+#endif
 
 static u64 __Rand64()
 {

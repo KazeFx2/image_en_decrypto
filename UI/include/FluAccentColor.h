@@ -19,6 +19,12 @@ class FluAccentColor : public QObject {
     Q_PROPERTY_AUTO(QColor, lighter)
     Q_PROPERTY_AUTO(QColor, lightest)
     QML_NAMED_ELEMENT(FluAccentColor)
+
 public:
+#ifdef _WIN32
+    explicit FluAccentColor(QObject *parent = nullptr) : QObject{parent} {
+    }
+#else
     explicit FluAccentColor(QObject *parent = nullptr);
+#endif
 };

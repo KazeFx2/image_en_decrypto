@@ -4,29 +4,29 @@
 
 #include "private/Util.h"
 #include "private/Random.h"
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
 #include <cmath>
 
 #define CALC_ITERATIONS const u32 iterations = static_cast<int>(Config.nChannel * (Size.width + nThread) * (Size.height + nThread) * Config.\
     diffusionConfusionIterations \
     / (nThread * Config.byteReserve))
 
-f64 PLCM(__IN const f64 initialCondition, __IN const f64 controlCondition)
-{
+f64 PLCM(__IN const f64 initialCondition, __IN const f64 controlCondition) {
     assert(initialCondition >= 0 && initialCondition <= 1 && controlCondition > 0 && controlCondition < 0.5);
-    if (initialCondition < controlCondition)
-    {
+    if (initialCondition < controlCondition) {
         return initialCondition / controlCondition;
     }
-    if (initialCondition <= 0.5)
-    {
+    if (initialCondition <= 0.5) {
         return (initialCondition - controlCondition) / (0.5 - controlCondition);
     }
     return PLCM(1 - initialCondition, controlCondition);
 }
 
 f64 IteratePLCM(__IN const f64 initialCondition, __IN const f64 controlCondition, __IN const u32 iterations,
-                __OUT f64* iterationResultArray)
-{
+                __OUT f64 *iterationResultArray) {
     if (iterations == 0) return initialCondition;
     iterationResultArray[0] = PLCM(initialCondition, controlCondition);
     for (u32 i = 1; i < iterations; i++)
@@ -34,20 +34,16 @@ f64 IteratePLCM(__IN const f64 initialCondition, __IN const f64 controlCondition
     return iterationResultArray[iterations - 1];
 }
 
-void CvtF64toBytes(__IN const f64* iterationResultArray, __OUT u8* bytes, __IN const u32 length,
-                   __IN const u8 bytesReserve)
-{
-    for (u32 i = 0; i < length; i++)
-    {
+void CvtF64toBytes(__IN const f64 *iterationResultArray, __OUT u8 *bytes, __IN const u32 length,
+                   __IN const u8 bytesReserve) {
+    for (u32 i = 0; i < length; i++) {
         memcpy(bytes, &iterationResultArray[i], bytesReserve);
         bytes += bytesReserve;
     }
 }
 
-void XorByteSequence(__IN_OUT u8* bytesA, __IN const u8* bytesB, __IN const u32 length, __OUT u8* bytesOut)
-{
-    for (u32 i = 0; i < length; i++)
-    {
+void XorByteSequence(__IN_OUT u8 *bytesA, __IN const u8 *bytesB, __IN const u32 length, __OUT u8 *bytesOut) {
+    for (u32 i = 0; i < length; i++) {
         if (bytesOut != nullptr)
             bytesOut[i] = bytesA[i] ^ bytesB[i];
         else
@@ -56,158 +52,131 @@ void XorByteSequence(__IN_OUT u8* bytesA, __IN const u8* bytesB, __IN const u32 
 }
 
 void GenDiffusionSeeds(__IN f64 initialCondition1, __IN const f64 controlCondition1, __IN f64 initialCondition2,
-                       __IN const f64 controlCondition2, __OUT u8* diffusionSeedArray,
-                       __IN const u32 diffusionIteration, __IN const u8 nChannel)
-{
-    for (u32 i = 0; i < nChannel * diffusionIteration; i++)
-    {
+                       __IN const f64 controlCondition2, __OUT u8 *diffusionSeedArray,
+                       __IN const u32 diffusionIteration, __IN const u8 nChannel) {
+    for (u32 i = 0; i < nChannel * diffusionIteration; i++) {
         initialCondition1 = PLCM(initialCondition1, controlCondition1);
         initialCondition2 = PLCM(initialCondition2, controlCondition2);
-        diffusionSeedArray[i] = *reinterpret_cast<u8*>(&initialCondition1) ^ *reinterpret_cast<u8*>(&
-            initialCondition2);
+        diffusionSeedArray[i] = *reinterpret_cast<u8 *>(&initialCondition1) ^ *reinterpret_cast<u8 *>(&
+                                    initialCondition2);
     }
 }
 
-void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size& size, __IN const u32 confusionSeed,
-                   __OUT u32& newRow,
-                   __OUT u32& newCol)
-{
+void ConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &size, __IN const u32 confusionSeed,
+                   __OUT u32 &newRow,
+                   __OUT u32 &newCol) {
     newRow = (row + col) % size.height;
     const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.width;
     newCol = (col + tmp) % size.width;
 }
 
-void ConfusionFuncTest(__IN const u32 row, __IN const u32 col, __IN const cv::Size& size, __IN const u32 confusionSeed,
-                       __OUT u32& newRow,
-                       __OUT u32& newCol)
-{
+void ConfusionFuncTest(__IN const u32 row, __IN const u32 col, __IN const cv::Size &size, __IN const u32 confusionSeed,
+                       __OUT u32 &newRow,
+                       __OUT u32 &newCol) {
     newRow = (row + col) % size.height;
     const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * newRow / size.height))) % size.width;
     newCol = (col + tmp) % size.width;
 }
 
-void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size& size,
+void InvertConfusionFunc(__IN const u32 row, __IN const u32 col, __IN const cv::Size &size,
                          __IN const u32 confusionSeed,
-                         __OUT u32& newRow,
-                         __OUT u32& newCol)
-{
+                         __OUT u32 &newRow,
+                         __OUT u32 &newCol) {
     const u32 tmp = static_cast<u32>(round(confusionSeed * sin(2 * M_PI * row / size.height))) % size.width;
     newCol = (col + size.width - tmp) % size.width;
     newRow = (row + size.height - newCol % size.height) % size.height;
 }
 
-void Confusion(__OUT cv::Mat& dstImage, __IN const cv::Mat& srcImage,
+void Confusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                __IN const u32 startRow, __IN const u32 endRow,
                __IN const u32 startCol, __IN const u32 endCol,
-               __IN const cv::Size& size, __IN const u32 confusionSeed, __IN const u8 nChannel)
-{
+               __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     if (startRow >= endRow || startCol >= endCol) return;
-    for (u32 i = startRow; i < endRow; i++)
-    {
+    for (u32 i = startRow; i < endRow; i++) {
         auto src = srcImage.ptr(static_cast<i32>(i), static_cast<i32>(startCol));
-        for (u32 j = startCol; j < endCol; j++)
-        {
+        for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             ConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
             auto dst = dstImage.ptr(static_cast<i32>(newRow), static_cast<i32>(newCol));
             u8 n = nChannel;
-            while (n--)
-            {
+            while (n--) {
                 *dst++ = *src++;
             }
         }
     }
 }
 
-void InvertConfusion(__OUT cv::Mat& dstImage, __IN const cv::Mat& srcImage,
+void InvertConfusion(__OUT cv::Mat &dstImage, __IN const cv::Mat &srcImage,
                      __IN const u32 startRow, __IN const u32 endRow,
                      __IN const u32 startCol, __IN const u32 endCol,
-                     __IN const cv::Size& size, __IN const u32 confusionSeed, __IN const u8 nChannel)
-{
+                     __IN const cv::Size &size, __IN const u32 confusionSeed, __IN const u8 nChannel) {
     if (startRow >= endRow || startCol >= endCol) return;
-    for (u32 i = startRow; i < endRow; i++)
-    {
+    for (u32 i = startRow; i < endRow; i++) {
         auto src = srcImage.ptr(static_cast<i32>(i), static_cast<i32>(startCol));
-        for (u32 j = startCol; j < endCol; j++)
-        {
+        for (u32 j = startCol; j < endCol; j++) {
             u32 newRow, newCol;
             InvertConfusionFunc(i, j, size, confusionSeed, newRow, newCol);
             auto dst = dstImage.ptr(static_cast<i32>(newRow), static_cast<i32>(newCol));
             u8 n = nChannel;
-            while (n--)
-            {
+            while (n--) {
                 *dst++ = *src++;
             }
         }
     }
 }
 
-class iterator
-{
+class iterator {
 public:
-    iterator(cv::Mat& Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
-             u8* diffusionSeed, const u8 nChannel, const u8 offset = 0,
+    iterator(cv::Mat &Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
+             u8 *diffusionSeed, const u8 nChannel, const u8 offset = 0,
              const bool front = false): mat(Mat), startRow(startRow), endRow(endRow), startCol(startCol),
                                         endCol(endCol),
                                         diffusionSeed(diffusionSeed), nChannel(nChannel), front(front),
-                                        nCt(offset % nChannel)
-    {
-        if (front)
-        {
+                                        nCt(offset % nChannel) {
+        if (front) {
             nowPtr = Mat.ptr(static_cast<i32>(startRow), static_cast<i32>(startCol)) + nCt;
             nowRow = startRow, nowCol = startCol;
-        }
-        else
-        {
+        } else {
             nowPtr = Mat.ptr(static_cast<i32>(endRow - 1), static_cast<i32>(endCol - 1)) + nCt;
             nowRow = endRow - 1, nowCol = endCol - 1;
         }
     }
 
-    iterator(cv::Mat& Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
-             u8* diffusionSeed, const u8 nChannel, const u32 nowRow,
+    iterator(cv::Mat &Mat, const u32 startRow, const u32 endRow, const u32 startCol, const u32 endCol,
+             u8 *diffusionSeed, const u8 nChannel, const u32 nowRow,
              const u32 nowCol, const u8 offset = 0): mat(Mat), startRow(startRow), endRow(endRow), startCol(startCol),
                                                      endCol(endCol),
                                                      diffusionSeed(diffusionSeed), nChannel(nChannel), front(false),
-                                                     nCt(offset % nChannel)
-    {
+                                                     nCt(offset % nChannel) {
         nowPtr = Mat.ptr(static_cast<i32>(nowRow), static_cast<i32>(nowCol)) + nCt;
         this->nowRow = nowRow, this->nowCol = nowCol;
     }
 
-    operator u8*() const
-    {
-        if (front)
-        {
+    operator u8 *() const {
+        if (front) {
             return diffusionSeed + nCt;
         }
         return nowPtr;
     }
 
-    u8* operator++()
-    {
-        if (front)
-        {
+    u8 *operator++() {
+        if (front) {
             nCt++;
             const auto tmp = nCt;
-            if (nCt == nChannel)
-            {
+            if (nCt == nChannel) {
                 nCt = 0;
                 front = false;
             }
             return diffusionSeed + tmp;
         }
         nCt++;
-        if (nCt == nChannel)
-        {
+        if (nCt == nChannel) {
             nCt = 0;
             nowCol++;
-            if (nowCol == endCol)
-            {
+            if (nowCol == endCol) {
                 nowCol = startCol;
                 nowRow++;
-                if (nowRow == endRow)
-                {
+                if (nowRow == endRow) {
                     nowRow = endRow - 1;
                     nowCol = endCol - 1;
                 }
@@ -219,32 +188,25 @@ public:
         return ++nowPtr;
     }
 
-    u8* operator++(int)
-    {
-        u8* tmp = *this;
+    u8 *operator++(int) {
+        u8 *tmp = *this;
         operator++();
         return tmp;
     }
 
-    u8* operator--()
-    {
-        if (front)
-        {
-            if (nCt == 0)
-            {
+    u8 *operator--() {
+        if (front) {
+            if (nCt == 0) {
                 return diffusionSeed;
             }
             const auto tmp = nCt;
             nCt--;
             return diffusionSeed + tmp;
         }
-        if (nCt == 0)
-        {
+        if (nCt == 0) {
             nCt = nChannel - 1;
-            if (nowCol == startCol)
-            {
-                if (nowRow == startRow)
-                {
+            if (nowCol == startCol) {
+                if (nowRow == startRow) {
                     front = true;
                     return diffusionSeed + nChannel;
                 }
@@ -260,22 +222,21 @@ public:
         return --nowPtr;
     }
 
-    u8* operator--(int)
-    {
-        u8* tmp = *this;
+    u8 *operator--(int) {
+        u8 *tmp = *this;
         operator--();
         return tmp;
     }
 
 private:
-    cv::Mat& mat;
+    cv::Mat &mat;
     u32 startRow, endRow, startCol, endCol;
-    u8* diffusionSeed;
+    u8 *diffusionSeed;
     u32 nowRow, nowCol;
     u8 nChannel;
     bool front;
     u8 nCt;
-    u8* nowPtr;
+    u8 *nowPtr;
 };
 
 #define DIFFUSION(dst, src, Prev) {\
@@ -286,12 +247,11 @@ private:
     }\
 }
 
-void Diffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
+void Diffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                __IN const u32 startRow, __IN const u32 endRow,
                __IN const u32 startCol, __IN const u32 endCol,
-               __IN const u8* diffusionSeed, __IN const u8* byteSequence, __IN_OUT u32& seqIdx,
-               __IN const u8 nChannel)
-{
+               __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+               __IN const u8 nChannel) {
     // auto src = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, startRow, startCol,
     //                     false);
     // auto dst = iterator(dstImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, startRow, startCol,
@@ -309,15 +269,12 @@ void Diffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
     DIFFUSION(dst, src, diffusionSeed);
     auto prev = nPrev;
     u32 i = startRow, j = startCol + 1;
-    while (true)
-    {
-        for (; j < endCol; j++)
-        {
+    while (true) {
+        for (; j < endCol; j++) {
             DIFFUSION(dst, src, prev);
         }
         i++;
-        if (i == endRow)
-        {
+        if (i == endRow) {
             break;
         }
         j = startCol + 1;
@@ -337,12 +294,11 @@ void Diffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
     }\
 }
 
-void InvertDiffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
+void InvertDiffusion(__OUT cv::Mat &dstImage, __IN cv::Mat &srcImage,
                      __IN const u32 startRow, __IN const u32 endRow,
                      __IN const u32 startCol, __IN const u32 endCol,
-                     __IN const u8* diffusionSeed, __IN const u8* byteSequence, __IN_OUT u32& seqIdx,
-                     __IN const u8 nChannel)
-{
+                     __IN const u8 *diffusionSeed, __IN const u8 *byteSequence, __IN_OUT u32 &seqIdx,
+                     __IN const u8 nChannel) {
     // auto src = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, nChannel - 1);
     // auto dst = iterator(dstImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, nChannel - 1);
     // auto prev = iterator(srcImage, startRow, endRow, startCol, endCol, diffusionSeed, nChannel, 0);
@@ -357,22 +313,18 @@ void InvertDiffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
     auto nextDst = dstImage.ptr(static_cast<i32>(i), static_cast<i32>(j)) + nChannel - 1;
     auto nextSrc = srcImage.ptr(static_cast<i32>(i), static_cast<i32>(j)) + nChannel - 1;
     // auto dst = nextDst - nChannel;
-    u8* dst = nullptr;
+    u8 *dst = nullptr;
     auto src = nextSrc - nChannel;
     goto INNER;
-    while (true)
-    {
-        for (;; j--)
-        {
+    while (true) {
+        for (;; j--) {
             INV_DIFFUSION(nextDst, nextSrc, src)
         INNER:
-            if (j == startCol)
-            {
+            if (j == startCol) {
                 break;
             }
         }
-        if (i == startRow)
-        {
+        if (i == startRow) {
             break;
         }
         i--;
@@ -389,16 +341,14 @@ void InvertDiffusion(__OUT cv::Mat& dstImage, __IN cv::Mat& srcImage,
     INV_DIFFUSION(nextDst, nextSrc, diffusionSeed)
 }
 
-void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT cv::Size& Size,
-                 __IN_OUT cv::Mat*& dst, __IN_OUT cv::Mat*& src, __IN_OUT u32* threads, __IN_OUT threadParams* params,
-                 __IN const Keys& Keys,
-                 __IN const ParamControl& Config, __IN ThreadPool& pool,
-                 __IN void*(*func)(void*))
-{
+void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
+                 __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads, __IN_OUT threadParams *params,
+                 __IN const Keys &Keys,
+                 __IN const ParamControl &Config, __IN ThreadPool &pool,
+                 __IN void *(*func)(void *)) {
     const u32 nThread = Config.nThread;
     // resize image if needed
-    if (Size.width != 0 && Size.height != 0)
-    {
+    if (Size.width != 0 && Size.height != 0) {
         resize(Image, Image, Size);
     }
     tmpImage = Image.clone();
@@ -408,8 +358,7 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
 
     ::Keys iterated_keys = Keys;
     // pre-iterate
-    for (u32 i = 0; i < Config.preIterations; i++)
-    {
+    for (u32 i = 0; i < Config.preIterations; i++) {
         iterated_keys.gParam1.initCondition = PLCM(iterated_keys.gParam1.initCondition,
                                                    iterated_keys.gParam1.ctrlCondition);
         iterated_keys.gParam2.initCondition = PLCM(iterated_keys.gParam2.initCondition,
@@ -417,8 +366,7 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
     }
     ::Keys tmpKeys = iterated_keys;
 
-    for (u32 i = 0; i < nThread; i++)
-    {
+    for (u32 i = 0; i < nThread; i++) {
         params[i].dst = &dst;
         params[i].src = &src;
         params[i].size = &Size;
@@ -427,17 +375,17 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
         params[i].keys.confusionSeed = Keys.confusionSeed;
         // generate params
         params[i].keys.gParam1.initCondition = tmpKeys.gParam1.initCondition = PLCM(
-            tmpKeys.gParam1.initCondition,
-            tmpKeys.gParam1.ctrlCondition);
+                                                   tmpKeys.gParam1.initCondition,
+                                                   tmpKeys.gParam1.ctrlCondition);
         params[i].keys.gParam1.ctrlCondition = tmpKeys.gParam2.initCondition = PLCM(
-            tmpKeys.gParam2.initCondition,
-            tmpKeys.gParam2.ctrlCondition);
+                                                   tmpKeys.gParam2.initCondition,
+                                                   tmpKeys.gParam2.ctrlCondition);
         params[i].keys.gParam2.initCondition = tmpKeys.gParam1.initCondition = PLCM(
-            tmpKeys.gParam1.initCondition,
-            tmpKeys.gParam1.ctrlCondition);
+                                                   tmpKeys.gParam1.initCondition,
+                                                   tmpKeys.gParam1.ctrlCondition);
         params[i].keys.gParam2.ctrlCondition = tmpKeys.gParam2.initCondition = PLCM(
-            tmpKeys.gParam2.initCondition,
-            tmpKeys.gParam2.ctrlCondition);
+                                                   tmpKeys.gParam2.initCondition,
+                                                   tmpKeys.gParam2.ctrlCondition);
         // params[i].keys = Keys;
         params[i].config = &Config;
         params[i].threadId = i;
@@ -445,14 +393,13 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
     }
 }
 
-void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT cv::Size& Size,
-                 __IN_OUT cv::Mat*& dst, __IN_OUT cv::Mat*& src, __IN_OUT u32* threads,
-                 __IN_OUT threadParamsWithKey* params,
-                 __IN const Keys& Keys,
-                 __IN threadReturn** threadKeys,
-                 __IN const ParamControl& Config, __IN ThreadPool& pool,
-                 __IN void*(*func)(void*))
-{
+void PreGenerate(__IN_OUT cv::Mat &Image, __IN_OUT cv::Mat &tmpImage, __IN_OUT cv::Size &Size,
+                 __IN_OUT cv::Mat *&dst, __IN_OUT cv::Mat *&src, __IN_OUT u32 *threads,
+                 __IN_OUT threadParamsWithKey *params,
+                 __IN const Keys &Keys,
+                 __IN threadReturn **threadKeys,
+                 __IN const ParamControl &Config, __IN ThreadPool &pool,
+                 __IN void *(*func)(void *)) {
     const u32 nThread = Config.nThread;
     // resize image if needed
     resize(Image, Image, Size);
@@ -460,8 +407,7 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
     dst = &tmpImage, src = &Image;
     CALC_ITERATIONS;
 
-    for (u32 i = 0; i < nThread; i++)
-    {
+    for (u32 i = 0; i < nThread; i++) {
         params[i].params.dst = &dst;
         params[i].params.src = &src;
         params[i].params.size = &Size;
@@ -475,31 +421,28 @@ void PreGenerate(__IN_OUT cv::Mat& Image, __IN_OUT cv::Mat& tmpImage, __IN_OUT c
     }
 }
 
-typedef struct
-{
+typedef struct {
     Keys keys;
-    const ParamControl* config;
+    const ParamControl *config;
     u32 iterations;
 } KeyAssParam;
 
-static void* KeyAssist(void* param)
-{
-    auto& [keys, config, iterations] = *static_cast<KeyAssParam*>(param);
+static void *KeyAssist(void *param) {
+    auto &[keys, config, iterations] = *static_cast<KeyAssParam *>(param);
 
-    auto* byteSeq = new u8[iterations * config->byteReserve];
-    auto* diffusionSeedArray = new u8[config->nChannel * config->diffusionConfusionIterations];
+    auto *byteSeq = new u8[iterations * config->byteReserve];
+    auto *diffusionSeedArray = new u8[config->nChannel * config->diffusionConfusionIterations];
 
-    f64* resultArray1 = new f64[iterations];
-    f64* resultArray2 = new f64[iterations];
-    u8* bytesTmp = new u8[iterations * config->byteReserve];
+    f64 *resultArray1 = new f64[iterations];
+    f64 *resultArray2 = new f64[iterations];
+    u8 *bytesTmp = new u8[iterations * config->byteReserve];
 
     // const Keys keysBackup = params.keys;
     if (keys.gParam1.ctrlCondition > 0.5)
         keys.gParam1.ctrlCondition = 1 - keys.gParam1.ctrlCondition;
     if (keys.gParam2.ctrlCondition > 0.5)
         keys.gParam2.ctrlCondition = 1 - keys.gParam2.ctrlCondition;
-    for (u32 i = 0; i < config->preIterations; i++)
-    {
+    for (u32 i = 0; i < config->preIterations; i++) {
         keys.gParam1.initCondition = PLCM(
             keys.gParam1.initCondition,
             keys.gParam1.ctrlCondition);
@@ -526,49 +469,45 @@ static void* KeyAssist(void* param)
     return new threadReturn{byteSeq, diffusionSeedArray};
 }
 
-threadReturn** GenerateThreadKeys(__IN const cv::Size& Size,
-                                  __IN const Keys& Keys,
-                                  __IN const ParamControl& Config, __IN ThreadPool& pool)
-{
+threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
+                                  __IN const Keys &Keys,
+                                  __IN const ParamControl &Config, __IN ThreadPool &pool) {
     const u32 nThread = Config.nThread;
     CALC_ITERATIONS;
 
-    auto* params = new KeyAssParam[nThread];
-    auto* threads = new ThreadPool::task_descriptor_t[nThread];
-    auto** threadReturns = new threadReturn*[nThread];
+    auto *params = new KeyAssParam[nThread];
+    auto *threads = new ThreadPool::task_descriptor_t[nThread];
+    auto **threadReturns = new threadReturn *[nThread];
 
     ::Keys iterated_keys = Keys;
     // pre-iterate
-    for (u32 i = 0; i < Config.preIterations; i++)
-    {
+    for (u32 i = 0; i < Config.preIterations; i++) {
         iterated_keys.gParam1.initCondition = PLCM(iterated_keys.gParam1.initCondition,
                                                    iterated_keys.gParam1.ctrlCondition);
         iterated_keys.gParam2.initCondition = PLCM(iterated_keys.gParam2.initCondition,
                                                    iterated_keys.gParam2.ctrlCondition);
     }
-    for (u32 i = 0; i < nThread; i++)
-    {
+    for (u32 i = 0; i < nThread; i++) {
         params[i].iterations = iterations;
         params[i].keys.confusionSeed = Keys.confusionSeed;
         // generate params
         params[i].keys.gParam1.initCondition = iterated_keys.gParam1.initCondition = PLCM(
-            iterated_keys.gParam1.initCondition,
-            iterated_keys.gParam1.ctrlCondition);
+                                                   iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
         params[i].keys.gParam1.ctrlCondition = iterated_keys.gParam2.initCondition = PLCM(
-            iterated_keys.gParam2.initCondition,
-            iterated_keys.gParam2.ctrlCondition);
+                                                   iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
         params[i].keys.gParam2.initCondition = iterated_keys.gParam1.initCondition = PLCM(
-            iterated_keys.gParam1.initCondition,
-            iterated_keys.gParam1.ctrlCondition);
+                                                   iterated_keys.gParam1.initCondition,
+                                                   iterated_keys.gParam1.ctrlCondition);
         params[i].keys.gParam2.ctrlCondition = iterated_keys.gParam2.initCondition = PLCM(
-            iterated_keys.gParam2.initCondition,
-            iterated_keys.gParam2.ctrlCondition);
+                                                   iterated_keys.gParam2.initCondition,
+                                                   iterated_keys.gParam2.ctrlCondition);
         params[i].config = &Config;
         threads[i] = pool.addThread(KeyAssist, &params[i]);
     }
-    for (u32 i = 0; i < nThread; i++)
-    {
-        threadReturns[i] = static_cast<threadReturn*>(pool.waitThread(threads[i]));
+    for (u32 i = 0; i < nThread; i++) {
+        threadReturns[i] = static_cast<threadReturn *>(pool.waitThread(threads[i]));
     }
     delete[] params;
     delete[] threads;
@@ -576,29 +515,26 @@ threadReturn** GenerateThreadKeys(__IN const cv::Size& Size,
     return threadReturns;
 }
 
-void CalcRowCols(__IN_OUT u32& rowStart, __IN_OUT u32& rowEnd, __IN_OUT u32& colStart, __IN_OUT u32& colEnd,
-                 __IN const threadParams& params)
-{
+void CalcRowCols(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
+                 __IN const threadParams &params) {
     rowStart = (params.size->height * params.threadId / params.config->nThread), rowEnd = (
         params.size->height * (params.threadId + 1) / params.config->nThread);
     colStart = 0, colEnd = params.size->width;
 }
 
-void PreAssist(__IN_OUT u32& rowStart, __IN_OUT u32& rowEnd, __IN_OUT u32& colStart, __IN_OUT u32& colEnd,
-               __IN_OUT threadParams& params, __IN_OUT u8* & byteSeq, __IN_OUT u8* & diffusionSeedArray)
-{
+void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
+               __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray) {
     CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
-    f64* resultArray1 = new f64[params.iterations];
-    f64* resultArray2 = new f64[params.iterations];
-    u8* bytesTmp = new u8[params.iterations * params.config->byteReserve];
+    f64 *resultArray1 = new f64[params.iterations];
+    f64 *resultArray2 = new f64[params.iterations];
+    u8 *bytesTmp = new u8[params.iterations * params.config->byteReserve];
 
     // const Keys keysBackup = params.keys;
     if (params.keys.gParam1.ctrlCondition > 0.5)
         params.keys.gParam1.ctrlCondition = 1 - params.keys.gParam1.ctrlCondition;
     if (params.keys.gParam2.ctrlCondition > 0.5)
         params.keys.gParam2.ctrlCondition = 1 - params.keys.gParam2.ctrlCondition;
-    for (u32 i = 0; i < params.config->preIterations; i++)
-    {
+    for (u32 i = 0; i < params.config->preIterations; i++) {
         params.keys.gParam1.initCondition = PLCM(
             params.keys.gParam1.initCondition,
             params.keys.gParam1.ctrlCondition);
@@ -623,20 +559,17 @@ void PreAssist(__IN_OUT u32& rowStart, __IN_OUT u32& rowEnd, __IN_OUT u32& colSt
     delete [] bytesTmp;
 }
 
-void DestroyReturn(__IN threadReturn** ret, __IN const ParamControl& config)
-{
+void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config) {
     for (u32 i = 0; i < config.nThread; i++)
         delete [] ret[i]->byteSeq, delete [] ret[i]->diffusionSeedArray, delete ret[i];
     delete [] ret;
 }
 
-threadReturn** CopyReturn(__IN threadReturn** other, __IN const ParamControl& Config, __IN const cv::Size& Size)
-{
+threadReturn **CopyReturn(__IN threadReturn **other, __IN const ParamControl &Config, __IN const cv::Size &Size) {
     auto nThread = Config.nThread;
     CALC_ITERATIONS;
-    threadReturn** ret = new threadReturn*[Config.nThread];
-    for (u32 i = 0; i < Config.nThread; i++)
-    {
+    threadReturn **ret = new threadReturn *[Config.nThread];
+    for (u32 i = 0; i < Config.nThread; i++) {
         ret[i] = new threadReturn{
             new u8[iterations * Config.byteReserve], new u8[Config.nChannel * Config.diffusionConfusionIterations]
         };
@@ -647,14 +580,12 @@ threadReturn** CopyReturn(__IN threadReturn** other, __IN const ParamControl& Co
     return ret;
 }
 
-void DumpBytes(__IN FILE* fd, __IN const char* name, __IN const u8* array, __IN const u32 size)
-{
+void DumpBytes(__IN FILE *fd, __IN const char *name, __IN const u8 *array, __IN const u32 size) {
     fprintf(fd, "DumpBytes start\n");
     fprintf(fd, "Name: %s\n", name);
     fprintf(fd, "Bytes size: %u\n", size);
     fprintf(fd, "Data:\n");
-    for (u32 i = 0; i < size; i++)
-    {
+    for (u32 i = 0; i < size; i++) {
         fprintf(fd, "%02X ", array[i]);
     }
     fprintf(fd, "\n");
@@ -663,23 +594,20 @@ void DumpBytes(__IN FILE* fd, __IN const char* name, __IN const u8* array, __IN 
 
 #define sprintf(a, ...) snprintf(a, 1024, ##__VA_ARGS__)
 
-void DumpBytes(__IN void* buf, __IN const char* name, __IN const u8* array, __IN const u32 size)
-{
-    char* p = static_cast<char*>(buf);
+void DumpBytes(__IN void *buf, __IN const char *name, __IN const u8 *array, __IN const u32 size) {
+    char *p = static_cast<char *>(buf);
     p += sprintf(p, "DumpBytes start\n");
     p += sprintf(p, "Name: %s\n", name);
     p += sprintf(p, "Bytes size: %u\n", size);
     p += sprintf(p, "Data:\n");
-    for (u32 i = 0; i < size; i++)
-    {
+    for (u32 i = 0; i < size; i++) {
         p += sprintf(p, "%02X ", array[i]);
     }
     p += sprintf(p, "\n");
     p += sprintf(p, "DumpBytes end\n");
 }
 
-void DumpBytes(__IN const char* name, __IN const u8* array, __IN const u32 size)
-{
+void DumpBytes(__IN const char *name, __IN const u8 *array, __IN const u32 size) {
     DumpBytes(stdout, name, array, size);
 }
 
@@ -767,17 +695,14 @@ void DumpBytes(__IN const char* name, __IN const u8* array, __IN const u32 size)
     }
 
 
-void DumpMat(FILE* fd, const char* name, const cv::Mat& mat)
-{
+void DumpMat(FILE *fd, const char *name, const cv::Mat &mat) {
     fprintf(fd, "DumpMat start\n");
     fprintf(fd, "Name: %s\n", name);
     fprintf(fd, "Mat size: row: %u, col: %u\n", mat.rows, mat.cols);
     fprintf(fd, "Data:\n[\n");
     const auto type = mat.type();
-    for (u32 i = 0; i < mat.rows; i++)
-    {
-        for (u32 j = 0; j < mat.cols; j++)
-        {
+    for (u32 i = 0; i < mat.rows; i++) {
+        for (u32 j = 0; j < mat.cols; j++) {
             PRT_ELEM(type, mat, fd, i, j);
         }
         fprintf(fd, "\n");
@@ -786,34 +711,28 @@ void DumpMat(FILE* fd, const char* name, const cv::Mat& mat)
     fprintf(fd, "DumpMat end\n");
 }
 
-void LoadConfKey(ParamControl& params, Keys& Keys, const char* path)
-{
-    FILE* fd = fopen(path, "r");
-    if (fd)
-    {
+void LoadConfKey(ParamControl &params, Keys &Keys, const char *path) {
+    FILE *fd = fopen(path, "r");
+    if (fd) {
         fread(&params, sizeof(ParamControl), 1, fd);
         fread(&Keys, sizeof(Keys), 1, fd);
         fclose(fd);
     }
 }
 
-void SaveConfKey(const ParamControl& params, const Keys& Keys, const char* path)
-{
-    FILE* fd = fopen(path, "w");
-    if (fd)
-    {
+void SaveConfKey(const ParamControl &params, const Keys &Keys, const char *path) {
+    FILE *fd = fopen(path, "w");
+    if (fd) {
         fwrite(&params, sizeof(ParamControl), 1, fd);
         fwrite(&Keys, sizeof(Keys), 1, fd);
         fclose(fd);
     }
 }
 
-bool StructureEqual(__IN const void* a,__IN const void* b, __IN u32 size)
-{
-    auto t_a = static_cast<const char*>(a);
-    auto t_b = static_cast<const char*>(b);
-    for (u32 i = 0; i < size; i++)
-    {
+bool StructureEqual(__IN const void *a,__IN const void *b, __IN u32 size) {
+    auto t_a = static_cast<const char *>(a);
+    auto t_b = static_cast<const char *>(b);
+    for (u32 i = 0; i < size; i++) {
         if (t_a[i] != t_b[i]) return false;
     }
     return true;

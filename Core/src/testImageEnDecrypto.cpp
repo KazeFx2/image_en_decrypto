@@ -129,8 +129,8 @@ void *en_decryptoAssistant(__IN_OUT void *param) {
         params.Finish.post();
     }
     // Diffusion & confusion
+    u8 *diffusionSeed = new u8[params.config->nChannel];
     for (u32 i = 0; i < params.config->diffusionConfusionIterations; i++) {
-        u8 diffusionSeed[params.config->nChannel];
         memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
         Diffusion(**params.dst, **params.src,
@@ -165,5 +165,6 @@ void *en_decryptoAssistant(__IN_OUT void *param) {
                   rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
         params.Finish.post();
     }
+    delete diffusionSeed;
     return new threadReturn{byteSeq, diffusionSeedArray};
 }

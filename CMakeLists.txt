@@ -20,6 +20,8 @@ if(CMAKE_CUDA_COMPILER)
 
     set(CMAKE_CUDA_ARCHITECTURES "50;60;70;75" CACHE STRING "" FORCE)
 
+    set(CMAKE_CUDA_FLAGS "-Wno-deprecated-gpu-targets")
+
     set(UseCuda ON)
 
     add_definitions(-D__USE_CUDA)

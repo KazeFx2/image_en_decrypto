@@ -3,6 +3,10 @@
 //
 
 #include "private/Cuda.cuh"
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
 
 #define THREADS_PER_BLOCK 32
 

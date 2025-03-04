@@ -1688,6 +1688,11 @@ Updated content:
         <translation type="unfinished">窗口效果</translation>
     </message>
     <message>
+        <location filename="qml/page/Settings.qml" line="235"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="qml/page/Settings.qml" line="249"/>
         <source>window tintOpacity</source>
         <translation type="unfinished">背景透明度</translation>

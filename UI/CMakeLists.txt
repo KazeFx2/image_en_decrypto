@@ -24,8 +24,8 @@ else ()
 endif ()
 
 #导入Qt相关依赖包
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Quick Svg Network Widgets Multimedia)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Quick Svg Network Widgets Multimedia)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Quick Svg Network Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Quick Svg Network Widgets)
 
 set(FLUENTUI_BUILD_EXAMPLES OFF)
 add_subdirectory(3rd-party/FluentUI)
@@ -153,7 +153,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt${QT_VERSION_MAJOR}::Svg
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Widgets
-        Qt${QT_VERSION_MAJOR}::Multimedia
         fluentuiplugin
 )
 

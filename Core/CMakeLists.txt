@@ -70,6 +70,10 @@ target_link_libraries(${PROJECT_NAME}
         CoreThreadPool
 )
 
+if (MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+endif()
 #target_include_directories(${PROJECT_NAME} PUBLIC
 #        include
 #)

@@ -1656,6 +1656,11 @@ Updated content:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="qml/page/Settings.qml" line="235"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="qml/page/Settings.qml" line="249"/>
         <source>window tintOpacity</source>
         <translation type="unfinished"></translation>

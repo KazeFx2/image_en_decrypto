@@ -17,9 +17,9 @@ static FILE *gfd;
 static ::Mutex mu;
 #endif
 
-void* decryptoAssistantWithKeys(__IN void* param);
+void *decryptoAssistantWithKeys(__IN void *param);
 
-void* decryptoAssistant(__IN void* param);
+void *decryptoAssistant(__IN void *param);
 
 #ifdef __DEBUG
 #define DUMP_MAT {\
@@ -33,31 +33,27 @@ void* decryptoAssistant(__IN void* param);
 #define DUMP_MAT
 #endif
 
-void DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const Keys& Key, __IN threadReturn** threadKeys,
-                   __IN const ParamControl& Config, __IN ThreadPool& pool)
-{
+void DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key, __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
     Mat tmpImage;
     Mat *dst, *src;
-    u32* threads = new u32[Config.nThread];
-    auto* params = new threadParamsWithKey[Config.nThread];
+    u32 *threads = new u32[Config.nThread];
+    auto *params = new threadParamsWithKey[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
                 decryptoAssistantWithKeys);
 
-    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++)
-    {
+    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
         DOLOOP_KEY;
         swap(src, dst);
         DOLOOP_KEY;
         swap(src, dst);
     }
-    for (u32 i = 0; i < Config.confusionIterations; i++)
-    {
+    for (u32 i = 0; i < Config.confusionIterations; i++) {
         DOLOOP_KEY;
         swap(src, dst);
     }
-    for (u32 i = 0; i < Config.nThread; i++)
-    {
+    for (u32 i = 0; i < Config.nThread; i++) {
         pool.waitThread(threads[i]);
     }
     delete[] threads;
@@ -65,9 +61,8 @@ void DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const Keys& Key
     Image = src->clone();
 }
 
-threadReturn** DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const Keys& Keys,
-                             __IN const ParamControl& Config, __IN ThreadPool& pool)
-{
+threadReturn **DecryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Keys,
+                             __IN const ParamControl &Config, __IN ThreadPool &pool) {
 #ifdef __DEBUG
     char name[256];
     snprintf(name, sizeof(name), "/Users/kazefx/毕设/Code/ImageEn_Decrypto/outputs/Decrypto_Procedure.txt");
@@ -76,9 +71,9 @@ threadReturn** DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const
 
     Mat tmpImage;
     Mat *dst, *src;
-    u32* threads = new u32[Config.nThread];
-    auto* params = new threadParams[Config.nThread];
-    auto** ret = new threadReturn*[Config.nThread];
+    u32 *threads = new u32[Config.nThread];
+    auto *params = new threadParams[Config.nThread];
+    auto **ret = new threadReturn *[Config.nThread];
 
     PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
                 decryptoAssistant);
@@ -89,8 +84,7 @@ threadReturn** DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const
     char path[256];
 #endif
     DUMP_MAT;
-    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++)
-    {
+    for (u32 i = 0; i < Config.diffusionConfusionIterations; i++) {
         DOLOOP;
         DUMP_MAT;
         swap(src, dst);
@@ -99,15 +93,13 @@ threadReturn** DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const
         swap(src, dst);
     }
     // Inv_confusion
-    for (u32 i = 0; i < Config.confusionIterations; i++)
-    {
+    for (u32 i = 0; i < Config.confusionIterations; i++) {
         DOLOOP;
         DUMP_MAT;
         swap(src, dst);
     }
-    for (u32 i = 0; i < Config.nThread; i++)
-    {
-        ret[i] = static_cast<threadReturn*>(pool.waitThread(threads[i]));
+    for (u32 i = 0; i < Config.nThread; i++) {
+        ret[i] = static_cast<threadReturn *>(pool.waitThread(threads[i]));
     }
     delete[] threads;
     delete[] params;
@@ -120,16 +112,14 @@ threadReturn** DecryptoImage(__IN_OUT Mat& Image, __IN_OUT Size& Size,__IN const
 }
 
 
-inline void decryptoBody(__IN_OUT threadParams& params,
-                  __IN const u32 rowStart,__IN const u32 rowEnd,
-                  __IN const u32 colStart,__IN const u32 colEnd,
-                  __IN const u8* byteSeq, __IN const u8* diffusionSeedArray)
-{
+inline void decryptoBody(__IN_OUT threadParams &params,
+                         __IN const u32 rowStart,__IN const u32 rowEnd,
+                         __IN const u32 colStart,__IN const u32 colEnd,
+                         __IN const u8 *byteSeq, __IN const u8 *diffusionSeedArray) {
 #ifdef __USE_CUDA
-    void* cudaDst = nullptr;
-    void* cudaSrc = nullptr;
-    if (params.threadId == 0 && params.config->cuda)
-    {
+    void *cudaDst = nullptr;
+    void *cudaSrc = nullptr;
+    if (params.threadId == 0 && params.config->cuda) {
         cudaDst = MallocCuda((*params.src)->cols * (*params.src)->rows * (*params.src)->elemSize());
         cudaSrc = AllocCopyMatToCuda(**params.src);
     }
@@ -138,7 +128,7 @@ inline void decryptoBody(__IN_OUT threadParams& params,
 
     // Decrypto
     u32 seqIdx = params.config->nChannel * (rowEnd - rowStart) * (colEnd - colStart) * params.config->
-        diffusionConfusionIterations;
+                 diffusionConfusionIterations;
     // Inv-confusion & inv-diffusion
 #ifdef __DEBUG
     char name[256];
@@ -157,22 +147,18 @@ inline void decryptoBody(__IN_OUT threadParams& params,
     fclose(fd);
 #endif
 
-    for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--)
-    {
-        u8 diffusionSeed[params.config->nChannel];
+    u8 *diffusionSeed = new u8[params.config->nChannel];
+    for (u32 i = params.config->diffusionConfusionIterations - 1; ; i--) {
         memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
 #ifdef __USE_CUDA
-        if (params.config->cuda)
-        {
-            if (params.threadId == 0)
-            {
+        if (params.config->cuda) {
+            if (params.threadId == 0) {
                 CopyMatToCuda(cudaSrc, **params.src);
                 InvertConfusionCuda(cudaDst, cudaSrc, *params.size, params.keys.confusionSeed, params.config->nChannel);
                 CopyCudaToMat(**params.dst, cudaDst);
             }
-        }
-        else
+        } else
             InvertConfusion(**params.dst,
                             **params.src,
                             rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
@@ -218,28 +204,21 @@ inline void decryptoBody(__IN_OUT threadParams& params,
             break;
     }
     // Inv-confusion
-    for (u32 i = 0; i < params.config->confusionIterations; i++)
-    {
+    for (u32 i = 0; i < params.config->confusionIterations; i++) {
         params.Start.wait();
 #ifdef __USE_CUDA
-        if (params.config->cuda)
-        {
-            if (params.threadId == 0)
-            {
-                if (i == 0)
-                {
+        if (params.config->cuda) {
+            if (params.threadId == 0) {
+                if (i == 0) {
                     CopyMatToCuda(cudaSrc, **params.src);
                 }
                 InvertConfusionCuda(cudaDst, cudaSrc, *params.size, params.keys.confusionSeed, params.config->nChannel);
-                if (i + 1 == params.config->confusionIterations)
-                {
+                if (i + 1 == params.config->confusionIterations) {
                     CopyCudaToMat(**params.dst, cudaDst);
-                }
-                else
+                } else
                     swap(cudaDst, cudaSrc);
             }
-        }
-        else
+        } else
             InvertConfusion(**params.dst,
                             **params.src,
                             rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
@@ -253,20 +232,19 @@ inline void decryptoBody(__IN_OUT threadParams& params,
         params.Finish.post();
     }
 #ifdef __USE_CUDA
-    if (params.threadId == 0 && params.config->cuda)
-    {
+    if (params.threadId == 0 && params.config->cuda) {
         FreeCuda(cudaDst);
         FreeCuda(cudaSrc);
     }
 #endif
+    delete []diffusionSeed;
 }
 
-void* decryptoAssistant(__IN_OUT void* param)
-{
-    threadParams& params = *static_cast<threadParams*>(param);
+void *decryptoAssistant(__IN_OUT void *param) {
+    threadParams &params = *static_cast<threadParams *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
-    u8* byteSeq = new u8[params.iterations * params.config->byteReserve];
-    u8* diffusionSeedArray = new u8[params.config->nChannel * params.config->diffusionConfusionIterations];
+    u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
+    u8 *diffusionSeedArray = new u8[params.config->nChannel * params.config->diffusionConfusionIterations];
     PreAssist(rowStart, rowEnd, colStart, colEnd, params, byteSeq, diffusionSeedArray);
 
     decryptoBody(params, rowStart, rowEnd, colStart, colEnd, byteSeq, diffusionSeedArray);
@@ -274,13 +252,12 @@ void* decryptoAssistant(__IN_OUT void* param)
     return new threadReturn{byteSeq, diffusionSeedArray};
 }
 
-void* decryptoAssistantWithKeys(__IN_OUT void* param)
-{
-    auto& [params, ret] = *static_cast<threadParamsWithKey*>(param);
+void *decryptoAssistantWithKeys(__IN_OUT void *param) {
+    auto &[params, ret] = *static_cast<threadParamsWithKey *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
-    u8* byteSeq = ret->byteSeq;
-    u8* diffusionSeedArray = ret->diffusionSeedArray;
+    u8 *byteSeq = ret->byteSeq;
+    u8 *diffusionSeedArray = ret->diffusionSeedArray;
 
     decryptoBody(params, rowStart, rowEnd, colStart, colEnd, byteSeq, diffusionSeedArray);
 

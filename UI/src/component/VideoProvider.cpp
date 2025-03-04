@@ -7,93 +7,94 @@
 #include <qfuture.h>
 #include <QThread>
 #include <QtConcurrent/qtconcurrentrun.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#else
+void gettimeofday(struct timeval *tv, void *tz) {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    const uint64_t EPOCH_OFFSET = 116444736000000000ULL;
+    uli.QuadPart -= EPOCH_OFFSET;
+    tv->tv_sec = (long) (uli.QuadPart / 10000000ULL);
+    tv->tv_usec = (long) ((uli.QuadPart % 10000000ULL) / 10);
+}
+#endif
 
 #include "Semaphore.h"
 #include "component/Crypto.h"
 #include "component/ImageProvider.h"
 #include "component/KeyKeeper.h"
 
-Video* VideoProvider = nullptr;
+Video *VideoProvider = nullptr;
 
-std::vector<VideoControl*> Video::vcbs;
+std::vector<VideoControl *> Video::vcbs;
 
-void calcWH(int& w_out, int& h_out, int w_real, int h_real, int w_recommend, int h_recommend)
-{
-    if (w_real * h_recommend > w_recommend * h_real)
-    {
+void calcWH(int &w_out, int &h_out, int w_real, int h_real, int w_recommend, int h_recommend) {
+    if (w_real * h_recommend > w_recommend * h_real) {
         w_out = w_recommend;
         h_out = h_real * w_recommend / w_real;
-    }
-    else
-    {
+    } else {
         h_out = h_recommend;
         w_out = w_real * h_recommend / h_real;
     }
 }
 
-inline double GetCPUSecond()
-{
+inline double GetCPUSecond() {
     timeval tp;
     gettimeofday(&tp, nullptr);
     return (static_cast<double>(tp.tv_sec) + static_cast<double>(tp.tv_usec) * 1.e-6);
 }
 
 Video::Video()
-    : QQuickImageProvider(QQuickImageProvider::Image)
-{
+    : QQuickImageProvider(QQuickImageProvider::Image) {
     term = false;
 }
 
-void Video::decoder(VideoControl* vcb)
-{
+void Video::decoder(VideoControl *vcb) {
     cv::Mat frame, out;
     QImage img;
-    while (true)
-    {
+    while (true) {
         vcb->cap >> frame;
-        if (frame.empty())
-        {
+        if (frame.empty()) {
             vcb->mtx.lock();
             vcb->play_over = true;
             goto DECODE_WAIT;
         }
-        switch (vcb->type)
-        {
-        case Raw:
-            out = frame;
-            break;
-        case Decrypt:
-            out = vcb->crypto->decrypt(frame);
-            break;
-        case Encrypt:
-            out = vcb->crypto->encrypt(frame);
-            break;
+        switch (vcb->type) {
+            case Raw:
+                out = frame;
+                break;
+            case Decrypt:
+                out = vcb->crypto->decrypt(frame);
+                break;
+            case Encrypt:
+                out = vcb->crypto->encrypt(frame);
+                break;
         }
         img = cvMat2QImage(out);
         vcb->mtx.lock();
         if (vcb->terminate)
             goto DECODE_TERM;
         vcb->cache.push(img);
-        if (vcb->cache.size() == 1 && vcb->reader_wait)
-        {
+        if (vcb->cache.size() == 1 && vcb->reader_wait) {
             emit videoLoaded(QString::number(vcb->idx));
-            if (!vcb->paused)
-            {
+            if (!vcb->paused) {
                 vcb->reader_wait = false;
                 vcb->reader_start_sem.post();
             }
         }
-        if (vcb->cache.size() >= MAX_CACHE)
-        {
+        if (vcb->cache.size() >= MAX_CACHE) {
         DECODE_WAIT:
             vcb->writer_wait = true;
             vcb->mtx.unlock();
             vcb->decoder_start_sem.wait();
-        }
-        else vcb->mtx.unlock();
-        if (vcb->terminate)
-        {
+        } else vcb->mtx.unlock();
+        if (vcb->terminate) {
         DECODE_TERM:
             vcb->decoder_fin_sem.post();
             vcb->cap.release();
@@ -101,8 +102,7 @@ void Video::decoder(VideoControl* vcb)
             return;
         }
         vcb->mtx.lock();
-        if (vcb->update_pos)
-        {
+        if (vcb->update_pos) {
             std::queue<QImage> empty;
             std::swap(vcb->cache, empty);
             vcb->cap.set(cv::CAP_PROP_POS_MSEC, vcb->new_pos);
@@ -114,23 +114,19 @@ void Video::decoder(VideoControl* vcb)
     }
 }
 
-void Video::reader(VideoControl* vcb)
-{
+void Video::reader(VideoControl *vcb) {
     bool init = false;
     double time_rec = 0.0, time_rec_next = 0.0, delay = 0.0;
-    while (true)
-    {
+    while (true) {
         vcb->mtx.lock();
-        if (vcb->terminate)
-        {
+        if (vcb->terminate) {
         READER_TERM:
             vcb->reader_fin_sem.post();
             vcb->mtx.unlock();
             // printf("exit reader %d\n", vcb->idx);
             return;
         }
-        if (vcb->cache.empty() || vcb->paused)
-        {
+        if (vcb->cache.empty() || vcb->paused) {
         READER_WAIT:
             vcb->reader_wait = true;
             if ((vcb->play_over && vcb->cache.empty()) || vcb->current_frame >= vcb->frame_count)
@@ -142,8 +138,7 @@ void Video::reader(VideoControl* vcb)
             if (vcb->terminate) goto READER_TERM;
             if (vcb->cache.empty()) goto READER_WAIT;
         }
-        if (!init)
-        {
+        if (!init) {
             time_rec = GetCPUSecond();
             init = true;
         }
@@ -153,8 +148,7 @@ void Video::reader(VideoControl* vcb)
         vcb->current = vcb->cache.front().scaled(vcb->width, vcb->height);
         vcb->cache.pop();
         vcb->current_frame++;
-        if (vcb->cache.size() + 1 >= MAX_CACHE && vcb->writer_wait)
-        {
+        if (vcb->cache.size() + 1 >= MAX_CACHE && vcb->writer_wait) {
             vcb->writer_wait = false;
             vcb->decoder_start_sem.post();
         }
@@ -164,8 +158,7 @@ void Video::reader(VideoControl* vcb)
         delay = static_cast<int>(1000.0 / vcb->fps - (time_rec_next - time_rec) * 1000);
         time_rec = time_rec_next;
         QThread::msleep(delay * 2);
-        if ((vcb->play_over && vcb->cache.empty()) || vcb->current_frame >= vcb->frame_count)
-        {
+        if ((vcb->play_over && vcb->cache.empty()) || vcb->current_frame >= vcb->frame_count) {
             emit videoUpdated(QString::number(vcb->idx), vcb->current_frame * 1000.0 / vcb->fps);
             vcb->paused = true;
             emit videoPaused(QString::number(vcb->idx));
@@ -173,18 +166,14 @@ void Video::reader(VideoControl* vcb)
     }
 }
 
-QString Video::loadVideo(const QUrl& file, const QString& key_id, DecodeType type, bool cuda, int recommend_width,
-                         int recommend_height)
-{
+QString Video::loadVideo(const QUrl &file, const QString &key_id, DecodeType type, bool cuda, int recommend_width,
+                         int recommend_height) {
     const auto id = get_putIdx(false, 0);
-    if (id >= vcbs.size())
-    {
+    if (id >= vcbs.size()) {
         vcbs.push_back(new VideoControl);
-    }
-    else vcbs[id] = new VideoControl;
-    auto* vcb = vcbs[id];
-    if (!vcb->cap.open(file.toLocalFile().toStdString()))
-    {
+    } else vcbs[id] = new VideoControl;
+    auto *vcb = vcbs[id];
+    if (!vcb->cap.open(file.toLocalFile().toStdString())) {
         delete vcb;
         return QString("");
     }
@@ -219,20 +208,17 @@ QString Video::loadVideo(const QUrl& file, const QString& key_id, DecodeType typ
     return "image://Video/" + QString::number(vcb->idx);
 }
 
-QImage Video::requestImage(const QString& id, QSize* size, const QSize& requestedSize)
-{
+QImage Video::requestImage(const QString &id, QSize *size, const QSize &requestedSize) {
     auto idx = id.split('/')[0].toInt();
     if (idx >= vcbs.size()) return QImage();
     return vcbs[idx]->current;
 }
 
-void Video::delVideo(const QString& url)
-{
+void Video::delVideo(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return;
     vcbs[idx]->mtx.lock();
-    if (vcbs[idx]->terminate)
-    {
+    if (vcbs[idx]->terminate) {
         vcbs[idx]->mtx.unlock();
         return;
     }
@@ -248,8 +234,7 @@ void Video::delVideo(const QString& url)
 }
 
 
-void Video::pause(const QString& url)
-{
+void Video::pause(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return;
     vcbs[idx]->mtx.lock();
@@ -258,8 +243,7 @@ void Video::pause(const QString& url)
     vcbs[idx]->mtx.unlock();
 }
 
-void Video::resume(const QString& url)
-{
+void Video::resume(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return;
     vcbs[idx]->mtx.lock();
@@ -267,8 +251,7 @@ void Video::resume(const QString& url)
         goto_msec_locked(idx, 0.0);
     vcbs[idx]->paused = false;
     emit videoResumed(QString::number(idx));
-    if (vcbs[idx]->reader_wait && !vcbs[idx]->cache.empty())
-    {
+    if (vcbs[idx]->reader_wait && !vcbs[idx]->cache.empty()) {
         emit videoLoaded(QString::number(idx));
         vcbs[idx]->reader_start_sem.post();
         vcbs[idx]->reader_wait = false;
@@ -276,26 +259,22 @@ void Video::resume(const QString& url)
     vcbs[idx]->mtx.unlock();
 }
 
-double Video::total_msec(const QString& url)
-{
+double Video::total_msec(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return 0.0;
     return vcbs[idx]->total_msec;
 }
 
-void Video::goto_msec_locked(int idx, double msec)
-{
+void Video::goto_msec_locked(int idx, double msec) {
     vcbs[idx]->new_pos = msec;
     vcbs[idx]->update_pos = true;
-    if (vcbs[idx]->writer_wait)
-    {
+    if (vcbs[idx]->writer_wait) {
         vcbs[idx]->decoder_start_sem.post();
         vcbs[idx]->writer_wait = false;
     }
 }
 
-bool Video::url_available(const QString& url, int& idx)
-{
+bool Video::url_available(const QString &url, int &idx) {
     auto array = url.split('/');
     if (array.size() < 4) return false;
     bool ok;
@@ -305,8 +284,7 @@ bool Video::url_available(const QString& url, int& idx)
     return true;
 }
 
-void Video::goto_msec(const QString& url, double msec)
-{
+void Video::goto_msec(const QString &url, double msec) {
     int idx;
     if (!url_available(url, idx)) return;
     vcbs[idx]->mtx.lock();
@@ -314,8 +292,7 @@ void Video::goto_msec(const QString& url, double msec)
     vcbs[idx]->mtx.unlock();
 }
 
-void Video::set_type(const QString& url, DecodeType type)
-{
+void Video::set_type(const QString &url, DecodeType type) {
     int idx;
     if (!url_available(url, idx)) return;
     if (vcbs[idx]->type == type) return;
@@ -323,8 +300,7 @@ void Video::set_type(const QString& url, DecodeType type)
     vcbs[idx]->type = type;
     std::queue<QImage> empty;
     std::swap(vcbs[idx]->cache, empty);
-    if (vcbs[idx]->writer_wait)
-    {
+    if (vcbs[idx]->writer_wait) {
         vcbs[idx]->decoder_start_sem.post();
         vcbs[idx]->writer_wait = false;
     }
@@ -332,29 +308,25 @@ void Video::set_type(const QString& url, DecodeType type)
     emit videoDecodeTypeChanged(QString::number(idx));
 }
 
-int Video::get_decode_type(const QString& url)
-{
+int Video::get_decode_type(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return Raw;
     return vcbs[idx]->type;
 }
 
-void Video::set_wh(const QString& url, int width, int height)
-{
+void Video::set_wh(const QString &url, int width, int height) {
     int idx;
     if (!url_available(url, idx)) return;
     calcWH(vcbs[idx]->width, vcbs[idx]->height, vcbs[idx]->real_width, vcbs[idx]->real_height, width, height);
 }
 
-bool Video::get_cuda(const QString& url)
-{
+bool Video::get_cuda(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return false;
     return vcbs[idx]->cuda;
 }
 
-void Video::set_cuda(const QString& url, bool cuda)
-{
+void Video::set_cuda(const QString &url, bool cuda) {
     int idx;
     if (!url_available(url, idx)) return;
     if (vcbs[idx]->cuda == cuda) return;
@@ -365,26 +337,23 @@ void Video::set_cuda(const QString& url, bool cuda)
     emit videoCudaChanged(QString::number(idx));
 }
 
-void Video::set_param(const QString& url, const QString& key_id)
-{
+void Video::set_param(const QString &url, const QString &key_id) {
     int idx;
     if (!url_available(url, idx)) return;
     auto key = keyMap[key_id];
     vcbs[idx]->crypto->setKeys(key.key.control, key.key.keys);
 }
 
-bool Video::get_pause(const QString& url)
-{
+bool Video::get_pause(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return true;
     return vcbs[idx]->paused;
 }
 
-void Video::__cvtVideo(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda)
-{
+void Video::__cvtVideo(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt,
+                       bool cuda) {
     cv::VideoCapture cap;
-    if (!cap.open(in_file.toStdString()))
-    {
+    if (!cap.open(in_file.toStdString())) {
         emit videoCvtSignal(0, 0);
         return;
     }
@@ -393,8 +362,7 @@ void Video::__cvtVideo(const QString& in_file, const QString& out_file, const QS
     auto height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     cv::VideoWriter wrt;
     if (!wrt.open(out_file.toStdString(), cv::VideoWriter::fourcc('F', 'F', 'V', '1'), fps, cv::Size(width, height),
-                  true))
-    {
+                  true)) {
         emit videoCvtSignal(0, 0);
         return;
     }
@@ -404,8 +372,7 @@ void Video::__cvtVideo(const QString& in_file, const QString& out_file, const QS
     auto total_frames = cap.get(cv::CAP_PROP_FRAME_COUNT);
     cv::Mat frame;
     cv::Mat out;
-    while (true)
-    {
+    while (true) {
         cap >> frame;
         if (frame.empty() || term)
             break;
@@ -416,8 +383,7 @@ void Video::__cvtVideo(const QString& in_file, const QString& out_file, const QS
         wrt << out;
         emit videoCvtSignal(static_cast<int>(cap.get(cv::CAP_PROP_POS_FRAMES)), total_frames);
     }
-    if (term)
-    {
+    if (term) {
         emit videoCvtSignal(0, 0);
         term = false;
     }
@@ -425,33 +391,28 @@ void Video::__cvtVideo(const QString& in_file, const QString& out_file, const QS
     wrt.release();
 }
 
-void Video::cvtVideo(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda)
-{
+void Video::cvtVideo(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda) {
     term = false;
     QFuture<void> future = QtConcurrent::run(std::bind(&Video::__cvtVideo, this, in_file, out_file, key_id, encrypt,
                                                        cuda));
 }
 
-void Video::force_stop_cvt()
-{
+void Video::force_stop_cvt() {
     term = true;
 }
 
-u64 Video::get_putIdx(const bool isRet, const u64 oldIdx)
-{
+u64 Video::get_putIdx(const bool isRet, const u64 oldIdx) {
     static u64 idx = 0;
     static Semaphore semaphore(1);
     static FastBitmap bitmap;
     semaphore.wait();
-    if (isRet == true)
-    {
+    if (isRet == true) {
         bitmap[oldIdx] = false;
         semaphore.post();
         return oldIdx;
     }
     auto id = bitmap.findNextFalse(0, idx);
-    if (id != BITMAP_NOT_FOUND)
-    {
+    if (id != BITMAP_NOT_FOUND) {
         bitmap[id] = true;
         semaphore.post();
         return id;
