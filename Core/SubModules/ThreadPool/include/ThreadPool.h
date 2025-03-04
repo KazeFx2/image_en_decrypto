@@ -10,7 +10,11 @@
 
 #include "private/types.h"
 #include "RWLock.h"
-#include "pthread.h"
+#ifndef _WIN32
+#include <pthread.h>
+#else
+#include <windows.h>
+#endif
 #include <vector>
 
 class ThreadPool
@@ -63,7 +67,11 @@ public:
         ThreadPool* pool;
         u_count_t id;
         Semaphore semaStart;
+#ifndef _WIN32
         pthread_t thread;
+#else
+        HANDLE thread;
+#endif
         ThreadMtx mtxContext;
     } ThreadContext;
 
@@ -372,6 +380,10 @@ private:
     static u_count_t getIdx();
 
     static void* threadFunc(void* arg);
+
+#ifdef _WIN32
+    static DWORD WINAPI threadFuncWin32(LPVOID arg);
+#endif
 
     bool destroyThreadLocked(u_count_t index, bool onlyIdly = false) const;
 

@@ -52,9 +52,10 @@ configure_file(
 )
 
 #遍历所有Cpp文件
+string(REPLACE "+" "\\+" ESCAPED_PATH "^${CMAKE_CURRENT_SOURCE_DIR}/3rd-party")
 file(GLOB_RECURSE CPP_FILES *.cpp *.h)
 foreach (filepath ${CPP_FILES})
-    if(NOT filepath MATCHES "^${CMAKE_CURRENT_SOURCE_DIR}/3rd-party")
+    if(NOT filepath MATCHES "${ESCAPED_PATH}")
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
         list(APPEND sources_files ${filename})
     endif ()
@@ -69,12 +70,12 @@ set(EXAMPLE_VERSION_RC_PATH "")
 if (WIN32)
     set(EXAMPLE_VERSION_RC_PATH ${CMAKE_CURRENT_BINARY_DIR}/version_${PROJECT_NAME}.rc)
     configure_file(
-            ${CMAKE_SOURCE_DIR}/.cmake/version_exe.rc.in
+            ${CMAKE_CURRENT_SOURCE_DIR}/.cmake/version_exe.rc.in
             ${EXAMPLE_VERSION_RC_PATH}
     )
     configure_file(
-            ${CMAKE_SOURCE_DIR}/.cmake/InstallerScript.iss.in
-            ${CMAKE_SOURCE_DIR}/package/InstallerScript.iss
+            ${CMAKE_CURRENT_SOURCE_DIR}/.cmake/InstallerScript.iss.in
+            ${CMAKE_CURRENT_SOURCE_DIR}/package/InstallerScript.iss
     )
 endif ()
 

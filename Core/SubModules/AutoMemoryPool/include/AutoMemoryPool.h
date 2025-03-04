@@ -12,7 +12,7 @@ extern "C" {
 #include "list/CList.h"
 }
 
-#define POINTER_OPERATE(ptr, op) (ptr = reinterpret_cast<typeof(ptr)>(reinterpret_cast<uptr>(ptr) op))
+#define POINTER_OPERATE(ptr, op) (ptr = reinterpret_cast<decltype(ptr)>(reinterpret_cast<uptr>(ptr) op))
 
 class AutoMemoryPool {
 public:

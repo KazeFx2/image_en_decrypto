@@ -430,13 +430,24 @@ void *ThreadPool::threadFunc(void *arg) {
     }
 }
 
+#ifdef _WIN32
+DWORD ThreadPool::threadFuncWin32(LPVOID arg) {
+    return reinterpret_cast<DWORD>(threadFunc(arg));
+}
+#endif
+
 void ThreadPool::startThread(const u_count_t id) {
     if (status(id) != Empty) { return; }
     status(id) = Idly;
     threadEmpty[id] = false;
     threadIdly[id] = true;
+#ifndef _WIN32
     pthread_create(&threads[id]->thread, nullptr, threadFunc, threads[id]);
     pthread_detach(threads[id]->thread);
+#else
+    threads[id]->thread = CreateThread(nullptr, 0, threadFuncWin32, threads[id], 0, nullptr);
+    CloseHandle(threads[id]->thread);
+#endif
 }
 
 void ThreadPool::initThread(ThreadContext &th, const u_count_t id) {
