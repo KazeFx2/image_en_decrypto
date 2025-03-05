@@ -20,8 +20,9 @@ void gettimeofday(struct timeval *tv, void *tz) {
 
     const uint64_t EPOCH_OFFSET = 116444736000000000ULL;
     uli.QuadPart -= EPOCH_OFFSET;
-    tv->tv_sec = (long) (uli.QuadPart / 10000000ULL);
-    tv->tv_usec = (long) ((uli.QuadPart % 10000000ULL) / 10);
+    uli.QuadPart /= 10;
+    tv->tv_sec = uli.QuadPart / 1000000ULL;
+    tv->tv_usec = uli.QuadPart % 1000000ULL;
 }
 #endif
 
@@ -157,7 +158,7 @@ void Video::reader(VideoControl *vcb) {
         time_rec_next = GetCPUSecond();
         delay = static_cast<int>(1000.0 / vcb->fps - (time_rec_next - time_rec) * 1000);
         time_rec = time_rec_next;
-        QThread::msleep(delay * 2);
+        QThread::msleep(delay * 2 >= 0 ? delay * 2 : 0);
         if ((vcb->play_over && vcb->cache.empty()) || vcb->current_frame >= vcb->frame_count) {
             emit videoUpdated(QString::number(vcb->idx), vcb->current_frame * 1000.0 / vcb->fps);
             vcb->paused = true;
