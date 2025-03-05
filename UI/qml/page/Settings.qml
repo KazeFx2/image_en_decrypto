@@ -23,6 +23,7 @@ FluScrollablePage {
         height: 50
         padding: 10
         FluCheckBox {
+            enabled: `${window.effect}` === "normal"
             text: qsTr("Use System AppBar")
             checked: FluApp.useSystemAppBar
             anchors.verticalCenter: parent.verticalCenter
@@ -186,6 +187,66 @@ FluScrollablePage {
     }
 
     FluFrame {
+        visible: window.availableEffects.length !== 0
+        Layout.fillWidth: true
+        Layout.topMargin: 20
+        height: 80
+        padding: 10
+
+        ColumnLayout {
+            spacing: 0
+            anchors {
+                left: parent.left
+            }
+            FluText {
+                text: qsTr("Window Effect")
+                font: FluTextStyle.BodyStrong
+                Layout.bottomMargin: 4
+            }
+            Row {
+                spacing: 10
+                Repeater {
+                    model: window.availableEffects
+                    delegate: FluRadioButton {
+                        checked: window.effect === modelData
+                        text: {
+                            switch (`${modelData}`) {
+                                case "mica":
+                                    return qsTr("Mica")
+                                case "mica-alt":
+                                    return qsTr("Mica-Alt")
+                                case "acrylic":
+                                    return qsTr("Acrylic")
+                                case "dwm-blur":
+                                    return qsTr("Dwm-Blur")
+                                case "normal":
+                                    return qsTr("Normal")
+                                default:
+                                    return qsTr(`${modelData}`)
+                            }
+                        }
+                        clickListener: function () {
+                            window.effect = modelData
+                            SettingsHelper.saveWindowEffect(window.availableEffects.indexOf(modelData))
+                            if (window.effective) {
+                                FluTheme.blurBehindWindowEnabled = false
+                                toggle_blur.checked = Qt.binding(function () {
+                                    return FluTheme.blurBehindWindowEnabled
+                                })
+                            }
+                            if (`${modelData}` !== "normal" && !FluApp.useSystemAppBar) {
+                                FluApp.useSystemAppBar = true
+                                dialog_restart.open()
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 20
         height: 80
@@ -225,34 +286,10 @@ FluScrollablePage {
                 left: parent.left
             }
             FluText {
-                text: qsTr("window effect")
+                visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
+                text: qsTr("Window TintOpacity")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
-            }
-            Row {
-                spacing: 10
-                Repeater {
-                    model: window.availableEffects
-                    delegate: FluRadioButton {
-                        checked: window.effect === modelData
-                        text: qsTr(`${modelData}`)
-                        clickListener: function () {
-                            window.effect = modelData
-                            if (window.effective) {
-                                FluTheme.blurBehindWindowEnabled = false
-                                toggle_blur.checked = Qt.binding(function () {
-                                    return FluTheme.blurBehindWindowEnabled
-                                })
-                            }
-                        }
-                    }
-
-                }
-            }
-            FluText {
-                visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
-                text: qsTr("window tintOpacity")
-                Layout.topMargin: 20
             }
             ModSlider {
                 visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
@@ -270,8 +307,9 @@ FluScrollablePage {
             }
             FluText {
                 visible: FluTheme.blurBehindWindowEnabled
-                text: qsTr("window blurRadius")
-                Layout.topMargin: 20
+                text: qsTr("Window BlurRadius")
+                font: FluTextStyle.BodyStrong
+                Layout.bottomMargin: 4
             }
             FluSlider {
                 visible: FluTheme.blurBehindWindowEnabled
@@ -339,22 +377,25 @@ FluScrollablePage {
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            Repeater {
-                model: [{title: qsTr("Open"), mode: FluNavigationViewType.Open, index: 0}, {
-                    title: qsTr("Compact"),
-                    mode: FluNavigationViewType.Compact,
-                    index: 1
-                }, {title: qsTr("Minimal"), mode: FluNavigationViewType.Minimal, index: 2}, {
-                    title: qsTr("Auto"),
-                    mode: FluNavigationViewType.Auto,
-                    index: 3
-                }]
-                delegate: FluRadioButton {
-                    text: modelData.title
-                    checked: GlobalModel.displayMode === modelData.mode
-                    clickListener: function () {
-                        GlobalModel.displayMode = modelData.mode
-                        SettingsHelper.saveDisplayMode(modelData.index)
+            RowLayout {
+                Layout.topMargin: 5
+                Repeater {
+                    model: [{title: qsTr("Open"), mode: FluNavigationViewType.Open, index: 0}, {
+                        title: qsTr("Compact"),
+                        mode: FluNavigationViewType.Compact,
+                        index: 1
+                    }, {title: qsTr("Minimal"), mode: FluNavigationViewType.Minimal, index: 2}, {
+                        title: qsTr("Auto"),
+                        mode: FluNavigationViewType.Auto,
+                        index: 3
+                    }]
+                    delegate: FluRadioButton {
+                        text: modelData.title
+                        checked: GlobalModel.displayMode === modelData.mode
+                        clickListener: function () {
+                            GlobalModel.displayMode = modelData.mode
+                            SettingsHelper.saveDisplayMode(modelData.index)
+                        }
                     }
                 }
             }

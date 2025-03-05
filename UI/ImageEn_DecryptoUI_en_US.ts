@@ -1315,39 +1315,39 @@
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="86"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="94"/>
-        <location filename="qml/window/MainWindow.qml" line="77"/>
-        <location filename="qml/window/MainWindow.qml" line="85"/>
+        <location filename="qml/window/MainWindow.qml" line="83"/>
+        <location filename="qml/window/MainWindow.qml" line="91"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="87"/>
-        <location filename="qml/window/MainWindow.qml" line="78"/>
+        <location filename="qml/window/MainWindow.qml" line="84"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="88"/>
-        <location filename="qml/window/MainWindow.qml" line="79"/>
+        <location filename="qml/window/MainWindow.qml" line="85"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="82"/>
+        <location filename="qml/window/MainWindow.qml" line="88"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="82"/>
+        <location filename="qml/window/MainWindow.qml" line="88"/>
         <source>FluentUI is hidden from the tray, click on the tray to activate the window again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="95"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="337"/>
-        <location filename="qml/window/MainWindow.qml" line="86"/>
+        <location filename="qml/window/MainWindow.qml" line="92"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1574,85 +1574,120 @@ Updated content:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="26"/>
+        <location filename="qml/page/Settings.qml" line="27"/>
         <source>Use System AppBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="42"/>
+        <location filename="qml/page/Settings.qml" line="43"/>
         <source>Fits AppBar Windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="54"/>
+        <location filename="qml/page/Settings.qml" line="55"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="55"/>
+        <location filename="qml/page/Settings.qml" line="56"/>
         <source>This action requires a restart of the program to take effect, is it restarted?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="57"/>
+        <location filename="qml/page/Settings.qml" line="58"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="58"/>
+        <location filename="qml/page/Settings.qml" line="59"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="65"/>
+        <location filename="qml/page/Settings.qml" line="66"/>
         <source>Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="84"/>
+        <location filename="qml/page/Settings.qml" line="85"/>
         <source>Dark Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="89"/>
+        <location filename="qml/page/Settings.qml" line="90"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="90"/>
+        <location filename="qml/page/Settings.qml" line="91"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="92"/>
+        <location filename="qml/page/Settings.qml" line="93"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="117"/>
+        <location filename="qml/page/Settings.qml" line="118"/>
         <source>Theme Colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="159"/>
+        <location filename="qml/page/Settings.qml" line="160"/>
         <source>Customize the Theme Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="200"/>
+        <location filename="qml/page/Settings.qml" line="215"/>
+        <source>Mica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="217"/>
+        <source>Mica-Alt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="219"/>
+        <source>Acrylic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="221"/>
+        <source>Dwm-Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="223"/>
+        <source>Normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="261"/>
         <source>Open Blur Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="216"/>
-        <location filename="qml/page/Settings.qml" line="253"/>
-        <location filename="qml/page/Settings.qml" line="258"/>
+        <location filename="qml/page/Settings.qml" line="202"/>
+        <source>Window Effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="277"/>
+        <location filename="qml/page/Settings.qml" line="289"/>
+        <location filename="qml/page/Settings.qml" line="295"/>
         <source>dwm-blur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="228"/>
-        <source>window effect</source>
+        <location filename="qml/page/Settings.qml" line="290"/>
+        <source>Window TintOpacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/Settings.qml" line="310"/>
+        <source>Window BlurRadius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1661,82 +1696,72 @@ Updated content:
         <translation></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="254"/>
-        <source>window tintOpacity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/Settings.qml" line="273"/>
-        <source>window blurRadius</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/Settings.qml" line="304"/>
+        <location filename="qml/page/Settings.qml" line="342"/>
         <source>Native Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="319"/>
+        <location filename="qml/page/Settings.qml" line="357"/>
         <source>Action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="338"/>
+        <location filename="qml/page/Settings.qml" line="376"/>
         <source>Navigation View Display Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="343"/>
+        <location filename="qml/page/Settings.qml" line="383"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="344"/>
+        <location filename="qml/page/Settings.qml" line="384"/>
         <source>Compact</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="347"/>
+        <location filename="qml/page/Settings.qml" line="387"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="348"/>
+        <location filename="qml/page/Settings.qml" line="388"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="376"/>
+        <location filename="qml/page/Settings.qml" line="417"/>
         <source>Open Animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="391"/>
+        <location filename="qml/page/Settings.qml" line="432"/>
         <source>Localization</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="420"/>
+        <location filename="qml/page/Settings.qml" line="461"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="433"/>
+        <location filename="qml/page/Settings.qml" line="474"/>
         <source>Simplified Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="435"/>
+        <location filename="qml/page/Settings.qml" line="476"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="449"/>
+        <location filename="qml/page/Settings.qml" line="490"/>
         <source>Other</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="467"/>
+        <location filename="qml/page/Settings.qml" line="508"/>
         <source>Show FPS</source>
         <translation type="unfinished"></translation>
     </message>

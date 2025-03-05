@@ -140,6 +140,14 @@ public:
         return get("blurWindow", QVariant(false)).toBool();
     }
 
+    Q_INVOKABLE void saveWindowEffect(int effect) {
+        save("windowEffect", effect);
+    }
+
+    Q_INVOKABLE int getWindowEffect() {
+        return get("windowEffect", QVariant(4)).toInt();
+    }
+
     Q_INVOKABLE void saveWindowOpacity(double windowOpacity) {
         save("windowOpacity", windowOpacity);
     }

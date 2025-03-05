@@ -20,6 +20,12 @@ FluWindow {
     fitsAppBarWindows: SettingsHelper.getAppBarWindows()
     tintOpacity: SettingsHelper.getWindowOpacity()
     blurRadius: SettingsHelper.getBlurLevel()
+    effect: {
+        let idx = SettingsHelper.getWindowEffect()
+        if (idx >= 0 && idx < availableEffects.length)
+            return availableEffects[idx]
+        return effect
+    }
     appBar: FluAppBar {
         height: 30
         showDark: true
