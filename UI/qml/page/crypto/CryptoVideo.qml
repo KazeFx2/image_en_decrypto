@@ -58,6 +58,7 @@ FluScrollablePage {
         */
         onAccepted: {
             let source = VideoProvider.loadVideo(selectedFile, paramConf.paramKey(), DecodeType.Raw, true, play_img.width, play_img.height)
+            console.log(source)
             play_img.url = source
         }
         onRejected: {

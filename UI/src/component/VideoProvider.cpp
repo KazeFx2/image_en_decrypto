@@ -79,8 +79,10 @@ void Video::decoder(VideoControl *vcb) {
         }
         img = cvMat2QImage(out);
         vcb->mtx.lock();
-        if (vcb->terminate)
+        if (vcb->terminate) {
+            vcb->mtx.unlock();
             goto DECODE_TERM;
+        }
         vcb->cache.push(img);
         if (vcb->cache.size() == 1 && vcb->reader_wait) {
             emit videoLoaded(QString::number(vcb->idx));
