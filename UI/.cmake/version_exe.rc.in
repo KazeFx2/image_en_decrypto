@@ -15,11 +15,11 @@ BEGIN
     BEGIN
         BLOCK "080404b0"
         BEGIN
-            VALUE "CompanyName", "ZhuZiChu"
+            VALUE "CompanyName", "None"
             VALUE "FileDescription", "${PROJECT_DESCRIPTION}"
             VALUE "FileVersion", "${GIT_SEMVER}.${GIT_COMMIT_COUNT}"
             VALUE "InternalName", "${PROJECT_NAME}.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2023 ZhuZiChu. All rights reserved."
+            VALUE "LegalCopyright", "Copyright (C) 2025 KazeFx. All rights reserved."
             VALUE "OriginalFilename", "${PROJECT_NAME}.exe"
             VALUE "ProductName", "${PROJECT_NAME}"
             VALUE "ProductVersion", "${GIT_SEMVER}.0"
