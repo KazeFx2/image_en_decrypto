@@ -23,9 +23,11 @@ FluWindow {
     appBar: FluAppBar {
         height: 30
         showDark: true
-        darkClickListener:(button)=>handleDarkChanged(button)
-        closeClickListener: ()=>{dialog_close.open()}
-        z:7
+        darkClickListener: (button) => handleDarkChanged(button)
+        closeClickListener: () => {
+            dialog_close.open()
+        }
+        z: 7
     }
 
     onLazyLoad: {
@@ -40,7 +42,7 @@ FluWindow {
 
     // sys tray icon
     SystemTrayIcon {
-        id:system_tray
+        id: system_tray
         visible: true
         icon.source: "qrc:/main/res/image/favicon.ico"
         tooltip: AppInfo.name
@@ -53,16 +55,16 @@ FluWindow {
             }
         }
         onActivated:
-            (reason)=>{
-                if(reason === SystemTrayIcon.Trigger){
-                    window.show()
-                    window.raise()
-                    window.requestActivate()
-                }
+                (reason) => {
+            if (reason === SystemTrayIcon.Trigger) {
+                window.show()
+                window.raise()
+                window.requestActivate()
             }
+        }
     }
 
-    Timer{
+    Timer {
         id: timer_window_hide_delay
         interval: 150
         onTriggered: {
@@ -70,50 +72,57 @@ FluWindow {
         }
     }
 
-    FluContentDialog{
+    FluContentDialog {
         id: dialog_close
         title: qsTr("Quit")
         message: qsTr("Are you sure you want to exit the program?")
         negativeText: qsTr("Minimize")
         buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.NeutralButton | FluContentDialogType.PositiveButton
         onNegativeClicked: {
-            system_tray.showMessage(qsTr("Friendly Reminder"),qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
+            system_tray.showMessage(qsTr("Friendly Reminder"), qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
             timer_window_hide_delay.restart()
         }
         positiveText: qsTr("Quit")
         neutralText: qsTr("Cancel")
-        onPositiveClicked:{
+        onPositiveClicked: {
             FluRouter.exit(0)
         }
     }
 
-    Flipable{
-        id:flipable
+    Flipable {
+        id: flipable
         anchors.fill: parent
         property bool flipped: false
         property real flipAngle: 0
         transform: Rotation {
             id: rotation
-            origin.x: flipable.width/2
-            origin.y: flipable.height/2
-            axis { x: 0; y: 1; z: 0 }
+            origin.x: flipable.width / 2
+            origin.y: flipable.height / 2
+            axis {
+                x: 0; y: 1; z: 0
+            }
             angle: flipable.flipAngle
 
         }
         states: State {
-            PropertyChanges { target: flipable; flipAngle: 180 }
+            PropertyChanges {
+                target: flipable; flipAngle: 180
+            }
             when: flipable.flipped
         }
         transitions: Transition {
-            NumberAnimation { target: flipable; property: "flipAngle"; duration: 1000 ; easing.type: Easing.OutCubic}
+            NumberAnimation {
+                target: flipable; property: "flipAngle";
+                duration: 1000; easing.type: Easing.OutCubic
+            }
         }
-        back: Item{
+        back: Item {
             anchors.fill: flipable
             visible: flipable.flipAngle !== 0
-            Row{
-                id:layout_back_buttons
-                z:8
-                anchors{
+            Row {
+                id: layout_back_buttons
+                z: 8
+                anchors {
                     top: parent.top
                     left: parent.left
                     topMargin: FluTools.isMacos() ? 20 : 5
@@ -121,25 +130,25 @@ FluWindow {
                 }
             }
         }
-        front: Item{
-            id:page_front
+        front: Item {
+            id: page_front
             visible: flipable.flipAngle !== 180
             anchors.fill: flipable
-            FluNavigationView{
+            FluNavigationView {
                 buttonBack.visible: false
                 imageLogo.Layout.leftMargin: 10
-                id:nav_view
+                id: nav_view
                 width: parent.width
                 height: parent.height
-                z:999
+                z: 999
                 //Stack模式，每次切换都会将页面压入栈中，随着栈的页面增多，消耗的内存也越多，内存消耗多就会卡顿，这时候就需要按返回将页面pop掉，释放内存。该模式可以配合FluPage中的launchMode属性，设置页面的启动模式
                 //                pageMode: FluNavigationViewType.Stack
                 //NoStack模式，每次切换都会销毁之前的页面然后创建一个新的页面，只需消耗少量内存
                 pageMode: FluNavigationViewType.NoStack
                 items: ItemsOriginal
-                footerItems:ItemsFooter
-                topPadding:{
-                    if(window.useSystemAppBar){
+                footerItems: ItemsFooter
+                topPadding: {
+                    if (window.useSystemAppBar) {
                         return 0
                     }
                     return FluTools.isMacos() ? 20 : 0
@@ -147,7 +156,7 @@ FluWindow {
                 displayMode: GlobalModel.displayMode
                 logo: "qrc:/main/res/image/favicon.ico"
                 title: AppInfo.name
-                onLogoClicked:{
+                onLogoClicked: {
                 }
                 // autoSuggestBox:FluAutoSuggestBox{
                 //     iconSource: FluentIcons.Search
@@ -170,14 +179,14 @@ FluWindow {
         }
     }
 
-    Component{
+    Component {
         id: com_reveal
-        CircularReveal{
+        CircularReveal {
             id: reveal
             target: window.containerItem()
             anchors.fill: parent
             darkToLight: FluTheme.dark
-            onAnimationFinished:{
+            onAnimationFinished: {
                 //动画结束后释放资源
                 loader_reveal.sourceComponent = undefined
             }
@@ -187,54 +196,55 @@ FluWindow {
         }
     }
 
-    FluLoader{
-        id:loader_reveal
+    FluLoader {
+        id: loader_reveal
         anchors.fill: parent
     }
 
-    function distance(x1,y1,x2,y2){
+    function distance(x1, y1, x2, y2) {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
     }
 
-    function handleDarkChanged(button){
-        if(FluTools.isMacos() || !FluTheme.animationEnabled){
+    function handleDarkChanged(button) {
+        if (FluTools.isMacos() || !FluTheme.animationEnabled) {
             changeDark()
-        }else{
+        } else {
             loader_reveal.sourceComponent = com_reveal
             var target = window.containerItem()
-            var pos = button.mapToItem(target,0,0)
+            var pos = button.mapToItem(target, 0, 0)
             var mouseX = pos.x + button.width / 2
             var mouseY = pos.y + button.height / 2
-            var radius = Math.max(distance(mouseX,mouseY,0,0),distance(mouseX,mouseY,target.width,0),distance(mouseX,mouseY,0,target.height),distance(mouseX,mouseY,target.width,target.height))
+            var radius = Math.max(distance(mouseX, mouseY, 0, 0), distance(mouseX, mouseY, target.width, 0), distance(mouseX, mouseY, 0, target.height), distance(mouseX, mouseY, target.width, target.height))
             var reveal = loader_reveal.item
-            reveal.start(reveal.width*Screen.devicePixelRatio,reveal.height*Screen.devicePixelRatio,Qt.point(mouseX,mouseY),radius)
+            reveal.start(reveal.width * Screen.devicePixelRatio, reveal.height * Screen.devicePixelRatio, Qt.point(mouseX, mouseY), radius)
         }
     }
 
-    function changeDark(){
-        if(FluTheme.dark){
+    function changeDark() {
+        if (FluTheme.dark) {
             FluTheme.darkMode = FluThemeType.Light
-        }else{
+        } else {
             FluTheme.darkMode = FluThemeType.Dark
         }
     }
 
-    FpsItem{
-        id:fps_item
+    FpsItem {
+        id: fps_item
     }
 
     Connections {
         target: GlobalModel
-        function onShowFPSChanged(){
+
+        function onShowFPSChanged() {
             SettingsHelper.saveShowFPS(GlobalModel.showFPS)
         }
     }
 
-    FluText{
+    FluText {
         visible: GlobalModel.showFPS
         text: "fps %1".arg(fps_item.fps)
         opacity: 0.3
-        anchors{
+        anchors {
             bottom: parent.bottom
             right: parent.right
             bottomMargin: 5

@@ -80,7 +80,7 @@ FluScrollablePage {
                 text: qsTr("    This is my first try to make my contributions(?) If there is any mistakes that I made, I'll be very grateful if you can tell me :)")
             }
 
-            Row{
+            Row {
 
                 FluText {
                     padding: 10

@@ -1348,39 +1348,39 @@
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="86"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="94"/>
-        <location filename="qml/window/MainWindow.qml" line="75"/>
-        <location filename="qml/window/MainWindow.qml" line="83"/>
+        <location filename="qml/window/MainWindow.qml" line="77"/>
+        <location filename="qml/window/MainWindow.qml" line="85"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="87"/>
-        <location filename="qml/window/MainWindow.qml" line="76"/>
+        <location filename="qml/window/MainWindow.qml" line="78"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished">您确定要退出程序吗</translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="88"/>
-        <location filename="qml/window/MainWindow.qml" line="77"/>
+        <location filename="qml/window/MainWindow.qml" line="79"/>
         <source>Minimize</source>
         <translation type="unfinished">最小化</translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="80"/>
+        <location filename="qml/window/MainWindow.qml" line="82"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished">友情提示</translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="80"/>
+        <location filename="qml/window/MainWindow.qml" line="82"/>
         <source>FluentUI is hidden from the tray, click on the tray to activate the window again</source>
         <translation type="unfinished">FluentUI 在托盘中处于隐藏状态，单击托盘以再次激活窗口</translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="95"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="337"/>
-        <location filename="qml/window/MainWindow.qml" line="84"/>
+        <location filename="qml/window/MainWindow.qml" line="86"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
@@ -1651,39 +1651,39 @@ Updated content:
         <translation type="unfinished">跟随系统</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="89"/>
+        <location filename="qml/page/Settings.qml" line="90"/>
         <source>Light</source>
         <translation type="unfinished">浅色</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="89"/>
+        <location filename="qml/page/Settings.qml" line="92"/>
         <source>Dark</source>
         <translation type="unfinished">深色</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="114"/>
+        <location filename="qml/page/Settings.qml" line="117"/>
         <source>Theme Colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="156"/>
+        <location filename="qml/page/Settings.qml" line="159"/>
         <source>Customize the Theme Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="197"/>
+        <location filename="qml/page/Settings.qml" line="200"/>
         <source>Open Blur Window</source>
         <translation type="unfinished">亚克力背景</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="213"/>
-        <location filename="qml/page/Settings.qml" line="248"/>
+        <location filename="qml/page/Settings.qml" line="216"/>
         <location filename="qml/page/Settings.qml" line="253"/>
+        <location filename="qml/page/Settings.qml" line="258"/>
         <source>dwm-blur</source>
         <translation type="unfinished">毛玻璃模糊</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="225"/>
+        <location filename="qml/page/Settings.qml" line="228"/>
         <source>window effect</source>
         <translation type="unfinished">窗口效果</translation>
     </message>
@@ -1693,82 +1693,82 @@ Updated content:
         <translation></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="249"/>
+        <location filename="qml/page/Settings.qml" line="254"/>
         <source>window tintOpacity</source>
         <translation type="unfinished">背景透明度</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="268"/>
+        <location filename="qml/page/Settings.qml" line="273"/>
         <source>window blurRadius</source>
         <translation type="unfinished">背景模糊度</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="299"/>
+        <location filename="qml/page/Settings.qml" line="304"/>
         <source>Native Text</source>
         <translation type="unfinished">Native文本</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="314"/>
+        <location filename="qml/page/Settings.qml" line="319"/>
         <source>Action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="333"/>
+        <location filename="qml/page/Settings.qml" line="338"/>
         <source>Navigation View Display Mode</source>
         <translation type="unfinished">导航视图</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="338"/>
+        <location filename="qml/page/Settings.qml" line="343"/>
         <source>Open</source>
         <translation type="unfinished">开放</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="338"/>
+        <location filename="qml/page/Settings.qml" line="344"/>
         <source>Compact</source>
         <translation type="unfinished">紧凑</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="338"/>
+        <location filename="qml/page/Settings.qml" line="347"/>
         <source>Minimal</source>
         <translation type="unfinished">极简</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="338"/>
+        <location filename="qml/page/Settings.qml" line="348"/>
         <source>Auto</source>
         <translation type="unfinished">自动</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="363"/>
+        <location filename="qml/page/Settings.qml" line="376"/>
         <source>Open Animation</source>
         <translation type="unfinished">开启动画</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="378"/>
+        <location filename="qml/page/Settings.qml" line="391"/>
         <source>Localization</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="407"/>
+        <location filename="qml/page/Settings.qml" line="420"/>
         <source>Language</source>
         <translation type="unfinished">语言</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="420"/>
+        <location filename="qml/page/Settings.qml" line="433"/>
         <source>Simplified Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="422"/>
+        <location filename="qml/page/Settings.qml" line="435"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="436"/>
+        <location filename="qml/page/Settings.qml" line="449"/>
         <source>Other</source>
         <translation type="unfinished">其他</translation>
     </message>
     <message>
-        <location filename="qml/page/Settings.qml" line="454"/>
+        <location filename="qml/page/Settings.qml" line="467"/>
         <source>Show FPS</source>
         <translation type="unfinished"></translation>
     </message>

@@ -16,54 +16,50 @@
 #include "private/Cuda.cuh"
 #endif
 
-class ImageCrypto
-{
+class ImageCrypto {
 public:
-    ImageCrypto(ThreadPool& threadPool): threadPool(&threadPool), size(new ORIGINAL_SIZE), config(DEFAULT_CONFIG),
+    ImageCrypto(ThreadPool &threadPool): threadPool(&threadPool), size(new ORIGINAL_SIZE), config(DEFAULT_CONFIG),
                                          keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
                                          update_params(NONE),
-                                         tmp_cuda(config.cuda)
-    {
+                                         tmp_cuda(config.cuda) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool& threadPool, const ParamControl& config,
-                const Keys& keys): threadPool(&threadPool), size(new ORIGINAL_SIZE), config(config),
-                                   keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}), update_params(NONE),
-                                   tmp_cuda(config.cuda)
-    {
+    ImageCrypto(ThreadPool &threadPool, const ParamControl &config,
+                const Keys &keys): threadPool(&threadPool), size(new ORIGINAL_SIZE), config(config),
+                                   keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
+                                   update_params(NONE),
+                                   tmp_cuda(config.cuda) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool& threadPool, const cv::Size& size): threadPool(&threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size &size): threadPool(&threadPool),
                                                                size(new cv::Size(size)), config(DEFAULT_CONFIG),
-                                                               keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)), tmp_config({}),
+                                                               keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)),
+                                                               tmp_config({}),
                                                                tmp_keys({}), update_params(NONE),
-                                                               tmp_cuda(config.cuda)
-    {
+                                                               tmp_cuda(config.cuda) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool& threadPool, const cv::Size& size, const ParamControl& config): threadPool(&threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size &size, const ParamControl &config): threadPool(&threadPool),
         size(new cv::Size(size)), config(config),
         keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}), update_params(NONE),
-        tmp_cuda(config.cuda)
-    {
+        tmp_cuda(config.cuda) {
         preProcess();
     };
 
-    ImageCrypto(ThreadPool& threadPool, const cv::Size& size, const ParamControl& config,
-                const Keys& keys): threadPool(&threadPool),
+    ImageCrypto(ThreadPool &threadPool, const cv::Size &size, const ParamControl &config,
+                const Keys &keys): threadPool(&threadPool),
                                    size(new cv::Size(size)),
                                    config(config),
-                                   keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}), update_params(NONE),
-                                   tmp_cuda(config.cuda)
-    {
+                                   keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
+                                   update_params(NONE),
+                                   tmp_cuda(config.cuda) {
         preProcess();
     };
 
-    ImageCrypto(const ImageCrypto& src)
-    {
+    ImageCrypto(const ImageCrypto &src) {
         threadPool = src.threadPool;
         size = new cv::Size(*src.size);
         config = src.config;
@@ -76,8 +72,7 @@ public:
         tmp_cuda = src.tmp_cuda;
     }
 
-    ImageCrypto(ImageCrypto&& src)
-    {
+    ImageCrypto(ImageCrypto &&src) {
         threadPool = src.threadPool;
         size = src.size;
         src.size = nullptr;
@@ -92,8 +87,7 @@ public:
         tmp_cuda = src.tmp_cuda;
     }
 
-    ImageCrypto& operator=(const ImageCrypto& src)
-    {
+    ImageCrypto &operator=(const ImageCrypto &src) {
         threadPool = src.threadPool;
         if (rets) DestroyReturn(rets, config);
         if (!size) size = new cv::Size;
@@ -109,8 +103,7 @@ public:
         return *this;
     }
 
-    ImageCrypto& operator=(ImageCrypto&& src)
-    {
+    ImageCrypto &operator=(ImageCrypto &&src) {
         threadPool = src.threadPool;
         size = src.size;
         src.size = nullptr;
@@ -126,45 +119,36 @@ public:
         return *this;
     }
 
-    ParamControl getConfig() const
-    {
+    ParamControl getConfig() const {
         return config;
     }
 
-    Keys getKeys() const
-    {
+    Keys getKeys() const {
         return keys;
     }
 
-    ThreadPool& getThreadPool() const
-    {
+    ThreadPool &getThreadPool() const {
         return *threadPool;
     }
 
-    void setThreadPool(ThreadPool& threadPool)
-    {
+    void setThreadPool(ThreadPool &threadPool) {
         this->threadPool = &threadPool;
     }
 
-    cv::Size getSize() const
-    {
+    cv::Size getSize() const {
         return *size;
     }
 
-    u8 getChannel() const
-    {
+    u8 getChannel() const {
         return config.nChannel;
     }
 
-    cv::Mat encrypt(const cv::Mat& image, cv::Size imageSize = ORIGINAL_SIZE)
-    {
+    cv::Mat encrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
         u8 nChannel = image.channels();
-        if (imageSize == ORIGINAL_SIZE)
-        {
+        if (imageSize == ORIGINAL_SIZE) {
             imageSize = image.size();
         }
-        if (imageSize != *size || nChannel != config.nChannel)
-        {
+        if (imageSize != *size || nChannel != config.nChannel) {
             auto tmpC = config;
             tmpC.nChannel = nChannel;
             setAll(imageSize, tmpC, keys);
@@ -181,15 +165,12 @@ public:
         return imageMat;
     }
 
-    cv::Mat decrypt(const cv::Mat& image, cv::Size imageSize = ORIGINAL_SIZE)
-    {
+    cv::Mat decrypt(const cv::Mat &image, cv::Size imageSize = ORIGINAL_SIZE) {
         u8 nChannel = image.channels();
-        if (imageSize == ORIGINAL_SIZE)
-        {
+        if (imageSize == ORIGINAL_SIZE) {
             imageSize = image.size();
         }
-        if (imageSize != *size || nChannel != config.nChannel)
-        {
+        if (imageSize != *size || nChannel != config.nChannel) {
             auto tmpC = config;
             tmpC.nChannel = nChannel;
             setAll(imageSize, tmpC, keys);
@@ -206,8 +187,7 @@ public:
         return imageMat;
     }
 
-    static bool cuda_is_available()
-    {
+    static bool cuda_is_available() {
 #ifdef __USE_CUDA
         return CudaAvailable();
 #else
@@ -215,96 +195,96 @@ public:
 #endif
     }
 
-    static cv::Mat loadImage(const std::string& url)
-    {
+    static cv::Mat loadImage(const std::string &url) {
+#ifdef _WIN32
+        int len = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, nullptr, 0);
+        wchar_t *wszGBK = new wchar_t[len + 1];
+        memset(wszGBK, 0, len * 2 + 2);
+        MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, wszGBK, len);
+        len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, nullptr, 0, nullptr, nullptr);
+        char *szGBK = new char[len + 1];
+        memset(szGBK, 0, len + 1);
+        WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, nullptr, nullptr);
+        std::string strTemp(szGBK);
+        if (wszGBK) delete[] wszGBK;
+        if (szGBK) delete[] szGBK;
+        return cv::imread(strTemp);
+#else
         return cv::imread(url);
+#endif
     }
 
-    bool cpu()
-    {
+    bool cpu() {
         tmp_cuda = false;
         return true;
     }
 
-    bool cuda()
-    {
+    bool cuda() {
         if (!cuda_is_available()) return false;
         tmp_cuda = true;
         return true;
     }
 
 
-    void setKeys(const Keys& keys)
-    {
+    void setKeys(const Keys &keys) {
         if (StructureEqual(&this->keys, &keys, sizeof(Keys))) return;
         tmp_keys = keys;
         update_params |= KEY;
     }
 
-    void setKeys(const ParamControl& config)
-    {
+    void setKeys(const ParamControl &config) {
         if (StructureEqual(&this->config, &config, sizeof(ParamControl))) return;
         tmp_config = config;
         update_params |= CONFIG;
     }
 
-    void setKeys(const ParamControl& config, const Keys& keys)
-    {
+    void setKeys(const ParamControl &config, const Keys &keys) {
         setKeys(config);
         setKeys(keys);
     }
 
-    void setSize(const cv::Size size)
-    {
+    void setSize(const cv::Size size) {
         if (this->size->width == size.width && this->size->height == size.height) return;
         tmp_size = size;
         update_params |= SIZE;
     }
 
-    void setChannel(const u8 nChannel)
-    {
+    void setChannel(const u8 nChannel) {
         if (config.nChannel == nChannel) return;
         tmp_config = config;
         tmp_config.nChannel = nChannel;
         update_params |= CONFIG;
     }
 
-    void setAll(const cv::Size& size, const ParamControl& config, const Keys& keys)
-    {
+    void setAll(const cv::Size &size, const ParamControl &config, const Keys &keys) {
         setSize(size);
         setKeys(config, keys);
     }
 
-    ~ImageCrypto()
-    {
+    ~ImageCrypto() {
         delete size;
         if (rets)
             DestroyReturn(rets, config);
     }
 
 private:
-    typedef enum
-    {
+    typedef enum {
         NONE = 0x0,
         CONFIG = 0x1,
         KEY = 0x2,
         SIZE = 0x4
     } UpdateType;
 
-    void preProcess()
-    {
-        if (config.cuda)
-        {
+    void preProcess() {
+        if (config.cuda) {
             config.cuda = cuda_is_available();
         }
         rets = GenerateThreadKeys(*size, keys, config, *threadPool);
     }
 
-    void __setAll()
-    {
+    void __setAll() {
         if (update_params == NONE) return;
-        if (rets != nullptr)
-        {
+        if (rets != nullptr) {
             DestroyReturn(rets, this->config);
         }
         if (update_params & CONFIG) this->config = tmp_config;
@@ -314,11 +294,11 @@ private:
         preProcess();
     }
 
-    ThreadPool* threadPool;
-    cv::Size* size;
+    ThreadPool *threadPool;
+    cv::Size *size;
     ParamControl config;
     Keys keys;
-    threadReturn** rets;
+    threadReturn **rets;
     cv::Size tmp_size;
     ParamControl tmp_config;
     Keys tmp_keys;

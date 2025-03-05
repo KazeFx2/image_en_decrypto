@@ -5,10 +5,10 @@ import QtQuick.Controls 2.15
 import FluentUI 1.0
 import "../global"
 
-FluScrollablePage{
+FluScrollablePage {
 
     title: qsTr("Settings")
-    property var colorData: [FluColors.Yellow,FluColors.Orange,FluColors.Red,FluColors.Magenta,FluColors.Purple,FluColors.Blue,FluColors.Teal,FluColors.Green]
+    property var colorData: [FluColors.Yellow, FluColors.Orange, FluColors.Red, FluColors.Magenta, FluColors.Purple, FluColors.Blue, FluColors.Teal, FluColors.Green]
     id: root
 
     FluText {
@@ -17,12 +17,12 @@ FluScrollablePage{
         font.bold: true
     }
 
-    FluFrame{
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 5
         height: 50
         padding: 10
-        FluCheckBox{
+        FluCheckBox {
             text: qsTr("Use System AppBar")
             checked: FluApp.useSystemAppBar
             anchors.verticalCenter: parent.verticalCenter
@@ -33,13 +33,13 @@ FluScrollablePage{
         }
     }
 
-    FluFrame{
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 20
         height: 50
         padding: 10
-        FluCheckBox{
-            text:qsTr("Fits AppBar Windows")
+        FluCheckBox {
+            text: qsTr("Fits AppBar Windows")
             checked: window.fitsAppBarWindows
             anchors.verticalCenter: parent.verticalCenter
             onClicked: {
@@ -49,7 +49,7 @@ FluScrollablePage{
         }
     }
 
-    FluContentDialog{
+    FluContentDialog {
         id: dialog_restart
         title: qsTr("Friendly Reminder")
         message: qsTr("This action requires a restart of the program to take effect, is it restarted?")
@@ -68,29 +68,32 @@ FluScrollablePage{
         font.bold: true
     }
 
-    FluFrame{
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 5
         height: 128
         padding: 10
 
-        ColumnLayout{
+        ColumnLayout {
             spacing: 5
-            anchors{
+            anchors {
                 top: parent.top
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("Dark Mode")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            Repeater{
-                model: [{title:qsTr("System"),mode:FluThemeType.System},{title:qsTr("Light"),mode:FluThemeType.Light},{title:qsTr("Dark"),mode:FluThemeType.Dark}]
-                delegate: FluRadioButton{
-                    checked : FluTheme.darkMode === modelData.mode
-                    text:modelData.title
-                    clickListener:function(){
+            Repeater {
+                model: [{title: qsTr("System"), mode: FluThemeType.System}, {
+                    title: qsTr("Light"),
+                    mode: FluThemeType.Light
+                }, {title: qsTr("Dark"), mode: FluThemeType.Dark}]
+                delegate: FluRadioButton {
+                    checked: FluTheme.darkMode === modelData.mode
+                    text: modelData.title
+                    clickListener: function () {
                         FluTheme.darkMode = modelData.mode
                     }
                 }
@@ -104,42 +107,42 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
 
-            FluText{
+            FluText {
                 text: qsTr("Theme Colors")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            RowLayout{
+            RowLayout {
                 Layout.topMargin: 5
-                Repeater{
+                Repeater {
                     model: root.colorData
-                    delegate:  Rectangle{
+                    delegate: Rectangle {
                         width: 42
                         height: 42
                         radius: 4
-                        color: mouse_item.containsMouse ? Qt.lighter(modelData.normal,1.1) : modelData.normal
+                        color: mouse_item.containsMouse ? Qt.lighter(modelData.normal, 1.1) : modelData.normal
                         border.color: modelData.darker
                         FluIcon {
                             anchors.centerIn: parent
                             iconSource: FluentIcons.AcceptMedium
                             iconSize: 15
                             visible: modelData.normal === FluTheme.accentColor.normal &&
-                                     modelData.light === FluTheme.accentColor.light &&
-                                     modelData.lighter === FluTheme.accentColor.lighter &&
-                                     modelData.lightest === FluTheme.accentColor.lightest &&
-                                     modelData.dark === FluTheme.accentColor.dark &&
-                                     modelData.darker === FluTheme.accentColor.darker &&
-                                     modelData.darkest === FluTheme.accentColor.darkest
-                            color: FluTheme.dark ? Qt.rgba(0,0,0,1) : Qt.rgba(1,1,1,1)
+                                modelData.light === FluTheme.accentColor.light &&
+                                modelData.lighter === FluTheme.accentColor.lighter &&
+                                modelData.lightest === FluTheme.accentColor.lightest &&
+                                modelData.dark === FluTheme.accentColor.dark &&
+                                modelData.darker === FluTheme.accentColor.darker &&
+                                modelData.darkest === FluTheme.accentColor.darkest
+                            color: FluTheme.dark ? Qt.rgba(0, 0, 0, 1) : Qt.rgba(1, 1, 1, 1)
                         }
-                        MouseArea{
-                            id:mouse_item
+                        MouseArea {
+                            id: mouse_item
                             anchors.fill: parent
                             hoverEnabled: true
                             onClicked: {
@@ -149,32 +152,32 @@ FluScrollablePage{
                     }
                 }
             }
-            Row{
+            Row {
                 Layout.topMargin: 10
                 spacing: 10
-                FluText{
+                FluText {
                     text: qsTr("Customize the Theme Color:")
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                FluColorPicker{
-                    id:color_picker
+                FluColorPicker {
+                    id: color_picker
                     current: FluTheme.accentColor.normal
                     onAccepted: {
-                       FluTheme.accentColor = FluColors.createAccentColor(current)
+                        FluTheme.accentColor = FluColors.createAccentColor(current)
                     }
                     FluIcon {
                         anchors.centerIn: parent
                         iconSource: FluentIcons.AcceptMedium
                         iconSize: 15
                         visible: {
-                            for(var i =0 ;i< root.colorData.length; i++){
-                                if(root.colorData[i] === FluTheme.accentColor){
+                            for (var i = 0; i < root.colorData.length; i++) {
+                                if (root.colorData[i] === FluTheme.accentColor) {
                                     return false
                                 }
                             }
                             return true
                         }
-                        color: FluTheme.dark ? Qt.rgba(0,0,0,1) : Qt.rgba(1,1,1,1)
+                        color: FluTheme.dark ? Qt.rgba(0, 0, 0, 1) : Qt.rgba(1, 1, 1, 1)
                     }
                 }
             }
@@ -188,17 +191,17 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("Open Blur Window")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            FluToggleSwitch{
+            FluToggleSwitch {
                 id: toggle_blur
                 Layout.topMargin: 5
                 checked: FluTheme.blurBehindWindowEnabled
@@ -216,45 +219,47 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("window effect")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            Row{
+            Row {
                 spacing: 10
-                Repeater{
+                Repeater {
                     model: window.availableEffects
-                    delegate: FluRadioButton{
+                    delegate: FluRadioButton {
                         checked: window.effect === modelData
                         text: qsTr(`${modelData}`)
-                        clickListener:function(){
+                        clickListener: function () {
                             window.effect = modelData
-                            if(window.effective){
+                            if (window.effective) {
                                 FluTheme.blurBehindWindowEnabled = false
-                                toggle_blur.checked = Qt.binding( function() {return FluTheme.blurBehindWindowEnabled})
+                                toggle_blur.checked = Qt.binding(function () {
+                                    return FluTheme.blurBehindWindowEnabled
+                                })
                             }
                         }
                     }
 
                 }
             }
-            FluText{
+            FluText {
                 visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
                 text: qsTr("window tintOpacity")
                 Layout.topMargin: 20
             }
-            ModSlider{
+            ModSlider {
                 visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
                 Layout.topMargin: 5
                 useInt: false
                 max: 1.0
-                to:100
+                to: 100
                 onValueChanged: {
                     window.tintOpacity = value / to
                     SettingsHelper.saveWindowOpacity(window.tintOpacity)
@@ -263,16 +268,16 @@ FluScrollablePage{
                     value = window.tintOpacity * to
                 }
             }
-            FluText{
+            FluText {
                 visible: FluTheme.blurBehindWindowEnabled
                 text: qsTr("window blurRadius")
                 Layout.topMargin: 20
             }
-            FluSlider{
+            FluSlider {
                 visible: FluTheme.blurBehindWindowEnabled
                 Layout.topMargin: 5
-                to:100
-                stepSize:1
+                to: 100
+                stepSize: 1
                 onValueChanged: {
                     window.blurRadius = value
                     SettingsHelper.saveBlurLevel(window.blurRadius)
@@ -290,17 +295,17 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("Native Text")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            FluToggleSwitch{
+            FluToggleSwitch {
                 Layout.topMargin: 5
                 checked: FluTheme.nativeText
                 onClicked: {
@@ -317,29 +322,37 @@ FluScrollablePage{
         font.bold: true
     }
 
-    FluFrame{
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 5
         height: 160
         padding: 10
 
-        ColumnLayout{
+        ColumnLayout {
             spacing: 5
-            anchors{
+            anchors {
                 top: parent.top
                 left: parent.left
             }
-            FluText{
-                text:qsTr("Navigation View Display Mode")
+            FluText {
+                text: qsTr("Navigation View Display Mode")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            Repeater{
-                model: [{title:qsTr("Open"),mode:FluNavigationViewType.Open,index:0},{title:qsTr("Compact"),mode:FluNavigationViewType.Compact,index:1},{title:qsTr("Minimal"),mode:FluNavigationViewType.Minimal,index:2},{title:qsTr("Auto"),mode:FluNavigationViewType.Auto,index:3}]
-                delegate: FluRadioButton{
+            Repeater {
+                model: [{title: qsTr("Open"), mode: FluNavigationViewType.Open, index: 0}, {
+                    title: qsTr("Compact"),
+                    mode: FluNavigationViewType.Compact,
+                    index: 1
+                }, {title: qsTr("Minimal"), mode: FluNavigationViewType.Minimal, index: 2}, {
+                    title: qsTr("Auto"),
+                    mode: FluNavigationViewType.Auto,
+                    index: 3
+                }]
+                delegate: FluRadioButton {
                     text: modelData.title
                     checked: GlobalModel.displayMode === modelData.mode
-                    clickListener:function(){
+                    clickListener: function () {
                         GlobalModel.displayMode = modelData.mode
                         SettingsHelper.saveDisplayMode(modelData.index)
                     }
@@ -354,17 +367,17 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("Open Animation")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            FluToggleSwitch{
+            FluToggleSwitch {
                 Layout.topMargin: 5
                 checked: FluTheme.animationEnabled
                 onClicked: {
@@ -381,48 +394,48 @@ FluScrollablePage{
         font.bold: true
     }
 
-    ListModel{
-        id:model_language
-        ListElement{
-            name:"en"
+    ListModel {
+        id: model_language
+        ListElement {
+            name: "en"
         }
-        ListElement{
-            name:"zh"
+        ListElement {
+            name: "zh"
         }
     }
 
-    FluFrame{
+    FluFrame {
         Layout.fillWidth: true
         Layout.topMargin: 5
         height: 80
         padding: 10
 
-        ColumnLayout{
+        ColumnLayout {
             spacing: 10
-            anchors{
+            anchors {
                 top: parent.top
                 left: parent.left
             }
-            FluText{
-                text:qsTr("Language")
+            FluText {
+                text: qsTr("Language")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            Flow{
+            Flow {
                 spacing: 5
-                Repeater{
+                Repeater {
                     model: TranslateHelper.languages
-                    delegate: FluRadioButton{
+                    delegate: FluRadioButton {
                         checked: TranslateHelper.current === modelData
                         text: {
-                            switch(modelData) {
-                            case "zh_CN":
-                                return qsTr("Simplified Chinese")
-                            case "en_US":
-                                return qsTr("English")
+                            switch (modelData) {
+                                case "zh_CN":
+                                    return qsTr("Simplified Chinese")
+                                case "en_US":
+                                    return qsTr("English")
                             }
                         }
-                        clickListener:function(){
+                        clickListener: function () {
                             TranslateHelper.current = modelData
                             dialog_restart.open()
                         }
@@ -445,17 +458,17 @@ FluScrollablePage{
         height: 80
         padding: 10
 
-        ColumnLayout{
-            spacing:0
-            anchors{
+        ColumnLayout {
+            spacing: 0
+            anchors {
                 left: parent.left
             }
-            FluText{
+            FluText {
                 text: qsTr("Show FPS")
                 font: FluTextStyle.BodyStrong
                 Layout.bottomMargin: 4
             }
-            FluToggleSwitch{
+            FluToggleSwitch {
                 Layout.topMargin: 5
                 checked: GlobalModel.showFPS
                 onClicked: {

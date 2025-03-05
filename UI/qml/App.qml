@@ -8,64 +8,85 @@ import "global"
 FluLauncher {
     id: app
     // connection: solt<->emit
-    Connections{
+    Connections {
         target: FluTheme
-        function onDarkModeChanged(){
+
+        function onDarkModeChanged() {
             SettingsHelper.saveDarkMode(FluTheme.darkMode)
         }
     }
-    Connections{
+    Connections {
         target: FluApp
-        function onUseSystemAppBarChanged(){
+
+        function onUseSystemAppBarChanged() {
             SettingsHelper.saveUseSystemAppBar(FluApp.useSystemAppBar)
         }
     }
-    Connections{
+    Connections {
         target: TranslateHelper
-        function onCurrentChanged(){
+
+        function onCurrentChanged() {
             SettingsHelper.saveLanguage(TranslateHelper.current)
         }
     }
-    Connections{
+    Connections {
         target: FluTheme
-        function onAccentColorChanged(){
-            SettingsHelper.saveAccentColor(FluTheme.accentColor)
+
+        function onAccentColorChanged() {
+            SettingsHelper.saveAccentColorNormal(FluTheme.accentColor.normal)
+            SettingsHelper.saveAccentColorDark(FluTheme.accentColor.dark)
+            SettingsHelper.saveAccentColorDarker(FluTheme.accentColor.darker)
+            SettingsHelper.saveAccentColorDarkest(FluTheme.accentColor.darkest)
+            SettingsHelper.saveAccentColorLight(FluTheme.accentColor.light)
+            SettingsHelper.saveAccentColorLighter(FluTheme.accentColor.lighter)
+            SettingsHelper.saveAccentColorLightest(FluTheme.accentColor.lightest)
         }
     }
-    Connections{
+    Connections {
         target: FluTheme
-        function onBlurBehindWindowEnabledChanged(){
+
+        function onBlurBehindWindowEnabledChanged() {
             SettingsHelper.saveBlurWindow(FluTheme.blurBehindWindowEnabled)
         }
     }
-    Connections{
+    Connections {
         target: FluTheme
-        function onNativeTextChanged(){
+
+        function onNativeTextChanged() {
             SettingsHelper.saveNativeText(FluTheme.nativeText)
         }
     }
-    Connections{
+    Connections {
         target: FluTheme
-        function onAnimationEnabledChanged(){
+
+        function onAnimationEnabledChanged() {
             SettingsHelper.saveAnimation(FluTheme.animationEnabled)
         }
     }
     Component.onCompleted: {
-        FluApp.init(app,Qt.locale(TranslateHelper.current))
+        FluApp.init(app, Qt.locale(TranslateHelper.current))
         FluApp.windowIcon = "qrc:/main/res/image/favicon.ico"
         FluApp.useSystemAppBar = SettingsHelper.getUseSystemAppBar()
         FluTheme.darkMode = SettingsHelper.getDarkMode()
-        // FluTheme.accentColor = SettingsHelper.getAccentColor()
+        let tmp = FluColors.createAccentColor(SettingsHelper.getAccentColorNormal())
+        tmp.normal = SettingsHelper.getAccentColorNormal()
+        tmp.dark = SettingsHelper.getAccentColorDark()
+        tmp.darker = SettingsHelper.getAccentColorDarker()
+        tmp.darkest = SettingsHelper.getAccentColorDarkest()
+        tmp.light = SettingsHelper.getAccentColorLight()
+        tmp.lighter = SettingsHelper.getAccentColorLighter()
+        tmp.lightest = SettingsHelper.getAccentColorLightest()
+        FluTheme.accentColor = tmp
         FluTheme.blurBehindWindowEnabled = SettingsHelper.getBlurWindow()
         FluTheme.nativeText = SettingsHelper.getNativeText()
         FluTheme.animationEnabled = SettingsHelper.getAnimation()
         FluRouter.routes = {
-            "/":"qrc:/main/qml/window/MainWindow.qml"
+            "/": "qrc:/main/qml/window/MainWindow.qml"
         }
         var args = Qt.application.arguments
-        if(args.length>=2 && args[1].startsWith("-crashed=")){
+        if (args.length >= 2 && args[1].startsWith("-crashed=")) {
             FluRouter.navigate("/")
-        }else{
+        } else {
             FluRouter.navigate("/")
         }
     }
