@@ -91,14 +91,14 @@ FluScrollablePage {
 
                 FluText {
                     padding: 10
-                    text: "https://github.com/KazeFx2/image_en_decrypto/"
+                    text: "https://github.com/KazeFx2/image_en_decrypto"
                     color: FluColors.Blue.normal
 
                     MouseArea {
                         width: parent.width
                         height: parent.height
                         onClicked: {
-                            Qt.openUrlExternally("https://github.com/KazeFx2/OperatingSysHomework");
+                            Qt.openUrlExternally("https://github.com/KazeFx2/image_en_decrypto");
                         }
                     }
                 }

@@ -60,7 +60,7 @@ Rectangle {
         contentHeight: staggered_view.implicitHeight
         clip: true
         ScrollBar.vertical: FluScrollBar {}
-        FluStaggeredLayout{
+        MyStaggeredLayout{
             id:staggered_view
             width: parent.width
             itemWidth: 80

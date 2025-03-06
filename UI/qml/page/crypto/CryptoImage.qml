@@ -198,7 +198,7 @@ FluScrollablePage {
                 property string url: ""
                 property int ct: 0
                 property string mid: url.split("/").pop()
-                source: url + "/" + String(ct)
+                source: url === "" ? "" : url + "/" + String(ct)
 
                 Connections {
                     target: MemImage

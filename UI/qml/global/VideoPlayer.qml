@@ -18,7 +18,7 @@ FluImage {
     property string url_prev: ""
     property string mid: url.split("/").pop()
     property bool paused: true
-    source: url + "/" + String(ct)
+    source: url === "" ? "" : url + "/" + String(ct)
     property bool hovered: false
 
     Component.onDestruction: {

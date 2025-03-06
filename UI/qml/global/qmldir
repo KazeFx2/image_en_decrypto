@@ -17,3 +17,4 @@ VideoPlayer 1.0 VideoPlayer.qml
 ScrollableItems 1.0 ScrollableItems.qml
 AboutStaffItem 1.0 AboutStaffItem.qml
 NamedUrlItem 1.0 NamedUrlItem.qml
+MyStaggeredLayout 1.0 MyStaggeredLayout.qml
