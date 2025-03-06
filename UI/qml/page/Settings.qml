@@ -23,7 +23,7 @@ FluScrollablePage {
         height: 50
         padding: 10
         FluCheckBox {
-            enabled: `${window.effect}` === "normal"
+            // enabled: `${window.effect}` === "normal"
             text: qsTr("Use System AppBar")
             checked: FluApp.useSystemAppBar
             anchors.verticalCenter: parent.verticalCenter
@@ -234,10 +234,10 @@ FluScrollablePage {
                                     return FluTheme.blurBehindWindowEnabled
                                 })
                             }
-                            if (`${modelData}` !== "normal" && !FluApp.useSystemAppBar) {
-                                FluApp.useSystemAppBar = true
-                                dialog_restart.open()
-                            }
+                            // if (`${modelData}` !== "normal" && !FluApp.useSystemAppBar) {
+                            //     FluApp.useSystemAppBar = true
+                            //     dialog_restart.open()
+                            // }
                         }
                     }
 
