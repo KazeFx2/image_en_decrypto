@@ -367,8 +367,12 @@ void Video::__cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString 
         return;
     }
     auto fps = cap.get(cv::CAP_PROP_FPS);
-    auto width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
-    auto height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    int width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
+    int height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    width &= 0xfffffffe;
+    if (width == 0) width = 2;
+    height &= 0xfffffffe;
+    if (height == 0) height = 2;
     cv::VideoWriter wrt;
     if (!wrt.open(FileUniqueForceSuffix(
 #ifdef _WIN32
@@ -410,6 +414,10 @@ void Video::__cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString 
 
 void Video::__cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt,
                          bool cuda, int width, int height) {
+    width &= 0xfffffffe;
+    if (width == 0) width = 2;
+    height &= 0xfffffffe;
+    if (height == 0) height = 2;
     cv::VideoCapture cap;
     if (!cap.open(in_file.toLocalFile().toStdString())) {
         emit videoCvtSignal(0, 0);
@@ -444,10 +452,11 @@ void Video::__cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QStrin
         if (frame.empty() || term)
             break;
         cv::resize(frame, frame, cv::Size(width, height));
-        if (encrypt)
+        if (encrypt) {
             out = crypto.encrypt(frame);
-        else
+        } else {
             out = crypto.decrypt(frame);
+        }
         wrt << out;
         count = static_cast<int>(cap.get(cv::CAP_PROP_POS_FRAMES));
         emit videoCvtSignal(count, total_frames);
