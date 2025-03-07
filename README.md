@@ -1,28 +1,39 @@
-# image_en_decrypto                       
+# image_en_decrypto
 
-## Cuda                               
-[Cuda Support Module](./Core/include/private/Cuda.cuh)                       
+## ScreenShots
+### Windows 10
+![](./ScreenShots/win_1.png)
+![](./ScreenShots/win_2.png)
+![](./ScreenShots/win_3.png)
+![](./ScreenShots/win_4.png)
+![](./ScreenShots/win_5.png)
+![](./ScreenShots/win_6.png)
+### Ubuntu 24.04
+![](./ScreenShots/ubuntu_1.png)
 
-## C++                       
-[Semaphore](./Core/SubModules/Semaphore)  
+## Cuda
+[Cuda Support Module](./Core/include/private/Cuda.cuh)
 
-[Mutex](./Core/SubModules/Mutex)  
+## C++
+[Semaphore](./Core/SubModules/Semaphore)
 
-[RWLock](./Core/SubModules/RWLock)  
+[Mutex](./Core/SubModules/Mutex)
 
-[ConditionVariable](./Core/SubModules/ConditionVariable)  
+[RWLock](./Core/SubModules/RWLock)
 
-[Bitmap](./Core/SubModules/Bitmap)  
+[ConditionVariable](./Core/SubModules/ConditionVariable)
 
-[ThreadPool](./Core/SubModules/ThreadPool)         
+[Bitmap](./Core/SubModules/Bitmap)
+
+[ThreadPool](./Core/SubModules/ThreadPool)
 
 ## C
-[list](./Core/SubModules/C_component/list)  
+[list](./Core/SubModules/C_component/list)
 
-[rbtree](./Core/SubModules/C_component/rbtree)  
+[rbtree](./Core/SubModules/C_component/rbtree)
 
-## Encrypt Func  
-[encrypt](./Core/include/private/ImageEncrypto.h)      
+## Encrypt Func
+[encrypt](./Core/include/private/ImageEncrypto.h)
 
-## Decrypt Func  
-[dncrypt](./Core/include/private/ImageDecrypto.h)   
+## Decrypt Func
+[dncrypt](./Core/include/private/ImageDecrypto.h)
