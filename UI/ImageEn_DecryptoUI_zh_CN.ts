@@ -662,7 +662,7 @@
     <message>
         <location filename="qml/page/Settings.qml" line="383"/>
         <source>Open</source>
-        <translation>打开打开</translation>
+        <translation>展开</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="384"/>
