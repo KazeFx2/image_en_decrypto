@@ -16,8 +16,7 @@
 
 #define MAX_CACHE 128
 
-typedef struct
-{
+typedef struct {
     Mutex mtx;
     std::queue<QImage> cache;
     QImage current;
@@ -49,8 +48,7 @@ typedef struct
     double new_pos;
 } VideoControl;
 
-class Video : public QQuickImageProvider
-{
+class Video : public QQuickImageProvider {
     Q_OBJECT
 
 public:
@@ -59,40 +57,47 @@ public:
     // QQuickImageProvider interface
 private:
     void goto_msec_locked(int idx, double msec);
-    bool url_available(const QString &url, int &idx);
-    void __cvtVideo(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda);
-    void __cvtVideoWH(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda, int width, int height);
-public:
 
+    bool url_available(const QString &url, int &idx);
+
+    void __cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt, bool cuda);
+
+    void __cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt, bool cuda,
+                      int width, int height);
+
+public:
     enum DecodeType {
         Raw,
         Decrypt,
         Encrypt
     };
+
     Q_ENUM(DecodeType)
 
-    QImage requestImage(const QString& id, QSize* size, const QSize& requestedSize) override;
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
     void decoder(VideoControl *vcb);
 
     void reader(VideoControl *vcb);
 
-    Q_INVOKABLE QString loadVideo(const QUrl& file,const QString& key_id, DecodeType type, bool cuda, int recommend_width, int recommend_height);
+    Q_INVOKABLE QString loadVideo(const QUrl &file, const QString &key_id, DecodeType type, bool cuda,
+                                  int recommend_width, int recommend_height);
 
-    Q_INVOKABLE void delVideo(const QString& url);
+    Q_INVOKABLE void delVideo(const QString &url);
 
-    Q_INVOKABLE void pause(const QString& url);
-    Q_INVOKABLE void resume(const QString& url);
+    Q_INVOKABLE void pause(const QString &url);
 
-    Q_INVOKABLE double total_msec(const QString& url);
+    Q_INVOKABLE void resume(const QString &url);
 
-    Q_INVOKABLE void goto_msec(const QString& url, double msec);
+    Q_INVOKABLE double total_msec(const QString &url);
 
-    Q_INVOKABLE double get_msec(const QString& url);
+    Q_INVOKABLE void goto_msec(const QString &url, double msec);
 
-    Q_INVOKABLE void set_type(const QString& url, DecodeType type);
+    Q_INVOKABLE double get_msec(const QString &url);
 
-    Q_INVOKABLE int get_decode_type(const QString& url);
+    Q_INVOKABLE void set_type(const QString &url, DecodeType type);
+
+    Q_INVOKABLE int get_decode_type(const QString &url);
 
     Q_INVOKABLE void set_wh(const QString &url, int width, int height);
 
@@ -104,9 +109,11 @@ public:
 
     Q_INVOKABLE bool get_pause(const QString &url);
 
-    Q_INVOKABLE void cvtVideo(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda);
+    Q_INVOKABLE void cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt,
+                              bool cuda);
 
-    Q_INVOKABLE void cvtVideoWH(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda, int width, int height);
+    Q_INVOKABLE void cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt,
+                                bool cuda, int width, int height);
 
     Q_INVOKABLE QVariantMap getVideoWH(const QUrl &in_file);
 
@@ -114,22 +121,30 @@ public:
 
 signals:
     void videoUpdated(QString id, double msec);
+
     void videoPaused(QString id);
+
     void videoResumed(QString id);
+
     void videoDecodeTypeChanged(QString id);
+
     void videoCudaChanged(QString id);
+
     void videoLoading(QString id);
+
     void videoLoaded(QString id);
+
     void videoCvtSignal(int i, int len);
 
 private:
     static u64 get_putIdx(bool isRet, u64 oldIdx);
+
     static FastBitmap bitmap;
     static std::vector<VideoControl *> vcbs;
     bool term;
 };
 
-extern Video* VideoProvider;
+extern Video *VideoProvider;
 
 
 #endif //VIDEOPROVIDER_H
