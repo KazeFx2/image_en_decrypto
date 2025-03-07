@@ -197,18 +197,7 @@ public:
 
     static cv::Mat loadImage(const std::string &url) {
 #ifdef _WIN32
-        int len = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, nullptr, 0);
-        wchar_t *wszGBK = new wchar_t[len + 1];
-        memset(wszGBK, 0, len * 2 + 2);
-        MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, wszGBK, len);
-        len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, nullptr, 0, nullptr, nullptr);
-        char *szGBK = new char[len + 1];
-        memset(szGBK, 0, len + 1);
-        WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, nullptr, nullptr);
-        std::string strTemp(szGBK);
-        if (wszGBK) delete[] wszGBK;
-        if (szGBK) delete[] szGBK;
-        return cv::imread(strTemp);
+        return cv::imread(UTF8toGBK(url));
 #else
         return cv::imread(url);
 #endif

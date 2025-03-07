@@ -99,4 +99,9 @@ bool FileExists(__IN const char* path);
 std::string FileUnique(__IN const char* path, __IN const char* suffix);
 
 std::string FileUniqueForceSuffix(__IN const char* path, __IN const char* suffix);
+
+#ifdef _WIN32
+std::string UTF8toGBK(__IN const std::string &str);
+#endif
+
 #endif //UTIL_H
