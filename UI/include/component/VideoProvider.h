@@ -108,7 +108,7 @@ public:
 
     Q_INVOKABLE void cvtVideoWH(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda, int width, int height);
 
-    Q_INVOKABLE QVariantMap getVideoWH(const QString &in_file);
+    Q_INVOKABLE QVariantMap getVideoWH(const QUrl &in_file);
 
     Q_INVOKABLE void force_stop_cvt();
 

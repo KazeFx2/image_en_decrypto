@@ -520,11 +520,11 @@ void Video::cvtVideoWH(const QString& in_file, const QString& out_file, const QS
                                                        cuda, width, height));
 }
 
-QVariantMap Video::getVideoWH(const QString& in_file)
+QVariantMap Video::getVideoWH(const QUrl &in_file)
 {
     cv::VideoCapture cap;
     QVariantMap ret;
-    if (!cap.open(in_file.toStdString()))
+    if (!cap.open(in_file.toLocalFile().toStdString()))
     {
         ret["width"] = 0;
         ret["height"] = 0;
