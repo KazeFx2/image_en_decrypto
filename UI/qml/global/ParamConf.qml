@@ -3,7 +3,7 @@ import FluentUI
 import QtQuick.Dialogs
 import QtCore
 import "."
-import "qrc:/main/src/js/tools.js" as Tool
+import "qrc:/main/src/js/tools.js" as Tools
 
 Item {
     width: parent.width
@@ -41,7 +41,7 @@ Item {
         fileMode: FileDialog.SaveFile
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         defaultSuffix: "ikey"
-        // nameFilters: [qsTr("Image Files (*.jpg *.jpeg *.png)")]
+        nameFilters: [qsTr("Image Crypro Key Files (*.ikey)")]
         flags: FileDialog.ReadOnly
         /*
             FileDialog.DontResolveSymlinks
@@ -55,7 +55,7 @@ Item {
             selectedFiles: url
         */
         onAccepted: {
-            KeyKeeper.saveParam(selectedFile, paramKey())
+            KeyKeeper.saveParam(Tools.auto_suffix(String(selectedFile), "ikey"), paramKey())
             showSuccess(qsTr("Key Saved Successfully"))
         }
         onRejected: {

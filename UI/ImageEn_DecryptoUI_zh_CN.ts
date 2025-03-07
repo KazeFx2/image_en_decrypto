@@ -242,7 +242,7 @@
         <location filename="qml/page/crypto/CryptoVideo.qml" line="46"/>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="76"/>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="103"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="464"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="465"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
@@ -253,81 +253,80 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="80"/>
-        <source>Video Files (*.mp4 *.avi *.mov *.webm)</source>
-        <oldsource>Video Files (*.mp4 *.avi *.mov)</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="101"/>
         <source>Save File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="130"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="107"/>
+        <source>Video Files (*.avi)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="131"/>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="227"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="228"/>
         <source>Select Input Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="237"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="238"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="305"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="306"/>
         <source>Select Output File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="315"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="316"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="343"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="344"/>
         <source>No Video File Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="385"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="386"/>
         <source>Cuda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="407"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="408"/>
         <source>Encrypt</source>
         <oldsource>Encode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="416"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="417"/>
         <source>Decrypt</source>
         <oldsource>Decode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="429"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="430"/>
         <source>Convert!</source>
         <oldsource>Convert</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="594"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="608"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="605"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="619"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="559"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="573"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1554,6 +1553,7 @@ Updated content:
         <translation type="unfinished">开放</translation>
     </message>
     <message>
+        <location filename="qml/global/ParamConf.qml" line="44"/>
         <location filename="qml/global/ParamConf.qml" line="73"/>
         <source>Image Crypro Key Files (*.ikey)</source>
         <translation type="unfinished"></translation>

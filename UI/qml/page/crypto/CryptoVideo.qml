@@ -77,7 +77,7 @@ FluScrollablePage {
         fileMode: FileDialog.OpenFile
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
         defaultSuffix: "mp4"
-        nameFilters: [qsTr("Video Files (*.mp4 *.avi *.mov *.webm)")]
+        nameFilters: videoPickDialog.nameFilters
         flags: FileDialog.ReadOnly
         onAccepted: {
             GlobalVar.open_file = String(selectedFile)
@@ -104,8 +104,9 @@ FluScrollablePage {
         fileMode: FileDialog.SaveFile
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
         defaultSuffix: "avi"
+        nameFilters: [qsTr("Video Files (*.avi)")]
         onAccepted: {
-            GlobalVar.out_file = String(selectedFile)
+            GlobalVar.out_file = Tools.auto_suffix(String(selectedFile), "avi")
             GlobalVar.out_name = GlobalVar.out_file.split("/").pop()
         }
         onRejected: {
@@ -542,6 +543,19 @@ FluScrollablePage {
                                 GlobalVar.cvt_width = GlobalVar.cvt_height * GlobalVar.real_width / GlobalVar.real_height
                                 input_w.update_me = false
                             }
+                        }
+                    }
+                    FluIconButton {
+                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0 && GlobalVar.cvt_witdh !== GlobalVar.real_width && GlobalVar.cvt_height !== GlobalVar.real_height
+                        anchors.left: input_h.right
+                        anchors.leftMargin: 10
+                        anchors.top: bind_wh.top
+                        iconSource: FluentIcons.Refresh
+                        onClicked: {
+                            input_w.update_me = false
+                            input_h.update_me = false
+                            GlobalVar.cvt_width = GlobalVar.real_width
+                            GlobalVar.cvt_height = GlobalVar.real_height
                         }
                     }
                 }
