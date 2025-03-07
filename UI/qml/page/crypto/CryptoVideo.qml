@@ -84,6 +84,13 @@ FluScrollablePage {
             GlobalVar.open_name = GlobalVar.open_file.split("/").pop()
             GlobalVar.out_file = ""
             GlobalVar.out_name = ""
+            let ret = VideoProvider.getVideoWH(selectedFile)
+            GlobalVar.real_width = ret.width
+            GlobalVar.real_height = ret.height
+            input_w.update_me = false
+            input_h.update_me = false
+            GlobalVar.cvt_width = GlobalVar.real_width
+            GlobalVar.cvt_height = GlobalVar.real_height
         }
         onRejected: {
         }
@@ -360,96 +367,181 @@ FluScrollablePage {
 
             Rectangle {
                 visible: func_select.currentIndex === 0
-                width: cuda.width + 10 + cvt_type_sel.width + _apply_params.width + 10
-                height: Math.max(cuda.height, cvt_type_sel.height, _apply_params.height)
+                width: upper_box.width
+                height: upper_box.height + video_size_box.height + 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: FluColors.Transparent
 
-                FluCheckBox {
-                    id: cuda
-                    textRight: false
-                    enabled: Crypto.cudaAvailable()
-                    checked: GlobalVar.video_cvt_cuda
-                    text: qsTr("Cuda")
-                    anchors {
-                        verticalCenter: parent.verticalCenter
-                        left: parent.left
-                    }
-                    onCheckedChanged: {
-                        GlobalVar.video_cvt_cuda = checked
-                    }
-                }
-
-                FluDropDownButton{
-                    id: cvt_type_sel
-                    text: option_en.text
-                    property int currentIndex: GlobalVar.video_cvt_encrypt ? 0 : 1
-                    anchors {
-                        verticalCenter: parent.verticalCenter
-                        left: cuda.right
-                        leftMargin: 10
-                    }
-                    FluMenuItem{
-                        id: option_en
-                        text: qsTr("Encrypt")
-                        onClicked: {
-                            cvt_type_sel.text = text
-                            cvt_type_sel.currentIndex = 0
-                            GlobalVar.video_cvt_encrypt = true
-                        }
-                    }
-                    FluMenuItem{
-                        id: option_de
-                        text: qsTr("Decrypt")
-                        onClicked: {
-                            cvt_type_sel.text = text
-                            cvt_type_sel.currentIndex = 1
-                            GlobalVar.video_cvt_encrypt = false
-                        }
-                    }
-                }
-
-                FluProgressButton {
-                    id: _apply_params
-                    progress: GlobalVar.apply_params_progrs
-                    enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0
-                    text: qsTr("Convert!")
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    onClicked: {
-                        GlobalVar.apply_params_progrs = 0.0
-                        VideoProvider.cvtVideo(GlobalVar.open_file, GlobalVar.out_file, paramConf.paramKey(), cvt_type_sel.currentIndex === 0, cuda.checked)
-                    }
-                    Component.onDestruction: {
-                        // if (progress !== 1.0) {
-                        //     VideoProvider.force_stop_cvt()
-                        // }
-                    }
-                }
                 Rectangle {
-                    width: _apply_params.progress !== 1.0 ? cancel_btn.width : 0
-                    height: cancel_btn.height
-                    anchors {
-                        top: _apply_params.top
-                        left: _apply_params.right
-                        leftMargin: 10
-                    }
+                    id: upper_box
+                    width: cuda.width + 10 + cvt_type_sel.width + _apply_params.width + 10
+                    height: Math.max(cuda.height, cvt_type_sel.height, _apply_params.height, cancel_btn.height)
                     color: FluColors.Transparent
-                    clip: true
-                    Behavior on width {
-                        PropertyAnimation {
-                            duration: 100
+                    FluCheckBox {
+                        id: cuda
+                        textRight: false
+                        enabled: Crypto.cudaAvailable() && _apply_params.enabled
+                        checked: GlobalVar.video_cvt_cuda
+                        text: qsTr("Cuda")
+                        anchors {
+                            left: parent.left
+                            verticalCenter: parent.verticalCenter
+                        }
+                        onCheckedChanged: {
+                            GlobalVar.video_cvt_cuda = checked
                         }
                     }
-                    FluFilledButton {
-                        id: cancel_btn
-                        enabled: _apply_params.progress !== 1.0
+
+                    FluDropDownButton{
+                        id: cvt_type_sel
+                        text: option_en.text
+                        property int currentIndex: GlobalVar.video_cvt_encrypt ? 0 : 1
+                        enabled: _apply_params.enabled
                         anchors {
-                            centerIn: parent
+                            left: cuda.right
+                            leftMargin: 10
+                            verticalCenter: parent.verticalCenter
                         }
-                        text: qsTr("Cancel")
+                        FluMenuItem{
+                            id: option_en
+                            text: qsTr("Encrypt")
+                            onClicked: {
+                                cvt_type_sel.text = text
+                                cvt_type_sel.currentIndex = 0
+                                GlobalVar.video_cvt_encrypt = true
+                            }
+                        }
+                        FluMenuItem{
+                            id: option_de
+                            text: qsTr("Decrypt")
+                            onClicked: {
+                                cvt_type_sel.text = text
+                                cvt_type_sel.currentIndex = 1
+                                GlobalVar.video_cvt_encrypt = false
+                            }
+                        }
+                    }
+
+                    FluProgressButton {
+                        id: _apply_params
+                        progress: GlobalVar.apply_params_progrs
+                        enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0
+                        text: qsTr("Convert!")
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.verticalCenter: parent.verticalCenter
                         onClicked: {
-                            VideoProvider.force_stop_cvt()
+                            GlobalVar.apply_params_progrs = 0.0
+                            VideoProvider.cvtVideoWH(GlobalVar.open_file, GlobalVar.out_file, paramConf.paramKey(), cvt_type_sel.currentIndex === 0, cuda.checked, GlobalVar.cvt_width, GlobalVar.cvt_height)
+                        }
+                        Component.onDestruction: {
+                            // if (progress !== 1.0) {
+                            //     VideoProvider.force_stop_cvt()
+                            // }
+                        }
+                    }
+                    Rectangle {
+                        width: _apply_params.progress !== 1.0 ? cancel_btn.width : 0
+                        height: cancel_btn.height
+                        anchors {
+                            verticalCenter: parent.verticalCenter
+                            left: _apply_params.right
+                            leftMargin: 10
+                        }
+                        color: FluColors.Transparent
+                        clip: true
+                        Behavior on width {
+                            PropertyAnimation {
+                                duration: 100
+                            }
+                        }
+                        FluFilledButton {
+                            id: cancel_btn
+                            enabled: _apply_params.progress !== 1.0
+                            anchors {
+                                centerIn: parent
+                            }
+                            text: qsTr("Cancel")
+                            onClicked: {
+                                VideoProvider.force_stop_cvt()
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id: video_size_box
+                    // property bool flag: false
+                    width: input_w.width + 10 + bind_wh.width + 10 + input_h.width
+                    height: Math.max(input_w.height, bind_wh.height, input_h.height)
+                    anchors.bottom: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: FluColors.Transparent
+                    FluTextBox {
+                        id: input_w
+                        property bool update_me: true
+                        cleanEnabled: false
+                        text: String(GlobalVar.cvt_width)
+                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                        width: 100
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.cvt_width) !== text)
+                                GlobalVar.cvt_width = Number(text)
+                            if (!update_me) {
+                                update_me = true
+                                return
+                            }
+                            if (GlobalVar.bind_wh) {
+                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
+                                input_h.update_me = false
+                            }
+                        }
+                    }
+                    FluIconButton {
+                        id: bind_wh
+                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                        anchors.left: input_w.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        iconSource: GlobalVar.bind_wh ? FluentIcons.Link : FluentIcons.More
+                        // FluentIcons.More
+                        onClicked: {
+                            GlobalVar.bind_wh = !GlobalVar.bind_wh
+                            if (GlobalVar.bind_wh)
+                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
+                        }
+                    }
+                    FluTextBox {
+                        id: input_h
+                        property bool update_me: true
+                        cleanEnabled: false
+                        text: String(GlobalVar.cvt_height)
+                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                        width: 100
+                        anchors.left: bind_wh.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.cvt_height) !== text)
+                                GlobalVar.cvt_height = Number(text)
+                            if (!update_me) {
+                                update_me = true
+                                return
+                            }
+                            if (GlobalVar.bind_wh) {
+                                GlobalVar.cvt_width = GlobalVar.cvt_height * GlobalVar.real_width / GlobalVar.real_height
+                                input_w.update_me = false
+                            }
                         }
                     }
                 }

@@ -61,6 +61,7 @@ private:
     void goto_msec_locked(int idx, double msec);
     bool url_available(const QString &url, int &idx);
     void __cvtVideo(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda);
+    void __cvtVideoWH(const QString& in_file, const QString& out_file, const QString& key_id, bool encrypt, bool cuda, int width, int height);
 public:
 
     enum DecodeType {
@@ -104,6 +105,10 @@ public:
     Q_INVOKABLE bool get_pause(const QString &url);
 
     Q_INVOKABLE void cvtVideo(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda);
+
+    Q_INVOKABLE void cvtVideoWH(const QString &in_file, const QString &out_file, const QString &key_id, bool encrypt, bool cuda, int width, int height);
+
+    Q_INVOKABLE QVariantMap getVideoWH(const QString &in_file);
 
     Q_INVOKABLE void force_stop_cvt();
 

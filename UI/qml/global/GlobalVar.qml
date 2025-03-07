@@ -27,6 +27,11 @@ QtObject{
     property bool video_cvt_encrypt: true
     property bool video_cvt_cuda: Crypto.cudaAvailable()
     property string video_cvt_param_key_id: ""
+    property bool bind_wh: true
+    property int real_width: 0
+    property int real_height: 0
+    property int cvt_width: 0
+    property int cvt_height: 0
 
     property int video_sel: 0
 

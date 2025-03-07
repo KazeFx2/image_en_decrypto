@@ -56,6 +56,7 @@ Item {
         */
         onAccepted: {
             KeyKeeper.saveParam(selectedFile, paramKey())
+            showSuccess(qsTr("Key Saved Successfully"))
         }
         onRejected: {
         }
@@ -94,6 +95,7 @@ Item {
             pre_iteration.current = ret.preIter
             confusion_iteration.current = ret.confIter
             diffusion_confusion_iteration.current = ret.diffConfIter
+            showSuccess(qsTr("Key Loaded Successfully"))
         }
         onRejected: {
         }

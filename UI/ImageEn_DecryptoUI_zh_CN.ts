@@ -234,15 +234,15 @@
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="45"/>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="75"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="95"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="102"/>
         <source>Open</source>
         <translation type="unfinished">开放</translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="46"/>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="76"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="96"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="450"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="103"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="464"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
@@ -259,75 +259,75 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="94"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="101"/>
         <source>Save File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="123"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="130"/>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="220"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="227"/>
         <source>Select Input Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="230"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="237"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="298"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="305"/>
         <source>Select Output File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="308"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="315"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="336"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="343"/>
         <source>No Video File Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="373"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="385"/>
         <source>Cuda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="394"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="407"/>
         <source>Encrypt</source>
         <oldsource>Encode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="403"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="416"/>
         <source>Decrypt</source>
         <oldsource>Decode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="416"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="429"/>
         <source>Convert!</source>
         <oldsource>Convert</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="502"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="594"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="513"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="605"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="467"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="559"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1528,7 +1528,7 @@ Updated content:
     <name>ParamConf</name>
     <message>
         <location filename="qml/global/ParamConf.qml" line="38"/>
-        <location filename="qml/global/ParamConf.qml" line="66"/>
+        <location filename="qml/global/ParamConf.qml" line="67"/>
         <source>File Select</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1539,94 +1539,104 @@ Updated content:
     </message>
     <message>
         <location filename="qml/global/ParamConf.qml" line="40"/>
-        <location filename="qml/global/ParamConf.qml" line="68"/>
+        <location filename="qml/global/ParamConf.qml" line="69"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="67"/>
+        <location filename="qml/global/ParamConf.qml" line="59"/>
+        <source>Key Saved Successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/ParamConf.qml" line="68"/>
         <source>Open</source>
         <translation type="unfinished">开放</translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="72"/>
+        <location filename="qml/global/ParamConf.qml" line="73"/>
         <source>Image Crypro Key Files (*.ikey)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="127"/>
+        <location filename="qml/global/ParamConf.qml" line="98"/>
+        <source>Key Loaded Successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/ParamConf.qml" line="129"/>
         <source>Initial Condition 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="138"/>
+        <location filename="qml/global/ParamConf.qml" line="140"/>
         <source>Initial Condition 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="149"/>
+        <location filename="qml/global/ParamConf.qml" line="151"/>
         <source>Confusion Seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="160"/>
+        <location filename="qml/global/ParamConf.qml" line="162"/>
         <source>Byte Reserved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="171"/>
+        <location filename="qml/global/ParamConf.qml" line="173"/>
         <source>Confusion Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="199"/>
-        <location filename="qml/global/ParamConf.qml" line="215"/>
+        <location filename="qml/global/ParamConf.qml" line="201"/>
+        <location filename="qml/global/ParamConf.qml" line="217"/>
         <source>value of initial condition can not be a half of control condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="284"/>
+        <location filename="qml/global/ParamConf.qml" line="286"/>
         <source>Control Condition 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="295"/>
+        <location filename="qml/global/ParamConf.qml" line="297"/>
         <source>Control Condition 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="306"/>
+        <location filename="qml/global/ParamConf.qml" line="308"/>
         <source>Thread Count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="317"/>
+        <location filename="qml/global/ParamConf.qml" line="319"/>
         <source>Pre Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="328"/>
+        <location filename="qml/global/ParamConf.qml" line="330"/>
         <source>Diff/Confusion Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="357"/>
-        <location filename="qml/global/ParamConf.qml" line="374"/>
+        <location filename="qml/global/ParamConf.qml" line="359"/>
+        <location filename="qml/global/ParamConf.qml" line="376"/>
         <source>value of control condition can not be 2 times of initial condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="441"/>
+        <location filename="qml/global/ParamConf.qml" line="443"/>
         <source>Generate Randomly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="474"/>
+        <location filename="qml/global/ParamConf.qml" line="476"/>
         <source>Load Key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="493"/>
+        <location filename="qml/global/ParamConf.qml" line="495"/>
         <source>Save Key</source>
         <translation type="unfinished"></translation>
     </message>
