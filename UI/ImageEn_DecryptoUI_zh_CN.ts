@@ -712,7 +712,7 @@
     <message>
         <location filename="qml/page/Settings.qml" line="508"/>
         <source>Show FPS</source>
-        <translation>显式FPS</translation>
+        <translation>显示FPS</translation>
     </message>
 </context>
 <context>
