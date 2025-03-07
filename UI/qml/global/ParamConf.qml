@@ -42,7 +42,7 @@ Item {
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         defaultSuffix: "ikey"
         nameFilters: [qsTr("Image Crypro Key Files (*.ikey)")]
-        flags: FileDialog.ReadOnly
+        flags: flags | FileDialog.DontConfirmOverwrite
         /*
             FileDialog.DontResolveSymlinks
             FileDialog.DontConfirmOverwrite

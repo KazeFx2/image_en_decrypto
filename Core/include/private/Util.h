@@ -94,4 +94,9 @@ void SaveConfKey(__IN const ParamControl& params, __IN const Keys& Keys, __IN co
 
 bool StructureEqual(__IN const void* a,__IN const void* b, __IN u32 size);
 
+bool FileExists(__IN const char* path);
+
+std::string FileUnique(__IN const char* path, __IN const char* suffix);
+
+std::string FileUniqueForceSuffix(__IN const char* path, __IN const char* suffix);
 #endif //UTIL_H

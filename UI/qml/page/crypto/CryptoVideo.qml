@@ -99,11 +99,12 @@ FluScrollablePage {
     FileDialog {
         id: videoSaveDialog
         title: qsTr("Save File Select")
-        acceptLabel: qsTr("Open")
+        acceptLabel: qsTr("Save")
         rejectLabel: qsTr("Cancel")
         fileMode: FileDialog.SaveFile
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
         defaultSuffix: "avi"
+        flags: FileDialog.DontConfirmOverwrite
         nameFilters: [qsTr("Video Files (*.avi)")]
         onAccepted: {
             GlobalVar.out_file = Tools.auto_suffix(String(selectedFile), "avi")

@@ -3,6 +3,9 @@
 //
 
 #include "component/ImageProvider.h"
+
+#include <private/Util.h>
+
 #include "Semaphore.h"
 std::vector<QImage> MemoryImage::images;
 
@@ -37,10 +40,10 @@ QImage MemoryImage::requestImage(const QString& id, QSize* size, const QSize& re
 void MemoryImage::removeImage(const QString& url)
 {
     auto array = url.split('/');
-    if (array.size() < 4) return ;
+    if (array.size() < 4) return;
     bool ok;
     auto idx = array[3].toInt(&ok);
-    if (!ok) return ;
+    if (!ok) return;
     get_putIdx(true, idx);
 }
 
@@ -48,12 +51,13 @@ void MemoryImage::removeImage(const QString& url)
 void MemoryImage::saveImage(const QUrl& path, const QString& name, const QString& imageUrl)
 {
     auto array = imageUrl.split('/');
-    if (array.size() < 4) return ;
+    if (array.size() < 4) return;
     bool ok;
     auto idx = array[3].toInt(&ok);
-    if (!ok) return ;
+    if (!ok) return;
     auto image = images[idx];
-    image.save(path.toLocalFile() + "/" + name, "png");
+    auto file = FileUniqueForceSuffix((path.toLocalFile() + "/" + name).toStdString().c_str(), "png");
+    image.save(QString::fromStdString(file), "png");
 }
 
 u64 MemoryImage::get_putIdx(const bool isRet, const u64 oldIdx)
