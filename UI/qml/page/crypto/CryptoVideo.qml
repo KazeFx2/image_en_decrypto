@@ -129,34 +129,41 @@ FluScrollablePage {
             width: parent.width
             height: childrenRect.height
 
-            SubTitle {text: qsTr("Workspace")}
+            SubTitle {
+                text: qsTr("Workspace")
+            }
 
-            SeparateLine {}
+            SeparateLine {
+            }
 
-            FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
+            FluRectangle {
+                width: parent.width; height: 10; color: FluColors.Transparent
+            }
 
-            FluRadioButtons{
+            FluRadioButtons {
                 id: func_select
                 enabled: _apply_params.progress === 1.0
                 spacing: 8
                 orientation: Qt.Horizontal
                 currentIndex: GlobalVar.video_sel
                 anchors.horizontalCenter: parent.horizontalCenter
-                FluRadioButton{
-                    text:"Video Convert"
+                FluRadioButton {
+                    text: "Video Convert"
                     onClicked: {
                         GlobalVar.video_sel = 0
                     }
                 }
-                FluRadioButton{
-                    text:"Realtime Play"
+                FluRadioButton {
+                    text: "Realtime Play"
                     onClicked: {
                         GlobalVar.video_sel = 1
                     }
                 }
             }
 
-            FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
+            FluRectangle {
+                width: parent.width; height: 10; color: FluColors.Transparent
+            }
 
             Rectangle {
                 id: video_cvt
@@ -245,7 +252,9 @@ FluScrollablePage {
                     }
                 }
 
-                SeparateLine {id: center_sep; horizontal: false; anchors.centerIn: parent}
+                SeparateLine {
+                    id: center_sep; horizontal: false; anchors.centerIn: parent
+                }
 
                 Rectangle {
                     width: parent.width / 2
@@ -365,7 +374,9 @@ FluScrollablePage {
 
             }
 
-            FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
+            FluRectangle {
+                width: parent.width; height: 10; color: FluColors.Transparent
+            }
 
             Rectangle {
                 visible: func_select.currentIndex === 0
@@ -394,7 +405,7 @@ FluScrollablePage {
                         }
                     }
 
-                    FluDropDownButton{
+                    FluDropDownButton {
                         id: cvt_type_sel
                         text: option_en.text
                         property int currentIndex: GlobalVar.video_cvt_encrypt ? 0 : 1
@@ -404,7 +415,7 @@ FluScrollablePage {
                             leftMargin: 10
                             verticalCenter: parent.verticalCenter
                         }
-                        FluMenuItem{
+                        FluMenuItem {
                             id: option_en
                             text: qsTr("Encrypt")
                             onClicked: {
@@ -413,7 +424,7 @@ FluScrollablePage {
                                 GlobalVar.video_cvt_encrypt = true
                             }
                         }
-                        FluMenuItem{
+                        FluMenuItem {
                             id: option_de
                             text: qsTr("Decrypt")
                             onClicked: {
@@ -427,7 +438,7 @@ FluScrollablePage {
                     FluProgressButton {
                         id: _apply_params
                         progress: GlobalVar.apply_params_progrs
-                        enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0
+                        enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0 && GlobalVar.cvt_width !== 0 && GlobalVar.cvt_height !== 0
                         text: qsTr("Convert!")
                         anchors.right: parent.right
                         anchors.top: parent.top
@@ -588,7 +599,9 @@ FluScrollablePage {
                     color: FluColors.Transparent
                     clip: true
                     Behavior on width {
-                        PropertyAnimation {duration: 100}
+                        PropertyAnimation {
+                            duration: 100
+                        }
                     }
                     FluIconButton {
                         id: del_video_btn
@@ -615,15 +628,24 @@ FluScrollablePage {
                 }
             }
 
-            FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
+            FluRectangle {
+                width: parent.width; height: 10; color: FluColors.Transparent
+            }
 
-            SubTitle {text: qsTr("Parameters")}
+            SubTitle {
+                text: qsTr("Parameters")
+            }
 
-            SeparateLine {}
+            SeparateLine {
+            }
 
-            FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
+            FluRectangle {
+                width: parent.width; height: 10; color: FluColors.Transparent
+            }
 
-            ParamConf { id: paramConf}
+            ParamConf {
+                id: paramConf
+            }
         }
     }
 

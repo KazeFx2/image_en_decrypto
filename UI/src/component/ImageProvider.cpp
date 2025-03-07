@@ -57,6 +57,9 @@ void MemoryImage::saveImage(const QUrl &path, const QString &name, const QString
     (path.toLocalFile() + "/" + name).toStdString()
 #endif
         .c_str(), "png");
+#ifdef _WIN32
+    file = GBKtoUTF8(file);
+#endif
     image.save(QString::fromStdString(file), "png");
 }
 

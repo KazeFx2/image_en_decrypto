@@ -94,6 +94,7 @@ FluScrollablePage {
                 GlobalVar.onePic = false
             } else {
                 GlobalVar.onePic = true
+                img_in_sig.source = ""
                 img_in_sig.source = GlobalVar.list_model[0].source
             }
         }

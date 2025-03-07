@@ -806,4 +806,19 @@ std::string UTF8toGBK(__IN const std::string &str) {
     if (szGBK) delete[] szGBK;
     return strTemp;
 }
+
+std::string GBKtoUTF8(__IN const std::string &str) {
+    int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+    wchar_t *wstr = new wchar_t[len + 1];
+    memset(wstr, 0, len + 1);
+    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wstr, len);
+    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+    char *szUTF8 = new char[len + 1];
+    memset(szUTF8, 0, len + 1);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, szUTF8, len, NULL, NULL);
+    std::string strTemp = szUTF8;
+    if (wstr) delete[] wstr;
+    if (szUTF8) delete[] szUTF8;
+    return strTemp;
+}
 #endif
