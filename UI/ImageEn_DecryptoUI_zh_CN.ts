@@ -551,12 +551,12 @@
     <message>
         <location filename="qml/page/Settings.qml" line="58"/>
         <source>Cancel</source>
-        <translation>取消取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="59"/>
         <source>OK</source>
-        <translation>确定确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="66"/>

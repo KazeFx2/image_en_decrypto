@@ -148,6 +148,7 @@ Rectangle {
                     FluText {
                         width: parent.width
                         anchors.bottom: parent.bottom
+                        horizontalAlignment: Text.AlignHCenter
                         text: model.name
                         elide: Text.ElideRight
                     }
