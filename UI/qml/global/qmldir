@@ -1,6 +1,7 @@
 singleton ItemsOriginal 1.0 ItemsOriginal.qml
 singleton ItemsFooter 1.0 ItemsFooter.qml
 singleton GlobalModel 1.0 GlobalModel.qml
+singleton GlobalVar 1.0 GlobalVar.qml
 FluArea 1.0 FluArea.qml
 MyFluPivot 1.0 MyFluPivot.qml
 SeparateLine 1.0 SeparateLine.qml

@@ -37,5 +37,6 @@
         <file>res/ico/GitHub.ico</file>
         <file>res/ico/FluentUI.ico</file>
         <file>res/png/OpenCV.png</file>
+        <file>qml/global/GlobalVar.qml</file>
     </qresource>
 </RCC>

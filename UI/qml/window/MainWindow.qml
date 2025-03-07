@@ -12,9 +12,9 @@ FluWindow {
 
     id: window
     title: AppInfo.name
-    width: 1000
+    width: 730
     height: 668
-    minimumWidth: 668
+    minimumWidth: 730
     minimumHeight: 320
     launchMode: FluWindowType.SingleTask
     fitsAppBarWindows: SettingsHelper.getAppBarWindows()
@@ -46,6 +46,61 @@ FluWindow {
         FluRouter.exit()
     }
 
+    Connections {
+        target: Crypto
+        function onSaveImageFinished(idx) {
+            if (idx === -1) {
+                GlobalVar.save_all_btn_progrs = 1.0
+                showError(qsTr("Save Cancelled"))
+                return
+            }
+            GlobalVar.save_all_btn_progrs = 1.0 * (idx + 1) / GlobalVar.out_model.length
+            if (GlobalVar.save_all_btn_progrs === 1.0) showSuccess(qsTr("Image Saving Complete!"))
+        }
+    }
+    Connections {
+        target: Crypto
+        function onCryptoFinished(idx, url) {
+            if (idx === -1) {
+                GlobalVar.cvt_btn_progrs = 1.0
+                showError(qsTr("Conversion Cancelled"))
+                return
+            }
+            if (idx >= GlobalVar.out_model.length) {
+                const tmp = GlobalVar.out_model
+                tmp.push({
+                    name: GlobalVar.list_model[idx].name,
+                    source: url
+                })
+                GlobalVar.out_model = tmp
+            } else {
+                GlobalVar.out_model[idx] = {
+                    name: GlobalVar.list_model[idx].name,
+                    source: url
+                }
+                if (GlobalVar.img_out_mul !== undefined)
+                    GlobalVar.img_out_mul.set(idx, GlobalVar.out_model[idx])
+            }
+            if (idx === 0)
+                GlobalVar.img_out_sig_url = GlobalVar.out_model[0].source
+            GlobalVar.cvt_btn_progrs = 1.0 * (idx + 1) / GlobalVar.list_model.length
+            if (GlobalVar.cvt_btn_progrs === 1.0) showSuccess(qsTr("Conversion Complete!"))
+        }
+    }
+    Connections {
+        target: VideoProvider
+        function onVideoCvtSignal(i, len) {
+            if (len === 0) {
+                GlobalVar.apply_params_progrs = 1.0
+                showError(qsTr("Conversion Failed/Stopped!"))
+            } else {
+                GlobalVar.apply_params_progrs = i * 1.0 / len
+                if (i === len) {
+                    showSuccess(qsTr("Conversion Complete!"))
+                }
+            }
+        }
+    }
     // sys tray icon
     SystemTrayIcon {
         id: system_tray
@@ -85,12 +140,20 @@ FluWindow {
         negativeText: qsTr("Minimize")
         buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.NeutralButton | FluContentDialogType.PositiveButton
         onNegativeClicked: {
-            system_tray.showMessage(qsTr("Friendly Reminder"), qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
-            timer_window_hide_delay.restart()
+            // system_tray.showMessage(qsTr("Friendly Reminder"), qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
+            // timer_window_hide_delay.restart()
         }
         positiveText: qsTr("Quit")
         neutralText: qsTr("Cancel")
         onPositiveClicked: {
+            if (GlobalVar.cvt_btn_progrs !== 1.0)
+                Crypto.stopCrypto()
+            if (GlobalVar.save_all_btn_progrs !== 1.0)
+                Crypto.stopSave()
+            if (GlobalVar.apply_params_progrs !== 1.0)
+                VideoProvider.force_stop_cvt()
+            if (GlobalVar.video_url !== "")
+                GlobalVar.video_url = ""
             FluRouter.exit(0)
         }
     }

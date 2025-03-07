@@ -35,7 +35,18 @@ QImage cvMat2QImage(const cv::Mat& mat)
 
 QString Crypto::encrypt(const QUrl& url, const QString& key_id, bool cuda)
 {
-    auto& key = keyMap[key_id];
+    auto key = keyMap[key_id];
+    if (cuda && key.imageCrypto.cuda_is_available()) key.imageCrypto.cuda();
+    else key.imageCrypto.cpu();
+    auto mat = key.imageCrypto.loadImage(url.toLocalFile().toStdString());
+    // if (threadPool.getMaxThreads() < key.key.control.nThread) threadPool.setMax(key.key.control.nThread);
+    // else threadPool.reduceTo(key.key.control.nThread);
+    auto ret = key.imageCrypto.encrypt(mat);
+    return memImage->loadImage(cvMat2QImage(ret));
+}
+
+QString Crypto::encrypt(const QUrl& url, C_FullKey& key, bool cuda)
+{
     if (cuda && key.imageCrypto.cuda_is_available()) key.imageCrypto.cuda();
     else key.imageCrypto.cpu();
     auto mat = key.imageCrypto.loadImage(url.toLocalFile().toStdString());
@@ -48,6 +59,17 @@ QString Crypto::encrypt(const QUrl& url, const QString& key_id, bool cuda)
 QString Crypto::decrypt(const QUrl& url, const QString& key_id, bool cuda)
 {
     auto key = keyMap[key_id];
+    if (cuda && key.imageCrypto.cuda_is_available()) key.imageCrypto.cuda();
+    else key.imageCrypto.cpu();
+    auto mat = key.imageCrypto.loadImage(url.toLocalFile().toStdString());
+    // if (threadPool.getMaxThreads() < key.key.control.nThread) threadPool.setMax(key.key.control.nThread);
+    // else threadPool.reduceTo(key.key.control.nThread);
+    auto ret = key.imageCrypto.decrypt(mat);
+    return memImage->loadImage(cvMat2QImage(ret));
+}
+
+QString Crypto::decrypt(const QUrl& url, C_FullKey& key, bool cuda)
+{
     if (cuda && key.imageCrypto.cuda_is_available()) key.imageCrypto.cuda();
     else key.imageCrypto.cpu();
     auto mat = key.imageCrypto.loadImage(url.toLocalFile().toStdString());
@@ -74,6 +96,7 @@ bool Crypto::cudaAvailable()
 
 void Crypto::__doCrypto(const QVariantList& list, const QString& key_id, bool is_encrypt, bool cuda)
 {
+    auto key = keyMap[key_id];
     for (auto i = 0; i < list.length(); i++)
     {
         if (termCrypto)
@@ -85,9 +108,9 @@ void Crypto::__doCrypto(const QVariantList& list, const QString& key_id, bool is
         auto map = list[i].toMap();
         QUrl source = map.value("source").toUrl();
         if (is_encrypt)
-            emit cryptoFinished(i, encrypt(source, key_id, cuda));
+            emit cryptoFinished(i, encrypt(source, key, cuda));
         else
-            emit cryptoFinished(i, decrypt(source, key_id, cuda));
+            emit cryptoFinished(i, decrypt(source, key, cuda));
     }
 }
 

@@ -11,28 +11,34 @@ import "../../global"
 FluScrollablePage {
     id: crypto_image_page
 
-    property var list_model: []
-    property var out_model: []
-    property bool onePic: true
-    property bool addition: false
+    property var list_model: GlobalVar.list_model
+    property var out_model: GlobalVar.out_model
+    property bool onePic: GlobalVar.onePic
+    property bool addition: GlobalVar.addition
 
     Connections {
         target: img_in_mul
         function onRemove(source, idx) {
-            list_model = list_model.filter(item => String(item.source) !== String(source))
-            out_model = out_model.filter(item => String(item.source) !== String(out_model[idx].source))
+            GlobalVar.list_model = GlobalVar.list_model.filter(item => String(item.source) !== String(source))
+            if (source !== undefined)
+                GlobalVar.out_model = GlobalVar.out_model.filter(item => String(item.source) !== String(GlobalVar.out_model[idx].source))
         }
         function onAdd(){
-            addition = true
+            GlobalVar.addition = true
             imagePickDialog.open()
         }
     }
 
     Component.onCompleted: {
+        GlobalVar.img_out_mul = img_out_mul
+        if (GlobalVar.image_param_key_id !== "")
+            paramConf.loadKey(GlobalVar.image_param_key_id)
     }
     Component.onDestruction: {
-        for (var i = 0; i < out_model.length; i++)
-            Crypto.removeImage(out_model[i].source)
+        GlobalVar.img_out_mul = undefined
+        GlobalVar.image_param_key_id = paramConf.paramKey()
+        // for (var i = 0; i < GlobalVar.out_model.length; i++)
+        //     Crypto.removeImage(GlobalVar.out_model[i].source)
     }
 
     width: parent.width
@@ -60,15 +66,15 @@ FluScrollablePage {
             selectedFiles: url
         */
         onAccepted: {
-            if (!addition) {
-                for (var i = 0; i < out_model.length; i++)
-                    Crypto.removeImage(out_model[i].source)
-                out_model = []
+            if (!GlobalVar.addition) {
+                for (var i = 0; i < GlobalVar.out_model.length; i++)
+                    Crypto.removeImage(GlobalVar.out_model[i].source)
+                GlobalVar.out_model = []
             }
-            const tmp = addition ? list_model : []
-            const prev_len = list_model.length
+            const tmp = GlobalVar.addition ? GlobalVar.list_model : []
+            const prev_len = GlobalVar.list_model.length
             for (let i = 0; i < selectedFiles.length; i++) {
-                if (addition) {
+                if (GlobalVar.addition) {
                     let find = false
                     for (let j = 0; j < prev_len; j++) {
                         if (tmp[j].source === selectedFiles[i]) {
@@ -83,12 +89,12 @@ FluScrollablePage {
                     name: String(selectedFiles[i]).split('/').pop()
                 })
             }
-            list_model = tmp
-            if (list_model.length > 1) {
-                onePic = false
+            GlobalVar.list_model = tmp
+            if (GlobalVar.list_model.length > 1) {
+                GlobalVar.onePic = false
             } else {
-                onePic = true
-                img_in_sig.source = list_model[0].source
+                GlobalVar.onePic = true
+                img_in_sig.source = GlobalVar.list_model[0].source
             }
         }
         onRejected: {
@@ -101,22 +107,10 @@ FluScrollablePage {
         rejectLabel: qsTr("Cancel")
         currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
         onAccepted: {
-            Crypto.doSave(out_model, selectedFolder)
+            Crypto.doSave(GlobalVar.out_model, selectedFolder)
         }
         onRejected: {
-            save_all_btn.progress = 1.0
-        }
-        Connections {
-            target: Crypto
-            function onSaveImageFinished(idx) {
-                if (idx === -1) {
-                    save_all_btn.progress = 1.0
-                    showError(qsTr("Save Cancelled"))
-                    return
-                }
-                save_all_btn.progress = 1.0 * (idx + 1) / out_model.length
-                if (save_all_btn.progress === 1.0) showSuccess(qsTr("Image Saving Complete!"))
-            }
+            GlobalVar.save_all_btn_progrs = 1.0
         }
     }
 
@@ -144,7 +138,7 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: onePic && list_model.length !== 0 ? 300 : 0
+                height: GlobalVar.onePic && GlobalVar.list_model.length !== 0 ? 300 : 0
                 source: ""
             }
 
@@ -153,9 +147,9 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: onePic || list_model.length === 0 ? 0 : 300
+                height: GlobalVar.onePic || GlobalVar.list_model.length === 0 ? 0 : 300
                 edit: cvt_btn.enabled && save_all_btn.progress === 1.0
-                sourceList: list_model
+                sourceList: GlobalVar.list_model
             }
 
             Rectangle {
@@ -163,7 +157,7 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: list_model.length === 0 ? 300 : 0
+                height: GlobalVar.list_model.length === 0 ? 300 : 0
                 color: FluColors.Grey120.alpha(0.3)
                 radius: 5
 
@@ -172,18 +166,49 @@ FluScrollablePage {
                 FluText {
                     anchors.centerIn: parent
                     text: qsTr("No Images Selected.")
+                    font.pixelSize: 24
                 }
             }
 
             FluRectangle {width: parent.width; height: 10; color: FluColors.Transparent}
 
-            FluFilledButton {
+            Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Select Images")
-                enabled: cvt_btn.progress === 1.0 && save_all_btn.progress === 1.0
-                onClicked: {
-                    addition = false
-                    imagePickDialog.open()
+                color: FluColors.Transparent
+                width: sel_img_btn.width + sel_img_box.width
+                height: Math.max(sel_img_btn.height, sel_img_box.height)
+                FluFilledButton {
+                    id: sel_img_btn
+                    anchors.left: parent.left
+                    text: qsTr("Select Images")
+                    enabled: cvt_btn.progress === 1.0 && save_all_btn.progress === 1.0
+                    onClicked: {
+                        GlobalVar.addition = false
+                        imagePickDialog.open()
+                    }
+                }
+                Rectangle {
+                    id: sel_img_box
+                    anchors.right: parent.right
+                    width: GlobalVar.list_model.length > 0 ? del_img_btn.width + 10 : 0
+                    height: del_img_btn.height
+                    color: FluColors.Transparent
+                    clip: true
+                    Behavior on width {
+                        PropertyAnimation {duration: 100}
+                    }
+                    FluFilledButton {
+                        id: del_img_btn
+                        anchors.right: parent.right
+                        text: qsTr("Delete All Images")
+                        enabled: cvt_btn.progress === 1.0 && save_all_btn.progress === 1.0
+                        onClicked: {
+                            for (var i = 0; i < GlobalVar.out_model.length; i++)
+                                Crypto.removeImage(GlobalVar.out_model[i].source)
+                            GlobalVar.out_model = []
+                            GlobalVar.list_model = []
+                        }
+                    }
                 }
             }
 
@@ -194,8 +219,8 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: onePic && out_model.length !== 0 ? 300 : 0
-                property string url: ""
+                height: GlobalVar.onePic && GlobalVar.out_model.length !== 0 ? 300 : 0
+                property string url: GlobalVar.img_out_sig_url
                 property int ct: 0
                 property string mid: url.split("/").pop()
                 source: url === "" ? "" : url + "/" + String(ct)
@@ -215,8 +240,8 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: onePic || out_model.length === 0 ? 0 : 300
-                sourceList: out_model
+                height: GlobalVar.onePic || GlobalVar.out_model.length === 0 ? 0 : 300
+                sourceList: GlobalVar.out_model
             }
 
             Rectangle {
@@ -224,7 +249,7 @@ FluScrollablePage {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 width: parent.width
-                height: out_model.length === 0 ? 300 : 0
+                height: GlobalVar.out_model.length === 0 ? 300 : 0
                 color: FluColors.Grey120.alpha(0.3)
                 radius: 5
 
@@ -233,6 +258,7 @@ FluScrollablePage {
                 FluText {
                     anchors.centerIn: parent
                     text: qsTr("No Outputs, Please Click Convert First.")
+                    font.pixelSize: 24
                 }
             }
 
@@ -246,61 +272,33 @@ FluScrollablePage {
 
                 FluProgressButton {
                     id: cvt_btn
-                    progress: 1.0
+                    progress: GlobalVar.cvt_btn_progrs
                     anchors.left: parent.left
                     text: qsTr("Convert!")
-                    enabled: progress === 1.0 && save_all_btn.progress === 1.0 && list_model.length !== 0
+                    enabled: progress === 1.0 && save_all_btn.progress === 1.0 && GlobalVar.list_model.length > 0
                     onClicked: {
-                        if (list_model.length === 0) return
-                        cvt_btn.progress = 0.0
-                        for (var i = 0; i < out_model.length; i++)
-                            Crypto.removeImage(out_model[i].source)
-                        Crypto.doCrypto(list_model, paramConf.paramKey(), cvt_type.currentIndex === 0, cuda.checked)
-                        // out_model = []
+                        if (GlobalVar.list_model.length === 0) return
+                        GlobalVar.cvt_btn_progrs = 0.0
+                        for (var i = 0; i < GlobalVar.out_model.length; i++)
+                            Crypto.removeImage(GlobalVar.out_model[i].source)
+                        Crypto.doCrypto(GlobalVar.list_model, paramConf.paramKey(), cvt_type.currentIndex === 0, cuda.checked)
+                        // GlobalVar.out_model = []
                         // const tmp = []
                         // console.log(paramConf.paramKey())
-                        // for (i = 0; i < list_model.length; i++){
+                        // for (i = 0; i < GlobalVar.list_model.length; i++){
                         //     tmp.push({
-                        //         name: list_model[i].name,
-                        //         source: cvt_type.currentIndex === 0 ? Crypto.encrypt(list_model[i].source, paramConf.paramKey(), cuda.checked): Crypto.decrypt(list_model[i].source, paramConf.paramKey(), cuda.checked)
+                        //         name: GlobalVar.list_model[i].name,
+                        //         source: cvt_type.currentIndex === 0 ? Crypto.encrypt(GlobalVar.list_model[i].source, paramConf.paramKey(), cuda.checked): Crypto.decrypt(GlobalVar.list_model[i].source, paramConf.paramKey(), cuda.checked)
                         //     })
                         // }
-                        // out_model = tmp
-                        // img_out_sig.url = out_model[0].source
-                    }
-                    Connections {
-                        target: Crypto
-                        function onCryptoFinished(idx, url) {
-                            if (idx === -1) {
-                                cvt_btn.progress = 1.0
-                                showError(qsTr("Conversion Cancelled"))
-                                return
-                            }
-                            if (idx >= out_model.length) {
-                                const tmp = out_model
-                                tmp.push({
-                                    name: list_model[idx].name,
-                                    source: url
-                                })
-                                out_model = tmp
-                            } else {
-                                out_model[idx] = {
-                                    name: list_model[idx].name,
-                                    source: url
-                                }
-                                img_out_mul.set(idx, out_model[idx])
-                            }
-                            if (idx === 0)
-                                img_out_sig.url = out_model[0].source
-                            cvt_btn.progress = 1.0 * (idx + 1) / list_model.length
-                            if (cvt_btn.progress === 1.0) showSuccess(qsTr("Conversion Complete!"))
-                        }
+                        // GlobalVar.out_model = tmp
+                        // GlobalVar.img_out_sig_url = GlobalVar.out_model[0].source
                     }
                 }
 
                 Rectangle {
                     id: save_all_box
-                    width: (cvt_btn.progress === 1.0 && out_model.length !== 0) ? save_all_btn.width : 0
+                    width: (cvt_btn.progress === 1.0 && GlobalVar.out_model.length !== 0) ? save_all_btn.width : 0
                     height: save_all_btn.height
                     anchors.right: parent.right
                     color: FluColors.Transparent
@@ -310,12 +308,12 @@ FluScrollablePage {
                     }
                     FluProgressButton {
                         id: save_all_btn
-                        progress: 1.0
+                        progress: GlobalVar.save_all_btn_progrs
                         anchors.centerIn: parent
                         text: qsTr("Save Images")
-                        enabled: cvt_btn.enabled && out_model.length !== 0 && progress === 1.0
+                        enabled: cvt_btn.enabled && GlobalVar.out_model.length !== 0 && progress === 1.0
                         onClicked: {
-                            progress = 0.0
+                            GlobalVar.save_all_btn_progrs = 0.0
                             imageSaveDialog.open()
                         }
                     }
@@ -403,8 +401,9 @@ FluScrollablePage {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: cvt_type_txt.right
                             spacing: 8
-                            currentIndex: 0
+                            currentIndex: GlobalVar.image_encrypt ? 0 : 1
                             onCurrentIndexChanged: {
+                                GlobalVar.image_encrypt = currentIndex === 0
                             }
 
                             FluRadioButton {
@@ -429,10 +428,13 @@ FluScrollablePage {
                     FluCheckBox {
                         id: cuda
                         enabled: Crypto.cudaAvailable()
-                        checked: enabled
+                        checked: GlobalVar.image_cuda
                         anchors.centerIn: parent
                         padding: 10
                         text: qsTr("Use Cuda")
+                        onCheckedChanged: {
+                            GlobalVar.image_cuda = checked
+                        }
                     }
                 }
             }

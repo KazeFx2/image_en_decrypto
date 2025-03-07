@@ -29,6 +29,14 @@ Rectangle {
         }
     }
 
+    onEditChanged: {
+        if (edit && list_model.count > 0 && list_model.get(list_model.count - 1).source !== undefined) {
+            list_model.append({name: qsTr("Add Image")})
+        } else if (!edit && list_model.count > 0 && list_model.get(list_model.count - 1).source === undefined) {
+            remove(undefined, list_model.count - 1)
+        }
+    }
+
     function set(idx, obj) {
         list_model.set(idx, obj)
     }

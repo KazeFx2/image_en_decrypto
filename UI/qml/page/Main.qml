@@ -50,7 +50,11 @@ Rectangle {
 
                 width: parent.width
                 height: parent.height
-                currentIndex: 0
+                currentIndex: GlobalVar.pivot_idx
+
+                onCurrentIndexChanged: {
+                    GlobalVar.pivot_idx = currentIndex
+                }
 
                 FluPivotItem {
                     title: qsTr("Image")

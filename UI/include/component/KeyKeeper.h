@@ -71,6 +71,8 @@ public:
     Q_INVOKABLE void saveParam(const QUrl& path, const QString& key_id);
 
     Q_INVOKABLE QVariantMap loadParam(const QUrl& path);
+
+    Q_INVOKABLE QVariantMap loadKey(const QString& key_id);
 private:
     // void clean();
 

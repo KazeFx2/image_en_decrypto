@@ -3,6 +3,7 @@
 /**
  * @brief The Singleton class
  */
+#ifndef SINGLETON
 template <typename T>
 class Singleton {
 public:
@@ -23,3 +24,4 @@ public:                                                                         
     static Class *getInstance() {                                                                  \
         return Singleton<Class>::getInstance();                                                    \
     }
+#endif

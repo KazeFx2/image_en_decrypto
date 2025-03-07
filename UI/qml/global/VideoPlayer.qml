@@ -22,14 +22,14 @@ FluImage {
     property bool hovered: false
 
     Component.onDestruction: {
-        VideoProvider.delVideo(url)
+        // VideoProvider.delVideo(url)
     }
 
     onUrlChanged: {
         VideoProvider.delVideo(url_prev)
         url_prev = url
         procedure.max = VideoProvider.total_msec(url)
-        procedure.value = 0
+        procedure.value = VideoProvider.get_msec(url) * procedure.to / procedure.max
         update_decode_type()
         update_cuda()
         paused = VideoProvider.get_pause(url)

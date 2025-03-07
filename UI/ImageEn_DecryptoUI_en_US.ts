@@ -121,112 +121,96 @@
 <context>
     <name>CryptoImage</name>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="43"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="49"/>
         <source>File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="44"/>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="100"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="50"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="106"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="45"/>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="101"/>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="337"/>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="359"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="51"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="107"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="335"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="357"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="49"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="55"/>
         <source>Image Files (*.jpg *.jpeg *.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="114"/>
-        <source>Save Cancelled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="118"/>
-        <source>Image Saving Complete!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="136"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="130"/>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="140"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="134"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="174"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="168"/>
         <source>No Images Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="182"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="183"/>
         <source>Select Images</source>
-        <oldsource>Select Image</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="190"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="203"/>
+        <source>Delete All Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="215"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="235"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="260"/>
         <source>No Outputs, Please Click Convert First.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="251"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="277"/>
         <source>Convert!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="276"/>
-        <source>Conversion Cancelled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="296"/>
-        <source>Conversion Complete!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="315"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="313"/>
         <source>Save Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="370"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="368"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="398"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="396"/>
         <source>Convert Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="411"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="410"/>
         <source>Encrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="415"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="414"/>
         <source>Decrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoImage.qml" line="435"/>
+        <location filename="qml/page/crypto/CryptoImage.qml" line="434"/>
         <source>Use Cuda</source>
         <translation type="unfinished"></translation>
     </message>
@@ -234,115 +218,108 @@
 <context>
     <name>CryptoVideo</name>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="40"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="70"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="44"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="74"/>
         <source>File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="41"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="71"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="91"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="45"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="75"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="95"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="42"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="72"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="92"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="443"/>
-        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="46"/>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="76"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="96"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="450"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="50"/>
+        <source>Video Files (*.mp4 *.avi *.mov *.webm *.mkv)</source>
+        <oldsource>Video Files (*.mp4 *.avi *.mov *.webm *,mkv)</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="80"/>
         <source>Video Files (*.mp4 *.avi *.mov *.webm)</source>
         <oldsource>Video Files (*.mp4 *.avi *.mov)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="90"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="94"/>
         <source>Save File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="119"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="123"/>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="210"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="220"/>
         <source>Select Input Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="220"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="230"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="288"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="298"/>
         <source>Select Output File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="298"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="308"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="326"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="336"/>
         <source>No Video File Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="357"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="373"/>
         <source>Cuda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="375"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="394"/>
         <source>Encrypt</source>
         <oldsource>Encode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="383"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="403"/>
         <source>Decrypt</source>
         <oldsource>Decode</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="395"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="416"/>
         <source>Convert!</source>
         <oldsource>Convert</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="412"/>
-        <source>Conversion Failed/Stopped!</source>
-        <oldsource>Convert Failed!</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="416"/>
-        <source>Conversion Complete!</source>
-        <oldsource>Convert Complete!</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="495"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="502"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="506"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="513"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="460"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="467"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
@@ -373,48 +350,56 @@
 <context>
     <name>FluAppBar</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="9"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="10"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="11"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="12"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="13"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="14"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="15"/>
         <source>Sticky on Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAppBar.qml" line="16"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAppBar.qml" line="16"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAppBar.qml" line="16"/>
         <source>Sticky on Top cancelled</source>
@@ -424,6 +409,7 @@
 <context>
     <name>FluAutoSuggestBox</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluAutoSuggestBox.qml" line="7"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluAutoSuggestBox.qml" line="8"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluAutoSuggestBox.qml" line="7"/>
         <source>No results found</source>
@@ -433,6 +419,7 @@
 <context>
     <name>FluCalendarPicker</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluCalendarPicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluCalendarPicker.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluCalendarPicker.qml" line="12"/>
         <source>Pick a date</source>
@@ -442,48 +429,56 @@
 <context>
     <name>FluColorPicker</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="17"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="16"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="17"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="18"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="17"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="18"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="19"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="18"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="19"/>
         <source>Color Picker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="20"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="19"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="20"/>
         <source>Edit Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="21"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="20"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="21"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="22"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="21"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="22"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="23"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="22"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="23"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluColorPicker.qml" line="24"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="23"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="24"/>
         <source>Opacity</source>
@@ -493,18 +488,21 @@
 <context>
     <name>FluContentDialog</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluContentDialog.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluContentDialog.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluContentDialog.qml" line="11"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluContentDialog.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluContentDialog.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluContentDialog.qml" line="12"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluContentDialog.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluContentDialog.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluContentDialog.qml" line="13"/>
         <source>OK</source>
@@ -514,30 +512,35 @@
 <context>
     <name>FluDatePicker</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluDatePicker.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="10"/>
         <source>Year</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluDatePicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="11"/>
         <source>Month</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluDatePicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="12"/>
         <source>Day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluDatePicker.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="13"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluDatePicker.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="14"/>
         <source>OK</source>
@@ -547,6 +550,7 @@
 <context>
     <name>FluImage</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluImage.qml" line="6"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluImage.qml" line="6"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluImage.qml" line="6"/>
         <source>Reload</source>
@@ -556,12 +560,14 @@
 <context>
     <name>FluPagination</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluPagination.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluPagination.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluPagination.qml" line="9"/>
         <source>&lt;Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluPagination.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluPagination.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluPagination.qml" line="10"/>
         <source>Next&gt;</source>
@@ -571,36 +577,42 @@
 <context>
     <name>FluShortcutPicker</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="8"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="8"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="8"/>
         <source>Activate the Shortcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="9"/>
         <source>Press the key combination to change the shortcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="10"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="11"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="12"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluShortcutPicker.qml" line="204"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluShortcutPicker.qml" line="204"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="204"/>
         <source>Conflict</source>
@@ -610,24 +622,28 @@
 <context>
     <name>FluStatusLayout</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluStatusLayout.qml" line="10"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="10"/>
         <source>Loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluStatusLayout.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="11"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluStatusLayout.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="12"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluStatusLayout.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="13"/>
         <source>Reload</source>
@@ -637,24 +653,28 @@
 <context>
     <name>FluTextBoxMenu</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTextBoxMenu.qml" line="6"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="6"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="6"/>
         <source>Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTextBoxMenu.qml" line="7"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="7"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="7"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTextBoxMenu.qml" line="8"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="8"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="8"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTextBoxMenu.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="9"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTextBoxMenu.qml" line="9"/>
         <source>Select All</source>
@@ -664,36 +684,42 @@
 <context>
     <name>FluTimePicker</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="11"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="11"/>
         <source>AM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="12"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="12"/>
         <source>PM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="13"/>
         <source>Hour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="14"/>
         <source>Minute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="15"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTimePicker.qml" line="16"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="16"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="16"/>
         <source>OK</source>
@@ -703,18 +729,21 @@
 <context>
     <name>FluTour</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTour.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTour.qml" line="13"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTour.qml" line="13"/>
         <source>Finish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTour.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTour.qml" line="14"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTour.qml" line="14"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluTour.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluTour.qml" line="15"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluTour.qml" line="15"/>
         <source>Previous</source>
@@ -724,6 +753,7 @@
 <context>
     <name>FluWindow</name>
     <message>
+        <location filename="3rd-party/FluentUI/src/FluentUI/Controls/FluWindow.qml" line="374"/>
         <location filename="3rd-party/FluentUI/src/Qt5/imports/FluentUI/Controls/FluWindow.qml" line="375"/>
         <location filename="3rd-party/FluentUI/src/Qt6/imports/FluentUI/Controls/FluWindow.qml" line="374"/>
         <source>Loading...</source>
@@ -768,6 +798,7 @@
     <name>GroupImageViewEX</name>
     <message>
         <location filename="qml/global/GroupImageViewEX.qml" line="28"/>
+        <location filename="qml/global/GroupImageViewEX.qml" line="34"/>
         <source>Add Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -797,25 +828,21 @@
     <name>InitializrHelper</name>
     <message>
         <location filename="3rd-party/FluentUI/example/src/helper/InitializrHelper.cpp" line="70"/>
-        <location filename="src/helper/InitializrHelper.cpp" line="70"/>
         <source>The name cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/src/helper/InitializrHelper.cpp" line="74"/>
-        <location filename="src/helper/InitializrHelper.cpp" line="74"/>
         <source>The creation path cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/src/helper/InitializrHelper.cpp" line="79"/>
-        <location filename="src/helper/InitializrHelper.cpp" line="79"/>
         <source>The path does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/src/helper/InitializrHelper.cpp" line="85"/>
-        <location filename="src/helper/InitializrHelper.cpp" line="85"/>
         <source>%1 folder already exists</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1300,12 +1327,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Main.qml" line="56"/>
+        <location filename="qml/page/Main.qml" line="60"/>
         <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/Main.qml" line="82"/>
+        <location filename="qml/page/Main.qml" line="86"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1315,39 +1342,37 @@
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="86"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="94"/>
-        <location filename="qml/window/MainWindow.qml" line="83"/>
-        <location filename="qml/window/MainWindow.qml" line="91"/>
+        <location filename="qml/window/MainWindow.qml" line="138"/>
+        <location filename="qml/window/MainWindow.qml" line="146"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="87"/>
-        <location filename="qml/window/MainWindow.qml" line="84"/>
+        <location filename="qml/window/MainWindow.qml" line="139"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="88"/>
-        <location filename="qml/window/MainWindow.qml" line="85"/>
+        <location filename="qml/window/MainWindow.qml" line="140"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="88"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="91"/>
-        <location filename="qml/window/MainWindow.qml" line="88"/>
         <source>FluentUI is hidden from the tray, click on the tray to activate the window again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="95"/>
         <location filename="3rd-party/FluentUI/example/qml/window/MainWindow.qml" line="337"/>
-        <location filename="qml/window/MainWindow.qml" line="92"/>
+        <location filename="qml/window/MainWindow.qml" line="147"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1440,110 +1465,136 @@ Updated content:
         <source>The network is abnormal</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="qml/window/MainWindow.qml" line="54"/>
+        <source>Save Cancelled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/window/MainWindow.qml" line="58"/>
+        <source>Image Saving Complete!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/window/MainWindow.qml" line="66"/>
+        <source>Conversion Cancelled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/window/MainWindow.qml" line="87"/>
+        <location filename="qml/window/MainWindow.qml" line="99"/>
+        <source>Conversion Complete!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/window/MainWindow.qml" line="95"/>
+        <source>Conversion Failed/Stopped!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ParamConf</name>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="24"/>
-        <location filename="qml/global/ParamConf.qml" line="52"/>
+        <location filename="qml/global/ParamConf.qml" line="38"/>
+        <location filename="qml/global/ParamConf.qml" line="66"/>
         <source>File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="25"/>
+        <location filename="qml/global/ParamConf.qml" line="39"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="26"/>
-        <location filename="qml/global/ParamConf.qml" line="54"/>
+        <location filename="qml/global/ParamConf.qml" line="40"/>
+        <location filename="qml/global/ParamConf.qml" line="68"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="53"/>
+        <location filename="qml/global/ParamConf.qml" line="67"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="58"/>
+        <location filename="qml/global/ParamConf.qml" line="72"/>
         <source>Image Crypro Key Files (*.ikey)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="113"/>
+        <location filename="qml/global/ParamConf.qml" line="127"/>
         <source>Initial Condition 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="124"/>
+        <location filename="qml/global/ParamConf.qml" line="138"/>
         <source>Initial Condition 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="135"/>
+        <location filename="qml/global/ParamConf.qml" line="149"/>
         <source>Confusion Seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="146"/>
+        <location filename="qml/global/ParamConf.qml" line="160"/>
         <source>Byte Reserved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="157"/>
+        <location filename="qml/global/ParamConf.qml" line="171"/>
         <source>Confusion Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="185"/>
-        <location filename="qml/global/ParamConf.qml" line="201"/>
+        <location filename="qml/global/ParamConf.qml" line="199"/>
+        <location filename="qml/global/ParamConf.qml" line="215"/>
         <source>value of initial condition can not be a half of control condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="270"/>
+        <location filename="qml/global/ParamConf.qml" line="284"/>
         <source>Control Condition 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="281"/>
+        <location filename="qml/global/ParamConf.qml" line="295"/>
         <source>Control Condition 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="292"/>
+        <location filename="qml/global/ParamConf.qml" line="306"/>
         <source>Thread Count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="303"/>
+        <location filename="qml/global/ParamConf.qml" line="317"/>
         <source>Pre Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="314"/>
+        <location filename="qml/global/ParamConf.qml" line="328"/>
         <source>Diff/Confusion Iteration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="343"/>
-        <location filename="qml/global/ParamConf.qml" line="360"/>
+        <location filename="qml/global/ParamConf.qml" line="357"/>
+        <location filename="qml/global/ParamConf.qml" line="374"/>
         <source>value of control condition can not be 2 times of initial condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="427"/>
+        <location filename="qml/global/ParamConf.qml" line="441"/>
         <source>Generate Randomly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="460"/>
+        <location filename="qml/global/ParamConf.qml" line="474"/>
         <source>Load Key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ParamConf.qml" line="479"/>
+        <location filename="qml/global/ParamConf.qml" line="493"/>
         <source>Save Key</source>
         <translation type="unfinished"></translation>
     </message>

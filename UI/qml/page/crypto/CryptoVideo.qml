@@ -13,20 +13,24 @@ FluScrollablePage {
     id: crypto_video_page
 
     function pause_video() {
-        VideoProvider.pause(play_img.url)
+        if (play_img.url !== "")
+            VideoProvider.pause(play_img.url)
     }
 
-    property string open_file: ""
-    property string open_name: ""
-    property string out_file: ""
-    property string out_name: ""
+    property string open_file: GlobalVar.open_file
+    property string open_name: GlobalVar.open_name
+    property string out_file: GlobalVar.out_file
+    property string out_name: GlobalVar.out_name
 
     Connections {
     }
 
     Component.onCompleted: {
+        if (GlobalVar.video_cvt_param_key_id !== "")
+            paramConf.loadKey(GlobalVar.video_cvt_param_key_id)
     }
     Component.onDestruction: {
+        GlobalVar.video_cvt_param_key_id = paramConf.paramKey()
     }
 
     onWidthChanged: {
@@ -43,7 +47,7 @@ FluScrollablePage {
         fileMode: FileDialog.OpenFile
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
         defaultSuffix: "mp4"
-        nameFilters: [qsTr("Video Files (*.mp4 *.avi *.mov *.webm)")]
+        nameFilters: [qsTr("Video Files (*.mp4 *.avi *.mov *.webm *.mkv)")]
         flags: FileDialog.ReadOnly
         /*
             FileDialog.DontResolveSymlinks
@@ -59,7 +63,7 @@ FluScrollablePage {
         onAccepted: {
             let source = VideoProvider.loadVideo(selectedFile, paramConf.paramKey(), DecodeType.Raw, true, play_img.width, play_img.height)
             // console.log(source)
-            play_img.url = source
+            GlobalVar.video_url = source
         }
         onRejected: {
         }
@@ -76,10 +80,10 @@ FluScrollablePage {
         nameFilters: [qsTr("Video Files (*.mp4 *.avi *.mov *.webm)")]
         flags: FileDialog.ReadOnly
         onAccepted: {
-            open_file = String(selectedFile)
-            open_name = open_file.split("/").pop()
-            out_file = ""
-            out_name = ""
+            GlobalVar.open_file = String(selectedFile)
+            GlobalVar.open_name = GlobalVar.open_file.split("/").pop()
+            GlobalVar.out_file = ""
+            GlobalVar.out_name = ""
         }
         onRejected: {
         }
@@ -94,8 +98,8 @@ FluScrollablePage {
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
         defaultSuffix: "avi"
         onAccepted: {
-            out_file = String(selectedFile)
-            out_name = out_file.split("/").pop()
+            GlobalVar.out_file = String(selectedFile)
+            GlobalVar.out_name = GlobalVar.out_file.split("/").pop()
         }
         onRejected: {
         }
@@ -127,13 +131,19 @@ FluScrollablePage {
                 enabled: _apply_params.progress === 1.0
                 spacing: 8
                 orientation: Qt.Horizontal
-                currentIndex: 0
+                currentIndex: GlobalVar.video_sel
                 anchors.horizontalCenter: parent.horizontalCenter
                 FluRadioButton{
                     text:"Video Convert"
+                    onClicked: {
+                        GlobalVar.video_sel = 0
+                    }
                 }
                 FluRadioButton{
                     text:"Realtime Play"
+                    onClicked: {
+                        GlobalVar.video_sel = 1
+                    }
                 }
             }
 
@@ -155,7 +165,7 @@ FluScrollablePage {
                     color: FluColors.Transparent
 
                     Rectangle {
-                        visible: open_file !== ""
+                        visible: GlobalVar.open_file !== ""
                         width: parent.width / 2
                         height: in_icon.height + input_file_name.height + in_del.height + 10
                         color: FluColors.Transparent
@@ -173,7 +183,7 @@ FluScrollablePage {
 
                         FluText {
                             id: input_file_name
-                            text: open_name
+                            text: GlobalVar.open_name
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
                                 top: in_icon.bottom
@@ -190,16 +200,16 @@ FluScrollablePage {
                                 bottom: parent.bottom
                             }
                             onClicked: {
-                                open_file = ""
-                                open_name = ""
-                                out_file = ""
-                                out_name = ""
+                                GlobalVar.open_file = ""
+                                GlobalVar.open_name = ""
+                                GlobalVar.out_file = ""
+                                GlobalVar.out_name = ""
                             }
                         }
                     }
 
                     FluIconButton {
-                        visible: open_file === ""
+                        visible: GlobalVar.open_file === ""
                         iconSource: FluentIcons.OpenFile
                         iconSize: parent.height / 2
                         anchors.centerIn: parent
@@ -235,7 +245,7 @@ FluScrollablePage {
                     color: FluColors.Transparent
 
                     Rectangle {
-                        visible: out_file !== ""
+                        visible: GlobalVar.out_file !== ""
                         width: parent.width / 2
                         height: out_icon.height + output_file_name.height + out_del.height + 5
                         color: FluColors.Transparent
@@ -253,7 +263,7 @@ FluScrollablePage {
 
                         FluText {
                             id: output_file_name
-                            text: out_name
+                            text: GlobalVar.out_name
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
                                 top: out_icon.bottom
@@ -270,14 +280,14 @@ FluScrollablePage {
                                 bottom: parent.bottom
                             }
                             onClicked: {
-                                out_file = ""
-                                out_name = ""
+                                GlobalVar.out_file = ""
+                                GlobalVar.out_name = ""
                             }
                         }
                     }
 
                     FluIconButton {
-                        visible: out_file === ""
+                        visible: GlobalVar.out_file === ""
                         iconSource: FluentIcons.SaveLocal
                         iconSize: parent.height / 2
                         anchors.centerIn: parent
@@ -324,10 +334,12 @@ FluScrollablePage {
                     visible: play_img.url === ""
                     anchors.centerIn: parent
                     text: qsTr("No Video File Selected.")
+                    font.pixelSize: 24
                 }
 
                 VideoPlayer {
                     id: play_img
+                    url: GlobalVar.video_url
                     visible: play_img.url !== ""
                     width: parent.width
                     height: parent.height
@@ -335,6 +347,10 @@ FluScrollablePage {
                     onWidthChanged: {
                         if (width < 0)
                             pause_video()
+                    }
+
+                    Component.onDestruction: {
+                        pause_video()
                     }
                 }
 
@@ -353,18 +369,21 @@ FluScrollablePage {
                     id: cuda
                     textRight: false
                     enabled: Crypto.cudaAvailable()
-                    checked: enabled
+                    checked: GlobalVar.video_cvt_cuda
                     text: qsTr("Cuda")
                     anchors {
                         verticalCenter: parent.verticalCenter
                         left: parent.left
+                    }
+                    onCheckedChanged: {
+                        GlobalVar.video_cvt_cuda = checked
                     }
                 }
 
                 FluDropDownButton{
                     id: cvt_type_sel
                     text: option_en.text
-                    property int currentIndex: 0
+                    property int currentIndex: GlobalVar.video_cvt_encrypt ? 0 : 1
                     anchors {
                         verticalCenter: parent.verticalCenter
                         left: cuda.right
@@ -376,6 +395,7 @@ FluScrollablePage {
                         onClicked: {
                             cvt_type_sel.text = text
                             cvt_type_sel.currentIndex = 0
+                            GlobalVar.video_cvt_encrypt = true
                         }
                     }
                     FluMenuItem{
@@ -384,39 +404,26 @@ FluScrollablePage {
                         onClicked: {
                             cvt_type_sel.text = text
                             cvt_type_sel.currentIndex = 1
+                            GlobalVar.video_cvt_encrypt = false
                         }
                     }
                 }
 
                 FluProgressButton {
                     id: _apply_params
-                    progress: 1.0
-                    enabled: open_file !== "" && out_file !== "" && progress === 1.0
+                    progress: GlobalVar.apply_params_progrs
+                    enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0
                     text: qsTr("Convert!")
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
                     onClicked: {
-                        progress = 0.0
-                        VideoProvider.cvtVideo(open_file, out_file, paramConf.paramKey(), cvt_type_sel.currentIndex === 0, cuda.checked)
+                        GlobalVar.apply_params_progrs = 0.0
+                        VideoProvider.cvtVideo(GlobalVar.open_file, GlobalVar.out_file, paramConf.paramKey(), cvt_type_sel.currentIndex === 0, cuda.checked)
                     }
                     Component.onDestruction: {
-                        if (progress !== 1.0) {
-                            VideoProvider.force_stop_cvt()
-                        }
-                    }
-                    Connections {
-                        target: VideoProvider
-                        function onVideoCvtSignal(i, len) {
-                            if (len === 0) {
-                                _apply_params.progress = 1.0
-                                showError(qsTr("Conversion Failed/Stopped!"))
-                            } else {
-                                _apply_params.progress = i * 1.0 / len
-                                if (i === len) {
-                                    showSuccess(qsTr("Conversion Complete!"))
-                                }
-                            }
-                        }
+                        // if (progress !== 1.0) {
+                        //     VideoProvider.force_stop_cvt()
+                        // }
                     }
                 }
                 Rectangle {
@@ -484,7 +491,7 @@ FluScrollablePage {
                         enabled: play_img.url !== ""
                         onClicked: {
                             // const tmp = play_img.url
-                            play_img.url = ""
+                            GlobalVar.video_url = ""
                             // VideoProvider.delVideo(tmp)
                         }
                     }

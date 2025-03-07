@@ -295,6 +295,13 @@ void Video::goto_msec(const QString &url, double msec) {
     vcbs[idx]->mtx.unlock();
 }
 
+double Video::get_msec(const QString &url)
+{
+    int idx;
+    if (!url_available(url, idx)) return 0.0;
+    return vcbs[idx]->current_msec;
+}
+
 void Video::set_type(const QString &url, DecodeType type) {
     int idx;
     if (!url_available(url, idx)) return;

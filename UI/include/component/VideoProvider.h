@@ -87,6 +87,8 @@ public:
 
     Q_INVOKABLE void goto_msec(const QString& url, double msec);
 
+    Q_INVOKABLE double get_msec(const QString& url);
+
     Q_INVOKABLE void set_type(const QString& url, DecodeType type);
 
     Q_INVOKABLE int get_decode_type(const QString& url);

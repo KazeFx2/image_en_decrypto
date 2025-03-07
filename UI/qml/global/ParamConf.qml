@@ -19,6 +19,20 @@ Item {
                     )
     }
 
+    function loadKey(key_id) {
+        let ret = KeyKeeper.loadKey(key_id)
+        init_cond_1.current = ret.initCond1
+        ctrl_cond_1.current = ret.ctrlCond1
+        init_cond_2.current = ret.initCond2
+        ctrl_cond_2.current = ret.ctrlCond2
+        confuse_seed.current = ret.confSeed
+        threads.current = ret.threads
+        byte_reserve.current = ret.byteReserve
+        pre_iteration.current = ret.preIter
+        confusion_iteration.current = ret.confIter
+        diffusion_confusion_iteration.current = ret.diffConfIter
+    }
+
     FileDialog {
         id: confSavePickDialog
         title: qsTr("File Select")

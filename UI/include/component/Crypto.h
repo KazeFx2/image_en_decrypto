@@ -48,6 +48,10 @@ public:
 
     // Q_INVOKABLE void cryptoVideoPlay(const QUrl &file, const QUrl &out_path, const QString &name, const QString &key_id, bool encrypt, bool cuda);
 
+    QString encrypt(const QUrl& url, C_FullKey& key, bool cuda);
+
+    QString decrypt(const QUrl& url, C_FullKey& key, bool cuda);
+
     // public slots:
     void __doCrypto(const QVariantList &list, const QString &key_id, bool encrypt, bool cuda);
     void __doSave(const QVariantList &list, const QUrl &path);
