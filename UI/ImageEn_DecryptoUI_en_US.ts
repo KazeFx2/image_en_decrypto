@@ -234,17 +234,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="585"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="495"/>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="593"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="622"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="630"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="636"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -697,7 +702,7 @@
     <message>
         <location filename="qml/page/Settings.qml" line="474"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>简体中文</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="476"/>

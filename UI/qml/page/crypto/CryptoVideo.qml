@@ -490,6 +490,14 @@ FluScrollablePage {
                     anchors.bottom: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: FluColors.Transparent
+
+                    FluText {
+                        text: qsTr("Size")
+                        anchors.right: input_w.left
+                        anchors.rightMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
                     FluTextBox {
                         id: input_w
                         property bool update_me: true

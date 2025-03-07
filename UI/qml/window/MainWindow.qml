@@ -141,7 +141,7 @@ FluWindow {
         buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.NeutralButton | FluContentDialogType.PositiveButton
         onNegativeClicked: {
             // system_tray.showMessage(qsTr("Friendly Reminder"), qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
-            // timer_window_hide_delay.restart()
+            timer_window_hide_delay.restart()
         }
         positiveText: qsTr("Quit")
         neutralText: qsTr("Cancel")

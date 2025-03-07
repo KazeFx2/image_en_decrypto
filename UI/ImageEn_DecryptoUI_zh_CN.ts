@@ -234,17 +234,22 @@
         <translation>转换！</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="585"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="495"/>
+        <source>Size</source>
+        <translation>尺寸</translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="593"/>
         <source>Select Video</source>
         <translation>选择视频</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="622"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="630"/>
         <source>Update Params</source>
         <translation>更新参数</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="636"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
         <source>Parameters</source>
         <translation>参数</translation>
     </message>
@@ -596,27 +601,27 @@
     <message>
         <location filename="qml/page/Settings.qml" line="215"/>
         <source>Mica</source>
-        <translation>Mica</translation>
+        <translation>云母</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="217"/>
         <source>Mica-Alt</source>
-        <translation>Mica-Alt</translation>
+        <translation>云母-改</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="219"/>
         <source>Acrylic</source>
-        <translation>Acrylic</translation>
+        <translation>亚克力</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="221"/>
         <source>Dwm-Blur</source>
-        <translation>Dwm-Blur</translation>
+        <translation>毛玻璃</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="223"/>
         <source>Normal</source>
-        <translation>Normal</translation>
+        <translation>普通</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="225"/>
@@ -702,7 +707,7 @@
     <message>
         <location filename="qml/page/Settings.qml" line="476"/>
         <source>English</source>
-        <translation>英语</translation>
+        <translation>English</translation>
     </message>
     <message>
         <location filename="qml/page/Settings.qml" line="490"/>
