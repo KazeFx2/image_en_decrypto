@@ -10,6 +10,9 @@
 ![](./ScreenShots/win_6.png)
 ### Ubuntu 24.04
 ![](./ScreenShots/ubuntu_1.png)
+### MacOS 15
+![](./ScreenShots/mac_1.png)
+![](./ScreenShots/mac_2.png)
 
 ## Cuda
 [Cuda Support Module](./Core/include/private/Cuda.cuh)
