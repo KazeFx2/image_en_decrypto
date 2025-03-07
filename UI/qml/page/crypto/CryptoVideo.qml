@@ -519,8 +519,8 @@ FluScrollablePage {
                                 return
                             }
                             if (GlobalVar.bind_wh) {
-                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
                                 input_h.update_me = false
+                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
                             }
                         }
                     }
@@ -560,8 +560,8 @@ FluScrollablePage {
                                 return
                             }
                             if (GlobalVar.bind_wh) {
-                                GlobalVar.cvt_width = GlobalVar.cvt_height * GlobalVar.real_width / GlobalVar.real_height
                                 input_w.update_me = false
+                                GlobalVar.cvt_width = GlobalVar.cvt_height * GlobalVar.real_width / GlobalVar.real_height
                             }
                         }
                     }
