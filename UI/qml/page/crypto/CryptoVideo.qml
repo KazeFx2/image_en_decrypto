@@ -148,13 +148,13 @@ FluScrollablePage {
                 currentIndex: GlobalVar.video_sel
                 anchors.horizontalCenter: parent.horizontalCenter
                 FluRadioButton {
-                    text: "Video Convert"
+                    text: qsTr("Video Convert")
                     onClicked: {
                         GlobalVar.video_sel = 0
                     }
                 }
                 FluRadioButton {
-                    text: "Realtime Play"
+                    text: qsTr("Realtime Play")
                     onClicked: {
                         GlobalVar.video_sel = 1
                     }

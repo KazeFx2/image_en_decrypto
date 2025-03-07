@@ -274,7 +274,7 @@ FluScrollablePage {
     }
 
     FluFrame {
-        visible: FluTheme.blurBehindWindowEnabled || window.effect === qsTr("dwm-blur")
+        visible: FluTheme.blurBehindWindowEnabled || `${window.effect}` === "dwm-blur"
         Layout.fillWidth: true
         Layout.topMargin: 20
         height: 80
