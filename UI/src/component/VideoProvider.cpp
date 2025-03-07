@@ -416,6 +416,8 @@ void Video::__cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QStrin
         return;
     }
     auto fps = cap.get(cv::CAP_PROP_FPS);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
     cv::VideoWriter wrt;
     if (!wrt.open(FileUniqueForceSuffix(
 #ifdef _WIN32
