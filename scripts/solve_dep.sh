@@ -72,7 +72,7 @@ function solve_file_dep(){
 			t_file=$(echo "$t_file" | sed "s/^@rpath\/\?//g")
 			local j
 			local first=1
-			for j in ${rpath[@]}
+			for j in "${rpath[@]}"
 			do
 				local tmp_file="$j/$t_file"
 				tmp_file=$(echo "$tmp_file" | sed "s|@loader_path|$raw_file_path|g")
@@ -156,7 +156,7 @@ function solve_file_dep(){
 	do
 		find=0
 		local j
-		for j in ${solved[@]}
+		for j in "${solved[@]}"
 		do
 			if [ "$j" == "${framework_files[$i]}" ];	then
 				find=1
@@ -178,7 +178,7 @@ function solve_dir() {
 	shift 3
 	local files=($(ls "$current_dir"))
 	local i
-	for i in ${files[@]}
+	for i in "${files[@]}"
 	do
 		local tmp_file="$current_dir/$i"
 		if [ -f "$tmp_file" ];	then
