@@ -134,21 +134,21 @@ function solve_file_dep(){
 			echo install_name_tool -change "${raw_path[$i]}" "${relative_files[$i]}" "$real_file" " 2> /dev/null" >> "$cmd_file"
 			echo mkdir "-p" "${new_res[$i]}" >> "$cmd_file"
 			if [ "${raw_res[$i]}" != "${new_res[$i]}" ];	then
-				echo if "[ ! -f \"${new_res[$i]}\" ];"	then >> "$cmd_file"
-				echo "\tcp" "-rf" "${raw_res[$i]}" "${new_res[$i]}" >> "$cmd_file"
-				echo fi >> "$cmd_file"
+				# echo if "[ ! -d \"${new_res[$i]}\" ];"	then >> "$cmd_file"
+				echo "cp" "-rf" "${raw_res[$i]}" "${new_res[$i]}" >> "$cmd_file"
+				# echo fi >> "$cmd_file"
 			fi
 			if [ "${dep_file[$i]}" != "${framework_files[$i]}" ];	then
-				echo if "[ ! -f \"${framework_files[$i]}\" ];"	then >> "$cmd_file"
-				echo "\tcp" "${dep_file[$i]}" "${framework_files[$i]}" >> "$cmd_file"
-				echo fi >> "$cmd_file"
+				# echo if "[ ! -f \"${framework_files[$i]}\" ];"	then >> "$cmd_file"
+				echo "cp" "${dep_file[$i]}" "${framework_files[$i]}" >> "$cmd_file"
+				# echo fi >> "$cmd_file"
 			fi
 		else
 			echo install_name_tool -change "${raw_path[$i]}" "${relative_files[$i]}" "$real_file" " 2> /dev/null" >> "$cmd_file"
 			if [ "${dep_file[$i]}" != "${framework_files[$i]}" ];	then
-				echo if "[ ! -f \"${framework_files[$i]}\" ];"	then >> "$cmd_file"
-				echo "\tcp" "${dep_file[$i]}" "${framework_files[$i]}" >> "$cmd_file"
-				echo fi >> "$cmd_file"
+				# echo if "[ ! -f \"${framework_files[$i]}\" ];"	then >> "$cmd_file"
+				echo "cp" "${dep_file[$i]}" "${framework_files[$i]}" >> "$cmd_file"
+				# echo fi >> "$cmd_file"
 			fi
 		fi
 	done
@@ -215,4 +215,3 @@ raw_qml_path="/Users/kazefx/Qt/6.8.2/macos"
 solve_dir "$res_path" "$raw_qml_path" "$global_framework" "0" "$global_reg_pattern" "$@"
 
 solve_file_dep "${solved[0]}" "${solved[0]}" "$global_framework" "${solved[0]}" "1" "$global_reg_pattern" "$@"
-

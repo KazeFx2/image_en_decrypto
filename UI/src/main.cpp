@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     qputenv("QT_LOGGING_RULES", "");
     // fix bug UOSv20 v-sync does not work
     qputenv("QSG_RENDER_LOOP", "basic");
-    qputenv("QT_PLUGIN_PATH", "plugins");
+    qputenv("QT_PLUGIN_PATH", "../plugins");
 #endif
     QApplication::setOrganizationName("KazeFx");
     QApplication::setOrganizationDomain("https://kazefx.top");
@@ -77,6 +77,9 @@ int main(int argc, char* argv[])
     qmlRegisterType<FpsItem>(QML_URL, 1, 0, "FpsItem");
 
     QQmlApplicationEngine engine;
+#ifdef __linux__
+    engine.addImportPath("../qml");
+#endif
     TranslateHelper::getInstance()->init(&engine);
     engine.rootContext()->setContextProperty("AppInfo", AppInfo::getInstance());
     engine.rootContext()->setContextProperty("SettingsHelper", SettingsHelper::getInstance());
