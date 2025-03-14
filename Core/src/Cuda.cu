@@ -153,7 +153,8 @@ __global__ void DoInvertConfusionCuda(__IN u8* dst, __IN const u8* src, __IN con
 }
 
 void InvertConfusionCuda(__OUT void* dstImage, __IN const void* srcImage,
-                         __IN const u32 width, __IN const u32 height, __IN const u32 confusionSeed, __IN const u8 nChannel)
+                         __IN const u32 width, __IN const u32 height, __IN const u32 confusionSeed,
+                         __IN const u8 nChannel)
 {
     const u32 fa = static_cast<u32>(sqrt(THREADS_PER_BLOCK));
     DoInvertConfusionCuda<<<dim3((width + fa - 1) / fa,
