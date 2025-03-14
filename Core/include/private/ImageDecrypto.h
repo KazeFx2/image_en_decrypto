@@ -15,4 +15,11 @@ void DecryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const K
 threadReturn **DecryptoImage(__IN_OUT cv::Mat &Image, __IN_OUT cv::Size &Size,__IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool);
 
+void DecryptoImage(__IN_OUT void *Image, __IN u32 width, __IN u32 height, __IN const Keys &Key,
+                   __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool);
+
+threadReturn **DecryptoImage(__IN_OUT void *Image, __IN u32 width, __IN u32 height, __IN const Keys &Keys,
+                             __IN const ParamControl &Config, __IN ThreadPool &pool);
+
 #endif //IMAGE_DECRYPTO_H

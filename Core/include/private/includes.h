@@ -44,18 +44,32 @@ typedef struct
     ParamGroup gParam2;
 } Keys;
 
+// typedef struct
+// {
+//     __OUT cv::Mat** dst;
+//     __IN cv::Mat** src;
+//     __IN cv::Size* size;
+//     __IN size_t threadId;
+//     __IN u32 iterations;
+//     __IN Keys keys;
+//     __IN const ParamControl* config;
+//     __IN Semaphore Start;
+//     __IN Semaphore Finish;
+// } threadParams;
+
 typedef struct
 {
-    __OUT cv::Mat** dst;
-    __IN cv::Mat** src;
-    __IN cv::Size* size;
+    __OUT u8** dst;
+    __IN u8** src;
+    __IN u32 width;
+    __IN u32 height;
     __IN size_t threadId;
     __IN u32 iterations;
     __IN Keys keys;
     __IN const ParamControl* config;
     __IN Semaphore Start;
     __IN Semaphore Finish;
-} threadParams;
+} threadParamsMem;
 
 typedef struct
 {
@@ -63,11 +77,17 @@ typedef struct
     __OUT u8* diffusionSeedArray;
 } threadReturn;
 
+// typedef struct
+// {
+//     threadParams params;
+//     const threadReturn* ret;
+// } threadParamsWithKey;
+
 typedef struct
 {
-    threadParams params;
+    threadParamsMem params;
     const threadReturn* ret;
-} threadParamsWithKey;
+} threadParamsWithKeyMem;
 
 #define DOLOOP \
 {\

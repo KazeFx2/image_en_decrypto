@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(ImageEn_Decrypto_En_De_Test)
+project(ImageEn_Decrypto_Audio_Test)
 
 set(CMAKE_CXX_STANDARD 17)
 

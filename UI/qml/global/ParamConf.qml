@@ -253,7 +253,7 @@ Item {
                         color: FluColors.Transparent
                         IntSelector {
                             id: confusion_iteration
-                            min: 1
+                            min: 0
                             max: 10
                             steps: max - 1
                             anchors.centerIn: parent
@@ -416,7 +416,7 @@ Item {
                         color: FluColors.Transparent
                         IntSelector {
                             id: diffusion_confusion_iteration
-                            min: 1
+                            min: 0
                             max: 10
                             steps: max - 1
                             anchors.centerIn: parent

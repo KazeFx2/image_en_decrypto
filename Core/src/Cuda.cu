@@ -10,6 +10,14 @@
 
 #define THREADS_PER_BLOCK 32
 
+void* AllocCopyMemToCuda(__IN const void* srcImage, __IN const u32 size)
+{
+    void* p = MallocCuda(size);
+    if (p != nullptr)
+        cudaMemcpy(p, srcImage, size, cudaMemcpyHostToDevice);
+    return p;
+}
+
 void* AllocCopyMatToCuda(__IN const cv::Mat& srcImage)
 {
     void* p = MallocCuda(srcImage.rows * srcImage.cols * srcImage.elemSize());
@@ -18,14 +26,27 @@ void* AllocCopyMatToCuda(__IN const cv::Mat& srcImage)
     return p;
 }
 
-void CopyMatToCuda(void* dstImage, const cv::Mat& srcImage)
+void CopyMemToCuda(__OUT void* dstImage,__IN const void* srcImage,__IN u32 size)
+{
+    if (dstImage != nullptr && srcImage != nullptr)
+        cudaMemcpy(dstImage, srcImage, size, cudaMemcpyHostToDevice);
+}
+
+void CopyCudaToMem(__OUT void* dstImage,__IN const void* srcImage,__IN u32 size)
+{
+    if (dstImage != nullptr && srcImage != nullptr)
+        cudaMemcpy(dstImage, srcImage, size, cudaMemcpyDeviceToHost);
+}
+
+
+void CopyMatToCuda(__OUT void* dstImage,__IN const cv::Mat& srcImage)
 {
     if (dstImage != nullptr)
         cudaMemcpy(dstImage, srcImage.data, srcImage.rows * srcImage.cols * srcImage.elemSize(),
                    cudaMemcpyHostToDevice);
 }
 
-void CopyCudaToMat(const cv::Mat& dstImage, const void* srcImage)
+void CopyCudaToMat(__OUT const cv::Mat& dstImage,__IN const void* srcImage)
 {
     cudaMemcpy(dstImage.data, srcImage, dstImage.rows * dstImage.cols * dstImage.elemSize(), cudaMemcpyDeviceToHost);
 }
@@ -78,6 +99,17 @@ __global__ void DoConfusionCuda(__IN u8* dst, __IN const u8* src, __IN const u32
 }
 
 void ConfusionCuda(__OUT void* dstImage, __IN const void* srcImage,
+                   __IN const u32 width, __IN const u32 height, __IN const u32 confusionSeed, __IN const u8 nChannel)
+{
+    const u32 fa = static_cast<u32>(sqrt(THREADS_PER_BLOCK));
+    DoConfusionCuda<<<dim3((width + fa - 1) / fa,
+                           (height) / fa
+    ), THREADS_PER_BLOCK>>>(static_cast<u8*>(dstImage), static_cast<const u8*>(srcImage),
+                            confusionSeed, width,
+                            height, nChannel);
+}
+
+void ConfusionCuda(__OUT void* dstImage, __IN const void* srcImage,
                    __IN const cv::Size& size, __IN const u32 confusionSeed, __IN const u8 nChannel)
 {
     const u32 fa = static_cast<u32>(sqrt(THREADS_PER_BLOCK));
@@ -118,6 +150,17 @@ __global__ void DoInvertConfusionCuda(__IN u8* dst, __IN const u8* src, __IN con
         while (times--)
             dst[newIdx++] = src[idx++];
     }
+}
+
+void InvertConfusionCuda(__OUT void* dstImage, __IN const void* srcImage,
+                         __IN const u32 width, __IN const u32 height, __IN const u32 confusionSeed, __IN const u8 nChannel)
+{
+    const u32 fa = static_cast<u32>(sqrt(THREADS_PER_BLOCK));
+    DoInvertConfusionCuda<<<dim3((width + fa - 1) / fa,
+                                 (height + fa - 1) / fa
+    ), THREADS_PER_BLOCK>>>(static_cast<u8*>(dstImage), static_cast<const u8*>(srcImage),
+                            confusionSeed, width,
+                            height, nChannel);
 }
 
 void InvertConfusionCuda(__OUT void* dstImage, __IN const void* srcImage,

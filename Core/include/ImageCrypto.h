@@ -22,7 +22,8 @@ public:
                                          keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
                                          update_params(NONE),
                                          tmp_cuda(config.cuda) {
-        preProcess();
+        rets = nullptr;
+        // preProcess();
     };
 
     ImageCrypto(ThreadPool &threadPool, const ParamControl &config,
@@ -30,7 +31,8 @@ public:
                                    keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
                                    update_params(NONE),
                                    tmp_cuda(config.cuda) {
-        preProcess();
+        rets = nullptr;
+        // preProcess();
     };
 
     ImageCrypto(ThreadPool &threadPool, const cv::Size &size): threadPool(&threadPool),
@@ -39,14 +41,16 @@ public:
                                                                tmp_config({}),
                                                                tmp_keys({}), update_params(NONE),
                                                                tmp_cuda(config.cuda) {
-        preProcess();
+        rets = nullptr;
+        // preProcess();
     };
 
     ImageCrypto(ThreadPool &threadPool, const cv::Size &size, const ParamControl &config): threadPool(&threadPool),
         size(new cv::Size(size)), config(config),
         keys(RANDOM_KEYS), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}), update_params(NONE),
         tmp_cuda(config.cuda) {
-        preProcess();
+        rets = nullptr;
+        // preProcess();
     };
 
     ImageCrypto(ThreadPool &threadPool, const cv::Size &size, const ParamControl &config,
@@ -56,7 +60,8 @@ public:
                                    keys(keys), tmp_size(cv::Size(0, 0)), tmp_config({}), tmp_keys({}),
                                    update_params(NONE),
                                    tmp_cuda(config.cuda) {
-        preProcess();
+        rets = nullptr;
+        // preProcess();
     };
 
     ImageCrypto(const ImageCrypto &src) {
@@ -153,10 +158,10 @@ public:
             tmpC.nChannel = nChannel;
             setAll(imageSize, tmpC, keys);
         }
-        if (!rets)preProcess();
         cv::Mat imageMat = image.clone();
         config.cuda = tmp_cuda;
         __setAll();
+        if (!rets)preProcess();
         if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
         else threadPool->reduceTo(config.nThread);
         EncryptoImage(imageMat, *size, keys, rets, config, *threadPool);
@@ -175,10 +180,10 @@ public:
             tmpC.nChannel = nChannel;
             setAll(imageSize, tmpC, keys);
         }
-        if (!rets)preProcess();
         cv::Mat imageMat = image.clone();
         config.cuda = tmp_cuda;
         __setAll();
+        if (!rets)preProcess();
         if (threadPool->getMaxThreads() < config.nThread) threadPool->setMax(config.nThread);
         else threadPool->reduceTo(config.nThread);
         DecryptoImage(imageMat, *size, keys, rets, config, *threadPool);

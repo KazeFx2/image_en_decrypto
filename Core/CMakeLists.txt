@@ -31,6 +31,11 @@ include_directories(
         include
 )
 
+# ffmepg
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
+        libavcodec libavformat libavutil libswresample)
+
 set(SOURCE_DIRS
         "src"
 )
@@ -68,6 +73,7 @@ add_subdirectory(SubModules)
 target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBS}
         CoreThreadPool
+        PkgConfig::FFMPEG
 )
 
 if (MSVC)

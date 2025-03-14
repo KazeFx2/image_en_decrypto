@@ -5,7 +5,6 @@
 #include "private/ImageEncrypto.h"
 
 #include "private/Util.h"
-
 #ifdef __USE_CUDA
 #include "private/Cuda.cuh"
 #endif
@@ -19,7 +18,7 @@ static ::Mutex mu;
 
 void *encryptoAssistant(__IN void *param);
 
-void *encryptoAssistantWithKeys(__IN void *param);
+void *encryptoAssistantWithKeys(__IN_OUT void *param);
 
 #ifdef __DEBUG
 #define DUMP_MAT {\
@@ -35,12 +34,26 @@ void *encryptoAssistantWithKeys(__IN void *param);
 
 void EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key, __IN threadReturn **threadKeys,
                    __IN const ParamControl &Config, __IN ThreadPool &pool) {
-    Mat tmpImage;
-    Mat *dst, *src;
-    u32 *threads = new u32[Config.nThread];
-    auto *params = new threadParamsWithKey[Config.nThread];
+    // resize image if needed
+    if (Size.width != 0 && Size.height != 0 && Size != Image.size()) {
+        resize(Image, Image, Size);
+    }
+    Size = Image.size();
+    EncryptoImage(
+        Image.ptr(), Size.width, Size.height, Key, threadKeys, Config, pool
+    );
+}
 
-    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Key, threadKeys, Config, pool,
+void EncryptoImage(__IN_OUT void *Image, __IN const u32 width, __IN const u32 height, __IN const Keys &Key,
+                   __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    u8 *tmpImage;
+    u8 *dst, *src;
+    u32 *threads = new u32[Config.nThread];
+    auto *params = new threadParamsWithKeyMem[Config.nThread];
+
+    PreGenerate(static_cast<u8 *>(Image), tmpImage, width, height, dst, src, threads, params, Key, threadKeys, Config,
+                pool,
                 encryptoAssistantWithKeys);
 
     // Encrypto confusion
@@ -65,10 +78,25 @@ void EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Key
     }
     delete[] threads;
     delete[] params;
-    Image = src->clone();
+    if (Image != src)
+        memcpy(Image, src, width * height * Config.nChannel);
+    delete[] tmpImage;
 }
 
 threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const Keys &Keys,
+                             __IN const ParamControl &Config, __IN ThreadPool &pool) {
+    // resize image if needed
+    if (Size.width != 0 && Size.height != 0 && Size != Image.size()) {
+        resize(Image, Image, Size);
+    }
+    Size = Image.size();
+    return EncryptoImage(
+        Image.ptr(), Size.width, Size.height, Keys, Config, pool
+    );
+}
+
+
+threadReturn **EncryptoImage(__IN_OUT void *Image, __IN const u32 width, __IN const u32 height, __IN const Keys &Keys,
                              __IN const ParamControl &Config, __IN ThreadPool &pool) {
 #ifdef __DEBUG
     char name[256];
@@ -76,13 +104,13 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const
     gfd = fopen(name, "w+");
 #endif
 
-    Mat tmpImage;
-    Mat *dst, *src;
+    u8 *tmpImage;
+    u8 *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    auto *params = new threadParams[Config.nThread];
+    auto *params = new threadParamsMem[Config.nThread];
     auto **ret = new threadReturn *[Config.nThread];
 
-    PreGenerate(Image, tmpImage, Size, dst, src, threads, params, Keys, Config, pool,
+    PreGenerate(static_cast<u8 *>(Image), tmpImage, width, height, dst, src, threads, params, Keys, Config, pool,
                 encryptoAssistant);
 
     // Encrypto confusion
@@ -110,7 +138,9 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const
     }
     delete[] threads;
     delete[] params;
-    Image = src->clone();
+    if (Image != src)
+        memcpy(Image, src, width * height * Config.nChannel);
+    delete[] tmpImage;
 
 #ifdef __DEBUG
     fclose(gfd);
@@ -119,7 +149,8 @@ threadReturn **EncryptoImage(__IN_OUT Mat &Image, __IN_OUT Size &Size,__IN const
     return ret;
 }
 
-inline void encryptoBody(__IN_OUT threadParams &params,
+
+inline void encryptoBody(__IN_OUT threadParamsMem &params,
                          __IN const u32 rowStart,__IN const u32 rowEnd,
                          __IN const u32 colStart,__IN const u32 colEnd,
                          __IN const u8 *byteSeq, __IN const u8 *diffusionSeedArray) {
@@ -127,8 +158,8 @@ inline void encryptoBody(__IN_OUT threadParams &params,
     void *cudaDst = nullptr;
     void *cudaSrc = nullptr;
     if (params.threadId == 0 && params.config->cuda) {
-        cudaDst = MallocCuda((*params.src)->cols * (*params.src)->rows * (*params.src)->elemSize());
-        cudaSrc = AllocCopyMatToCuda(**params.src);
+        cudaDst = MallocCuda(params.width * params.height * params.config->nChannel);
+        cudaSrc = AllocCopyMemToCuda(*params.src, params.width * params.height * params.config->nChannel);
     }
 #endif
 
@@ -156,21 +187,23 @@ inline void encryptoBody(__IN_OUT threadParams &params,
 #ifdef __USE_CUDA
         if (params.config->cuda) {
             if (params.threadId == 0) {
-                ConfusionCuda(cudaDst, cudaSrc, *params.size, params.keys.confusionSeed, params.config->nChannel);
+                ConfusionCuda(cudaDst, cudaSrc, params.width, params.height, params.keys.confusionSeed,
+                              params.config->nChannel);
                 if (i + 1 == params.config->confusionIterations) {
-                    CopyCudaToMat(**params.dst, cudaDst);
+                    CopyCudaToMem(*params.dst, cudaDst, params.width * params.height * params.config->nChannel);
                 } else
                     swap(cudaDst, cudaSrc);
             }
         } else
-            Confusion(**params.dst,
-                      **params.src,
-                      rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+            Confusion(*params.dst,
+                      *params.src,
+                      rowStart, rowEnd, colStart, colEnd, params.width, params.height, params.keys.confusionSeed,
                       params.config->nChannel);
 #else
-        Confusion(**params.dst,
-                  **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
+        Confusion(*params.dst,
+                  *params.src,
+                  rowStart, rowEnd, colStart, colEnd, params.width, params.height, params.keys.confusionSeed,
+                  params.config->nChannel);
 #endif
         params.Finish.post();
     }
@@ -180,9 +213,10 @@ inline void encryptoBody(__IN_OUT threadParams &params,
         memcpy(diffusionSeed, diffusionSeedArray + i * params.config->nChannel, params.config->nChannel);
         params.Start.wait();
 
-        Diffusion(**params.dst, **params.src,
-                  rowStart, rowEnd, colStart, colEnd,
+        Diffusion(*params.dst, *params.src,
+                  rowStart, rowEnd, colStart, colEnd, params.width, params.height,
                   diffusionSeed, byteSeq, seqIdx, params.config->nChannel);
+
 #ifdef __DEBUG
         mu.lock();
         fprintf(gfd, "[DiffusionSeed]id: %lu, Round: %u, %02X, %02X, %02X, idx: %u, ", params.threadId,
@@ -211,19 +245,21 @@ inline void encryptoBody(__IN_OUT threadParams &params,
 #ifdef __USE_CUDA
         if (params.config->cuda) {
             if (params.threadId == 0) {
-                CopyMatToCuda(cudaSrc, **params.src);
-                ConfusionCuda(cudaDst, cudaSrc, *params.size, params.keys.confusionSeed, params.config->nChannel);
-                CopyCudaToMat(**params.dst, cudaDst);
+                CopyMemToCuda(cudaSrc, *params.src, params.width * params.height * params.config->nChannel);
+                ConfusionCuda(cudaDst, cudaSrc, params.width, params.height, params.keys.confusionSeed,
+                              params.config->nChannel);
+                CopyCudaToMem(*params.dst, cudaDst, params.width * params.height * params.config->nChannel);
             }
         } else
-            Confusion(**params.dst,
-                      **params.src,
-                      rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed,
+            Confusion(*params.dst,
+                      *params.src,
+                      rowStart, rowEnd, colStart, colEnd, params.width, params.height, params.keys.confusionSeed,
                       params.config->nChannel);
 #else
-        Confusion(**params.dst,
-                  **params.src,
-                  rowStart, rowEnd, colStart, colEnd, *params.size, params.keys.confusionSeed, params.config->nChannel);
+        Confusion(*params.dst,
+                  *params.src,
+                  rowStart, rowEnd, colStart, colEnd, params.width, params.height, params.keys.confusionSeed,
+                  params.config->nChannel);
 #endif
         params.Finish.post();
     }
@@ -237,7 +273,7 @@ inline void encryptoBody(__IN_OUT threadParams &params,
 }
 
 void *encryptoAssistant(__IN_OUT void *param) {
-    threadParams &params = *static_cast<threadParams *>(param);
+    threadParamsMem &params = *static_cast<threadParamsMem *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
     u8 *diffusionSeedArray = new u8[params.config->nChannel * params.config->diffusionConfusionIterations];
@@ -249,7 +285,7 @@ void *encryptoAssistant(__IN_OUT void *param) {
 }
 
 void *encryptoAssistantWithKeys(__IN_OUT void *param) {
-    auto &[params, ret] = *static_cast<threadParamsWithKey *>(param);
+    auto &[params, ret] = *static_cast<threadParamsWithKeyMem *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
     u8 *byteSeq = ret->byteSeq;
