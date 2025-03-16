@@ -9,6 +9,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
+#include <libavutil/error.h>
+#include <libavutil/audio_fifo.h>
+#include <libavutil/avassert.h>
 }
 
 #endif //AUDIOENCRYPTO_H
