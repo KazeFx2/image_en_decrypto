@@ -18,13 +18,13 @@ class AutoMemoryPool {
 public:
     AutoMemoryPool(u32 addition = 512);
 
-    AutoMemoryPool(const AutoMemoryPool &) = delete;
+    AutoMemoryPool(const AutoMemoryPool &);
 
-    AutoMemoryPool &operator=(const AutoMemoryPool &) = delete;
+    AutoMemoryPool &operator=(const AutoMemoryPool &);
 
-    AutoMemoryPool(AutoMemoryPool &&) = delete;
+    AutoMemoryPool(AutoMemoryPool &&);
 
-    AutoMemoryPool &operator=(AutoMemoryPool &&) = delete;
+    AutoMemoryPool &operator=(AutoMemoryPool &&);
 
     ~AutoMemoryPool();
 
@@ -50,7 +50,7 @@ public:
             data = node->data.start;
             size = node->data.size;
             offset = 0;
-            printf("%d\n", typeSize);
+            // printf("%d\n", typeSize);
         }
 
         ~AutoMemoryPointer() {
@@ -232,6 +232,8 @@ private:
     list_t list;
 
     void addNode() const;
+
+    void addNode(u32 size) const;
 };
 
 #endif //AUTO_MEMORY_POOL_H

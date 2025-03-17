@@ -86,7 +86,6 @@ u64 Semaphore::get_putIdx(u32 init, rk_sema*& out, const bool isRet, const u64 o
     bitmap[ret] = true;
     semaVec.push_back(new rk_sema());
     rk_sema_init(semaVec[ret], init);
-    auto t = &semaVec[ret];
     semaphore.post();
     out = semaVec[ret];
     return ret;

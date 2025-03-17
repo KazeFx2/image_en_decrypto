@@ -4,9 +4,9 @@
 
 #include "component/VideoProvider.h"
 
-#include <qfuture.h>
+// #include <qfuture.h>
 #include <QThread>
-#include <QtConcurrent/qtconcurrentrun.h>
+// #include <QtConcurrent/qtconcurrentrun.h>
 #ifndef _WIN32
 #include <sys/time.h>
 #else
@@ -26,6 +26,7 @@ void gettimeofday(struct timeval *tv, void *tz) {
 }
 #endif
 
+#include "GlobalVariables.h"
 #include "Semaphore.h"
 #include "component/Crypto.h"
 #include "component/ImageProvider.h"
@@ -206,8 +207,14 @@ QString Video::loadVideo(const QUrl &file, const QString &key_id, DecodeType typ
     if (cuda) vcb->crypto->cuda();
     else vcb->crypto->cpu();
     vcb->idx = id;
-    QFuture<void> decoder = QtConcurrent::run(std::bind(&Video::decoder, this, vcb));
-    QFuture<void> reader = QtConcurrent::run(std::bind(&Video::reader, this, vcb));
+    g_threadPool.addThreadEX(
+        &Video::decoder,
+        this, vcb
+    ).setNoWait().start();
+    g_threadPool.addThreadEX(
+        &Video::reader,
+        this, vcb
+    ).setNoWait().start();
     return "image://Video/" + QString::number(vcb->idx);
 }
 
@@ -378,7 +385,7 @@ void Video::__cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString 
 #ifdef _WIN32
                       UTF8toGBK(out_file.toLocalFile().toStdString())
 #else
-        out_file.toLocalFile().toStdString()
+                      out_file.toLocalFile().toStdString()
 #endif
                       .c_str(), "avi"),
                   cv::VideoWriter::fourcc('F', 'F', 'V', '1'), fps,
@@ -431,7 +438,7 @@ void Video::__cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QStrin
 #ifdef _WIN32
                       UTF8toGBK(out_file.toLocalFile().toStdString())
 #else
-        out_file.toLocalFile().toStdString()
+                      out_file.toLocalFile().toStdString()
 #endif
                       .c_str(), "avi"),
                   cv::VideoWriter::fourcc('F', 'F', 'V', '1'), fps,
@@ -474,15 +481,15 @@ void Video::__cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QStrin
 
 void Video::cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt, bool cuda) {
     term = false;
-    QFuture<void> future = QtConcurrent::run(std::bind(&Video::__cvtVideo, this, in_file, out_file, key_id, encrypt,
-                                                       cuda));
+    g_threadPool.addThreadEX(&Video::__cvtVideo, this, in_file, out_file, key_id, encrypt,
+                             cuda).setNoWait().start();
 }
 
 void Video::cvtVideoWH(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt, bool cuda,
                        int width, int height) {
     term = false;
-    QFuture<void> future = QtConcurrent::run(std::bind(&Video::__cvtVideoWH, this, in_file, out_file, key_id, encrypt,
-                                                       cuda, width, height));
+    g_threadPool.addThreadEX(&Video::__cvtVideoWH, this, in_file, out_file, key_id, encrypt,
+                             cuda, width, height).setNoWait().start();
 }
 
 QVariantMap Video::getVideoWH(const QUrl &in_file) {
