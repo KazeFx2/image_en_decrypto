@@ -7,13 +7,10 @@ project(CoreConditionVariable)
 set(SOURCES)
 foreach (S_DIR ${SOURCE_DIRS})
     file(GLOB_RECURSE S_FS ${S_DIR}/*.c ${S_DIR}/*.cpp)
-    list(APPEND SOURCES ${S_FS})
+    string(COMPARE EQUAL ${S_FS} size.cpp VAR)
+    if (NOT ${VAR})
+        list(APPEND SOURCES ${S_FS})
+    endif ()
 endforeach ()
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-target_include_directories(
-        ${PROJECT_NAME}
-        PUBLIC
-        include
-)
+BuildExportSize(${PROJECT_NAME} size.cpp ${SOURCES})

@@ -9,12 +9,10 @@ else ()
     set(C_COMPONENT_C_TEST OFF CACHE BOOL "build C test" FORCE)
 endif ()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_library(CSetmem setmem.c)
+add_subdirectory(setmem)
 
 add_subdirectory(list)
 
 add_subdirectory(rbtree)
 
-add_subdirectory(bootmem)
+add_subdirectory(c_parser)

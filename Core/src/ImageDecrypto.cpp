@@ -50,7 +50,7 @@ void DecryptoImage(__IN_OUT void *Image, __IN const u32 width, __IN const u32 he
     u8 *tmpImage;
     u8 *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    auto *params = new threadParamsWithKeyMem[Config.nThread];
+    auto *params = new threadParamsWithKey[Config.nThread];
 
     PreGenerate(static_cast<u8 *>(Image), tmpImage, width, height, dst, src, threads, params, Key, threadKeys, Config,
                 pool,
@@ -101,7 +101,7 @@ threadReturn **DecryptoImage(__IN_OUT void *Image, __IN const u32 width, __IN co
     u8 *tmpImage;
     u8 *dst, *src;
     u32 *threads = new u32[Config.nThread];
-    auto *params = new threadParamsMem[Config.nThread];
+    auto *params = new threadParams[Config.nThread];
     auto **ret = new threadReturn *[Config.nThread];
 
     PreGenerate(static_cast<u8 *>(Image), tmpImage, width, height, dst, src, threads, params, Keys, Config, pool,
@@ -143,7 +143,7 @@ threadReturn **DecryptoImage(__IN_OUT void *Image, __IN const u32 width, __IN co
     return ret;
 }
 
-inline void decryptoBody(__IN_OUT threadParamsMem &params,
+inline void decryptoBody(__IN_OUT threadParams &params,
                          __IN const u32 rowStart,__IN const u32 rowEnd,
                          __IN const u32 colStart,__IN const u32 colEnd,
                          __IN const u8 *byteSeq, __IN const u8 *diffusionSeedArray) {
@@ -276,7 +276,7 @@ inline void decryptoBody(__IN_OUT threadParamsMem &params,
 }
 
 void *decryptoAssistant(__IN_OUT void *param) {
-    threadParamsMem &params = *static_cast<threadParamsMem *>(param);
+    threadParams &params = *static_cast<threadParams *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     u8 *byteSeq = new u8[params.iterations * params.config->byteReserve];
     u8 *diffusionSeedArray = new u8[params.config->nChannel * params.config->diffusionConfusionIterations];
@@ -288,7 +288,7 @@ void *decryptoAssistant(__IN_OUT void *param) {
 }
 
 void *decryptoAssistantWithKeys(__IN_OUT void *param) {
-    auto &[params, ret] = *static_cast<threadParamsWithKeyMem *>(param);
+    auto &[params, ret] = *static_cast<threadParamsWithKey *>(param);
     u32 rowStart, rowEnd, colStart, colEnd;
     CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
     u8 *byteSeq = ret->byteSeq;

@@ -14,7 +14,6 @@ double GetCPUSecond() {
     return (static_cast<double>(tp.tv_sec) + static_cast<double>(tp.tv_usec) * 1.e-6);
 }
 
-
 int main(int argc, const char **argv) {
     chdir(homePath);
 

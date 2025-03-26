@@ -10,12 +10,12 @@ typedef struct {
 
 int main() {
     printf("Hello world.\n");
-    list_t head = initList();
+    list_t head = init_list_default();
     printf("%p\n", head);
     MyType a = 114, b = 255;
-    pushEnd(head, &a, sizeof(MyType));
+    push_end(head, &a, sizeof(MyType));
     printf("%p\n", head);
-    pushEnd(head, &b, sizeof(MyType));
+    push_end(head, &b, sizeof(MyType));
     printf("%p\n", head);
     printf("a: %d, b: %d\n", ((MyList *) (head->next))->data,
            ((MyList *) (((MyList *) (head->next))->list.next))->data);

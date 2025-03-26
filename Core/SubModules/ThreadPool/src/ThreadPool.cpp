@@ -110,7 +110,7 @@ ThreadPool::u_count_t ThreadPool::addTaskLocked(const funcHandler func, void *pa
 }
 
 ThreadPool::task_descriptor_t ThreadPool::addThread(const funcHandler func, void *param, const bool wait,
-                                                    TaskInfo **taskOut) {
+                                                    u32 *taskUnique) {
     const auto lockAll = this->lockAll.writer();
     lockAll.lock();
     if (mtxContext.termAll) {
@@ -120,8 +120,8 @@ ThreadPool::task_descriptor_t ThreadPool::addThread(const funcHandler func, void
     }
     const auto taskId = addTaskLocked(func, param, wait);
     auto *task = mtxContext.taskArray[taskId];
-    if (taskOut != nullptr) {
-        *taskOut = task;
+    if (taskUnique != nullptr) {
+        *taskUnique = task->uniqueId;
     }
     count_t id = threadIdly.findNextTrue(0, threads.size());
     while (id != BITMAP_NOT_FOUND && threads[id]->mtxContext.forceTerminate)

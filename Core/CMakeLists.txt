@@ -6,25 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenCV REQUIRED)
 
-#include(CheckLanguage)
-#check_language(CUDA)
-#if(CMAKE_CUDA_COMPILER)
-#    enable_language(CUDA)
-#
-#    # set cuda arch
-#    set(CMAKE_CUDA_ARCHITECTURES "50;60;70;75")
-#
-#    set(CMAKE_CUDA_ARCHITECTURES "50;60;70;75" CACHE STRING "" FORCE)
-#
-#    set(UseCuda ON)
-#
-#    add_definitions(-D__USE_CUDA)
-#else()
-#    message(STATUS "No CUDA support")
-#endif()
-
-#message(STATUS "OPENCV: INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS}")
-
 # include dirs
 include_directories(
         ${OpenCV_INCLUDE_DIRS}
@@ -83,9 +64,6 @@ endif()
 #target_include_directories(${PROJECT_NAME} PUBLIC
 #        include
 #)
-
-# UI library
-add_subdirectory(UI)
 
 if (CoreTest)
     add_subdirectory(test)

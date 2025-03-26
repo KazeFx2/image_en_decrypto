@@ -321,7 +321,7 @@ void InvertDiffusion(__OUT u8 *dstImage, __IN const u8 *srcImage,
 }
 
 void PreGenerate(__IN_OUT u8 *Image, __IN_OUT u8 *&tmpImage, __IN const u32 width, __IN_OUT const u32 height,
-                 __IN_OUT u8 *&dst, __IN_OUT u8 *&src, __IN_OUT u32 *threads, __IN_OUT threadParamsMem *params,
+                 __IN_OUT u8 *&dst, __IN_OUT u8 *&src, __IN_OUT u32 *threads, __IN_OUT threadParams *params,
                  __IN const Keys &Keys,
                  __IN const ParamControl &Config, __IN ThreadPool &pool,
                  __IN void *(*func)(void *)) {
@@ -371,7 +371,7 @@ void PreGenerate(__IN_OUT u8 *Image, __IN_OUT u8 *&tmpImage, __IN const u32 widt
 
 void PreGenerate(__IN_OUT u8 *Image, __IN_OUT u8 *&tmpImage, __IN const u32 width, __IN_OUT const u32 height,
                  __IN_OUT u8 *&dst, __IN_OUT u8 *&src, __IN_OUT u32 *threads,
-                 __IN_OUT threadParamsWithKeyMem *params,
+                 __IN_OUT threadParamsWithKey *params,
                  __IN const Keys &Keys,
                  __IN threadReturn **threadKeys,
                  __IN const ParamControl &Config, __IN ThreadPool &pool,
@@ -492,14 +492,14 @@ threadReturn **GenerateThreadKeys(__IN const cv::Size &Size,
 }
 
 void CalcRowCols(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
-                 __IN const threadParamsMem &params) {
+                 __IN const threadParams &params) {
     rowStart = (params.height * params.threadId / params.config->nThread), rowEnd = (
         params.height * (params.threadId + 1) / params.config->nThread);
     colStart = 0, colEnd = params.width;
 }
 
 void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colStart, __IN_OUT u32 &colEnd,
-               __IN_OUT threadParamsMem &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray) {
+               __IN_OUT threadParams &params, __IN_OUT u8 * &byteSeq, __IN_OUT u8 * &diffusionSeedArray) {
     CalcRowCols(rowStart, rowEnd, colStart, colEnd, params);
     f64 *resultArray1 = new f64[params.iterations];
     f64 *resultArray2 = new f64[params.iterations];
@@ -766,6 +766,26 @@ std::string FileUniqueForceSuffix(__IN const char *path, __IN const char *suf) {
         } while (std::filesystem::exists(file));
     }
     return file;
+}
+
+u64 getPutIdx(u64 &idx, Semaphore &semaphore, FastBitmap &bitmap, const bool isRet, const u64 oldIdx) {
+    semaphore.wait();
+    if (isRet == true) {
+        bitmap[oldIdx] = false;
+        semaphore.post();
+        return oldIdx;
+    }
+    auto id = bitmap.findNextFalse(0, idx);
+    if (id != BITMAP_NOT_FOUND) {
+        bitmap[id] = true;
+        semaphore.post();
+        return id;
+    }
+    idx++;
+    const u64 ret = idx - 1;
+    bitmap[ret] = true;
+    semaphore.post();
+    return ret;
 }
 
 #ifdef _WIN32

@@ -2,15 +2,19 @@ cmake_minimum_required(VERSION 3.20)
 
 project(CRbtree VERSION 0.1 LANGUAGES C)
 
-add_library(${PROJECT_NAME} CRbtree.c)
+add_library(${PROJECT_NAME} c_rbtree.c)
 
 target_include_directories(
         ${PROJECT_NAME}
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/..
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} CSetmem)
+target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        CSetmem)
 
 if (C_COMPONENT_C_TEST)
     add_executable(test_rbtree test.c)

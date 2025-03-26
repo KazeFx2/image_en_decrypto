@@ -513,21 +513,5 @@ u64 Video::get_putIdx(const bool isRet, const u64 oldIdx) {
     static u64 idx = 0;
     static Semaphore semaphore(1);
     static FastBitmap bitmap;
-    semaphore.wait();
-    if (isRet == true) {
-        bitmap[oldIdx] = false;
-        semaphore.post();
-        return oldIdx;
-    }
-    auto id = bitmap.findNextFalse(0, idx);
-    if (id != BITMAP_NOT_FOUND) {
-        bitmap[id] = true;
-        semaphore.post();
-        return id;
-    }
-    idx++;
-    const u64 ret = idx - 1;
-    bitmap[ret] = true;
-    semaphore.post();
-    return ret;
+    return getPutIdx(idx, semaphore, bitmap, isRet, oldIdx);
 }

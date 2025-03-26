@@ -4,11 +4,49 @@
 
 #include "RWLock.h"
 
+#include <algorithm>
+
+RWLock::SubLock::SubLock(RWLock *p, void (RWLock::*lock)(), void (RWLock::*unlock)()): parent(p), lockHandler(lock),
+    unlockHandler(unlock) {
+}
+
+RWLock::SubLock::~SubLock() = default;
+
+void RWLock::SubLock::lock() const {
+    (parent->*lockHandler)();
+}
+
+void RWLock::SubLock::unlock() const {
+    (parent->*unlockHandler)();
+}
+
 RWLock::RWLock(const u8 Strategy): strategy(Strategy), rCount(0), wCount(0), rWait(0), wWait(0), ReaderSem(0),
                                    WriterSem(0) {
 }
 
 RWLock::~RWLock() {
+}
+
+RWLock::RWLock(RWLock &&other): mtx(std::move(other.mtx)), ReaderSem(std::move(other.ReaderSem)),
+                                WriterSem(std::move(other.WriterSem)) {
+    strategy = other.strategy;
+    rCount = other.rCount;
+    wCount = other.wCount;
+    rWait = other.rWait;
+    wWait = other.wWait;
+}
+
+RWLock &RWLock::operator=(RWLock &&other) {
+    this->~RWLock();
+    strategy = other.strategy;
+    rCount = other.rCount;
+    wCount = other.wCount;
+    rWait = other.rWait;
+    wWait = other.wWait;
+    mtx = std::move(other.mtx);
+    ReaderSem = std::move(other.ReaderSem);
+    WriterSem = std::move(other.WriterSem);
+    return *this;
 }
 
 RWLock::SubLock RWLock::reader() {

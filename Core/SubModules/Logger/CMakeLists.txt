@@ -10,21 +10,7 @@ foreach (S_DIR ${SOURCE_DIRS})
     list(APPEND SOURCES ${S_FS})
 endforeach ()
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-target_link_libraries(
-        ${PROJECT_NAME}
-        PRIVATE
-        CoreThreadPool
-        CoreConditionVariable
-        CList
-)
-
-target_include_directories(
-        ${PROJECT_NAME}
-        PUBLIC
-        include
-)
+BuildExportSize(${PROJECT_NAME} size.cpp ${SOURCES})
 
 if (CoreTest)
     add_definitions(-D__DEBUG)

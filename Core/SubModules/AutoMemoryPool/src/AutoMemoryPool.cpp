@@ -5,7 +5,7 @@
 #include "AutoMemoryPool.h"
 
 AutoMemoryPool::AutoMemoryPool(const u32 addition): addition(addition), size(addition) {
-    list = initList();
+    list = init_list_default();
     if (list == nullptr)
         throw std::bad_alloc();
     addNode();
@@ -14,7 +14,7 @@ AutoMemoryPool::AutoMemoryPool(const u32 addition): addition(addition), size(add
 AutoMemoryPool::AutoMemoryPool(const AutoMemoryPool &other) {
     addition = other.addition;
     size = other.size;
-    list = initList();
+    list = init_list_default();
     AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->next);
     FOREACH(AutoMemoryNode, i, list) {
         addNode(i->data.size);
@@ -27,7 +27,7 @@ AutoMemoryPool &AutoMemoryPool::operator=(const AutoMemoryPool &other) {
     this->~AutoMemoryPool();
     addition = other.addition;
     size = other.size;
-    list = initList();
+    list = init_list_default();
     AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->next);
     FOREACH(AutoMemoryNode, i, list) {
         addNode(i->data.size);
@@ -58,7 +58,7 @@ AutoMemoryPool::~AutoMemoryPool() {
     FOREACH(AutoMemoryNode, i, list) {
         free(i->data.start);
     }
-    destroyList(list);
+    destroy_list(list);
     list = nullptr;
 }
 
@@ -72,7 +72,7 @@ void AutoMemoryPool::addNode(const u32 size) const {
     printf("[addNode]malloc: 0x%p\n", node->data.start);
 #endif
     node->data.size = size;
-    pushExistEnd(list, reinterpret_cast<node_t *>(node));
+    push_exist_end(list, reinterpret_cast<node_t *>(node));
 }
 
 void AutoMemoryPool::addNode() const {

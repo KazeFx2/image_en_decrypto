@@ -14,6 +14,31 @@ FastBitmap::FastBitmap(const u_size_t initBits, const bool defaultV): defaultVal
     max = bitmap.size() * 8 * sizeof(uptr);
 }
 
+FastBitmap::FastBitmap(const FastBitmap &other) {
+    defaultValue = other.defaultValue;
+    max = other.max;
+    bitmap = other.bitmap;
+}
+
+FastBitmap::FastBitmap(FastBitmap &&other): bitmap(std::move(other.bitmap)) {
+    defaultValue = other.defaultValue;
+    max = other.max;
+}
+
+FastBitmap &FastBitmap::operator=(const FastBitmap &other) {
+    defaultValue = other.defaultValue;
+    max = other.max;
+    bitmap = other.bitmap;
+    return *this;
+}
+
+FastBitmap &FastBitmap::operator=(FastBitmap &&other) {
+    defaultValue = other.defaultValue;
+    max = other.max;
+    bitmap = std::move(other.bitmap);
+    return *this;
+}
+
 FastBitmap::~FastBitmap() = default;
 
 FastBitmap::element FastBitmap::operator[](const u_size_t index) {
@@ -82,4 +107,51 @@ count_t FastBitmap::_findNext(const bool value, const count_t start, const count
     const count_t res = idx * 8 * sizeof(uptr) + offset;
     if (res < end) return res;
     return BITMAP_NOT_FOUND;
+}
+
+count_t FastBitmap::findNext(const count_t start, const count_t end) const {
+    if (defaultValue) return findNextFalse(start, end);
+    return findNextTrue(start, end);
+}
+
+count_t FastBitmap::findNextTrue(const count_t start, const count_t end) const {
+    return _findNext(true, start, end);
+}
+
+count_t FastBitmap::findNextFalse(const count_t start, const count_t end) const {
+    return _findNext(false, start, end);
+}
+
+FastBitmap::element::element(uptr &data, const u8 offset) : data(&data), offset(offset) {
+};
+
+FastBitmap::element::~element() {
+}
+
+FastBitmap::element::element(element &&other) {
+    data = other.data;
+    other.data = nullptr;
+    offset = other.offset;
+}
+
+FastBitmap::element &FastBitmap::element::operator=(element &&other) {
+    this->~element();
+    data = other.data;
+    other.data = nullptr;
+    offset = other.offset;
+    return *this;
+}
+
+FastBitmap::element::operator bool() const {
+    return static_cast<bool>(*data & static_cast<uptr>(0x1) << offset);
+}
+
+
+bool FastBitmap::element::operator=(const bool val) const {
+    if (val) {
+        *data |= static_cast<uptr>(0x1) << offset;
+    } else {
+        *data &= ~(static_cast<uptr>(0x1) << offset);
+    }
+    return val;
 }

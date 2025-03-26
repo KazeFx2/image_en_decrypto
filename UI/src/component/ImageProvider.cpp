@@ -54,7 +54,7 @@ void MemoryImage::saveImage(const QUrl &path, const QString &name, const QString
 #ifdef _WIN32
         UTF8toGBK((path.toLocalFile() + "/" + name).toStdString())
 #else
-    (path.toLocalFile() + "/" + name).toStdString()
+        (path.toLocalFile() + "/" + name).toStdString()
 #endif
         .c_str(), "png");
 #ifdef _WIN32
@@ -67,21 +67,5 @@ u64 MemoryImage::get_putIdx(const bool isRet, const u64 oldIdx) {
     static u64 idx = 0;
     static Semaphore semaphore(1);
     static FastBitmap bitmap;
-    semaphore.wait();
-    if (isRet == true) {
-        bitmap[oldIdx] = false;
-        semaphore.post();
-        return oldIdx;
-    }
-    auto id = bitmap.findNextFalse(0, idx);
-    if (id != BITMAP_NOT_FOUND) {
-        bitmap[id] = true;
-        semaphore.post();
-        return id;
-    }
-    idx++;
-    const u64 ret = idx - 1;
-    bitmap[ret] = true;
-    semaphore.post();
-    return ret;
+    return getPutIdx(idx, semaphore, bitmap, isRet, oldIdx);
 }

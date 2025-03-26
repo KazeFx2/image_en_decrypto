@@ -20,14 +20,12 @@
 //     u32 height;
 // } ImageSize;
 
-typedef struct
-{
+typedef struct {
     f64 initCondition;
     f64 ctrlCondition;
 } ParamGroup;
 
-typedef struct
-{
+typedef struct {
     u8 byteReserve;
     u32 preIterations;
     u32 confusionIterations;
@@ -37,57 +35,34 @@ typedef struct
     bool cuda;
 } ParamControl;
 
-typedef struct
-{
+typedef struct {
     u32 confusionSeed;
     ParamGroup gParam1;
     ParamGroup gParam2;
 } Keys;
 
-// typedef struct
-// {
-//     __OUT cv::Mat** dst;
-//     __IN cv::Mat** src;
-//     __IN cv::Size* size;
-//     __IN size_t threadId;
-//     __IN u32 iterations;
-//     __IN Keys keys;
-//     __IN const ParamControl* config;
-//     __IN Semaphore Start;
-//     __IN Semaphore Finish;
-// } threadParams;
-
-typedef struct
-{
-    __OUT u8** dst;
-    __IN u8** src;
+typedef struct {
+    __OUT u8 **dst;
+    __IN u8 **src;
     __IN u32 width;
     __IN u32 height;
     __IN size_t threadId;
     __IN u32 iterations;
     __IN Keys keys;
-    __IN const ParamControl* config;
+    __IN const ParamControl *config;
     __IN Semaphore Start;
     __IN Semaphore Finish;
-} threadParamsMem;
+} threadParams;
 
-typedef struct
-{
-    __OUT u8* byteSeq;
-    __OUT u8* diffusionSeedArray;
+typedef struct {
+    __OUT u8 *byteSeq;
+    __OUT u8 *diffusionSeedArray;
 } threadReturn;
 
-// typedef struct
-// {
-//     threadParams params;
-//     const threadReturn* ret;
-// } threadParamsWithKey;
-
-typedef struct
-{
-    threadParamsMem params;
-    const threadReturn* ret;
-} threadParamsWithKeyMem;
+typedef struct {
+    threadParams params;
+    const threadReturn *ret;
+} threadParamsWithKey;
 
 #define DOLOOP \
 {\

@@ -7,6 +7,7 @@
 
 #include "ConditionVariable.h"
 #include "ThreadPool.h"
+#include "RWLock.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -16,20 +17,20 @@
 #include <ctime>
 
 extern "C" {
-#include "list/CList.h"
+#include "c_list.h"
 }
 
 #define LOG_FILE_NAME "CryptoCore"
-#define LOG_PATH "./log/../../haha/log/cow/log"
+#define LOG_PATH "./log/"
 
 namespace Logger {
-    static FILE *logFile = nullptr;
     static char *logPath = nullptr;
     static char *logFullFile = nullptr;
+    static FILE *logFile = nullptr;
 #ifdef __DEBUG
     static LogLevel logLevel = DEBUG;
 #else
-    static LogLevel logLevel = INFO;
+    static LogLevel logLevel = NOTICE;
 #endif
     static list_t msgList;
     static int prt = 0;
@@ -56,8 +57,8 @@ namespace Logger {
         int len = 0, path_len = solved_path - full_path;
         while (p[len] != '/' && p[len] != '\0')
             len++;
-        char *tmp_path = (char *) malloc(len + path_len + 1);
-        char *tmp_name = (char *) malloc(len + 1);
+        char *tmp_path = static_cast<char *>(malloc(len + path_len + 1));
+        char *tmp_name = static_cast<char *>(malloc(len + 1));
         memcpy(tmp_path, full_path, len + path_len);
         memcpy(tmp_name, solved_path, len);
         tmp_path[len + path_len] = '\0';
@@ -107,7 +108,7 @@ namespace Logger {
         *p++ = '/';
         time_t _time = time(nullptr);
         struct tm *tm = localtime(&_time);
-        sprintf(p, "%s_%04d%02d%02d.log", LOG_FILE_NAME, tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+        snprintf(p, 128, "%s_%04d%02d%02d.log", LOG_FILE_NAME, tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
         logFile = fopen(logFullFile, "a");
         if (!logFile) {
             fprintf(stderr, "Could not open log file '%s'.\n", logFullFile);
@@ -159,6 +160,9 @@ namespace Logger {
             if (left[1] == '\0') return tmp;
             return solvePathRecursive(path, left + 2);
         }
+        if (left[0] == '\0') {
+            return path;
+        }
         const char *p = left;
         int len = 0;
         while (*p != '\0' && *p != '/')
@@ -190,7 +194,7 @@ namespace Logger {
     static void logger() {
         while (true) {
             rw.ReaderLock();
-            if (listSize(msgList) == 0) {
+            if (list_size(msgList) == 0) {
                 rw.ReaderUnlock();
                 if (term)
                     break;
@@ -199,8 +203,8 @@ namespace Logger {
                     break;
                 rw.ReaderLock();
             }
-            msgNode *node = *reinterpret_cast<msgNode **>(findNodeByIndex(&msgList, 0));
-            removeByIndex(msgList, 0);
+            msgNode *node = *reinterpret_cast<msgNode **>(find_node_by_index(msgList, 0));
+            remove_by_index(msgList, 0, 0);
             rw.ReaderUnlock();
             time_t _time = time(nullptr);
             struct tm *tm = localtime(&_time);
@@ -211,7 +215,7 @@ namespace Logger {
                     tm->tm_hour, tm->tm_min, tm->tm_sec, tv.tv_usec,
                     node->msg);
             if (prt) {
-                const char *color = Cor(_Kaze::F_WHITE);
+                const char *color = nullptr;
                 FILE *fd = stdout;
                 switch (node->level) {
                     case DEBUG:
@@ -238,6 +242,10 @@ namespace Logger {
                         color = Cor(_Kaze::BF_RED);
                         fd = stderr;
                         break;
+                    default:
+                        color = Cor(_Kaze::F_D);
+                        fd = stderr;
+                        break;
                 }
                 fprintf(fd, "%s%04d/%02d/%02d %02d:%02d:%02d.%06d%s%s\n",
                         color,
@@ -257,7 +265,7 @@ namespace Logger {
         }
 
         int init() {
-            msgList = initList();
+            msgList = init_list_default();
             if (!msgList) {
                 fprintf(stderr, "Could not initialize message list.\n");
                 return EOF;
@@ -278,12 +286,12 @@ namespace Logger {
         ~Logger() {
             rw.WriterLock();
             term = 1;
-            if (listSize(msgList) == 0) {
+            if (list_size(msgList) == 0) {
                 cond.notify_one();
             }
             rw.WriterUnlock();
             thread_logger.wait();
-            destroyList(msgList);
+            destroy_list(msgList);
             closeLogFile();
         }
     };
@@ -313,6 +321,7 @@ namespace Logger {
     }
 
     int init() {
+        // logPath = logFullFile = nullptr;
         if (!logFile)
             return __logger.init();
         return 0;
@@ -326,7 +335,7 @@ namespace Logger {
         prt = 0;
     }
 
-    void log(LogLevel _logLevel, const char *format, ...) {
+    static void logVa(LogLevel _logLevel, const char *format, va_list args) {
         if (_logLevel < logLevel || _logLevel == OFF) return;
         char buffer[8192], *p = buffer;
         switch (_logLevel) {
@@ -348,19 +357,36 @@ namespace Logger {
             case FATAL:
                 p += snprintf(buffer, sizeof(buffer), "   [FATAL] ");
                 break;
+            default:
+                break;
         }
-        va_list args;
-        va_start(args, format);
         vsnprintf(p, sizeof(buffer), format, args);
-        va_end(args);
         msgNode *newNode = static_cast<msgNode *>(malloc(sizeof(msgNode)));
         newNode->msg = static_cast<char *>(malloc(strlen(buffer) + 1));
         strcpy(newNode->msg, buffer);
         newNode->level = _logLevel;
         rw.WriterLock();
-        pushExistEnd(msgList, reinterpret_cast<node_t *>(newNode));
-        if (listSize(msgList) == 1)
+        push_exist_end(msgList, reinterpret_cast<node_t *>(newNode));
+        if (list_size(msgList) == 1)
             cond.notify_one();
         rw.WriterUnlock();
+    }
+
+    void log(LogLevel _logLevel, const char *format, ...) {
+        va_list args;
+        va_start(args, format);
+        logVa(_logLevel, format, args);
+        va_end(args);
+    }
+
+    void logNamed(LogLevel _logLevel, const char *name, const char *format, ...) {
+        char tmp_buffer[1024], *tmp = nullptr;
+        snprintf(tmp_buffer, sizeof(tmp_buffer), "[%s]: ", name);
+        tmp = strCat(tmp_buffer, format);
+        va_list args;
+        va_start(args, format);
+        logVa(_logLevel, tmp, args);
+        va_end(args);
+        free(tmp);
     }
 }
