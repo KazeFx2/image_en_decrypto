@@ -6,7 +6,6 @@
 #include "ImageCrypto.h"
 #include "ThreadPool.h"
 #include <iostream>
-#include <__filesystem/file_type.h>
 
 int open_input_file(const char *filename, AVFormatContext **input_format_ctx, AVCodecContext **input_codec_ctx,
                     int *stream_idx) {
@@ -14,6 +13,9 @@ int open_input_file(const char *filename, AVFormatContext **input_format_ctx, AV
     const AVStream *input_stream = nullptr;
     const AVCodec *input_codec = nullptr;
     *stream_idx = -1;
+
+    // *input_format_ctx = avformat_alloc_context();
+
     error = avformat_open_input(input_format_ctx, filename, nullptr, nullptr);
     if (error < 0) {
         fprintf(stderr, "Could not open input file '%s'. (error: '%s')\n", filename, av_err2str(error));

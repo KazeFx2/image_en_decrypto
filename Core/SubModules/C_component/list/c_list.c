@@ -29,6 +29,8 @@
 bool check_node(list_t head, node_t **node) {
     if (!node)
         return false;
+    if (!*node)
+        return true;
     if (!CHECK_TYPE(head, *node))
         return false;
     if (!*node || *node == (node_t *) head)
@@ -275,14 +277,14 @@ bool swap_nodes_by_index(list_t head, size_t a, size_t b) {
 bool move_from_to(list_t head, size_t from, size_t to) {
     if (from == to)
         return true;
-    node_t *a = find_p_node_by_index(head, from);
-    node_t *b = find_p_node_by_index(head, to < from ? to : to + 1);
-    if (!a)
+    node_t **a = find_node_by_index(head, from);
+    node_t **b = find_node_by_index(head, to < from ? to : to + 1);
+    if (!a || !*a || !b)
         return false;
-    a->prev->next = a->next;
-    if (a->next)
-        a->next->prev = a->prev;
-    return push_exist_node_before(head, b, a);
+    (*a)->prev->next = (*a)->next;
+    if ((*a)->next)
+        (*a)->next->prev = (*a)->prev;
+    return push_exist_node_before2(head, (void **) b, *a);
 }
 
 bool remove_from(list_t head, size_t index) {

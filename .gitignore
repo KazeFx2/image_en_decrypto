@@ -4,3 +4,5 @@
 /cmake/
 /.vs/
 /UI/3rd-party/FluentUI/
+/build_mac/
+/tmp/

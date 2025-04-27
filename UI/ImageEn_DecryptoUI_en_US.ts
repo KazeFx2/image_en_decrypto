@@ -347,6 +347,11 @@
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="qml/page/Main.qml" line="103"/>
+        <source>Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>

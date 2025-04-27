@@ -99,7 +99,23 @@ Rectangle {
                     }
 
                 }
+                FluPivotItem {
+                    title: qsTr("Audio")
 
+                    contentItem: FluLoader {
+                        width: parent.width
+                        height: parent.height
+                        source: "qrc:/main/qml/page/crypto/CryptoVideo.qml"
+                        onVisibleChanged: {
+                            if (visible)
+                                source = "qrc:/main/qml/page/crypto/CryptoVideo.qml";
+                            else {
+                                // source = "";
+                            }
+                        }
+                    }
+
+                }
             }
 
         }

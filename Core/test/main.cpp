@@ -8,18 +8,95 @@
 #include "ImageCrypto.h"
 #include <sys/time.h>
 
+class NoPool : ThreadPool {
+private:
+    std::vector<pthread_t> threads;
+    std::vector<bool> ava;
+
+public:
+    NoPool(int n): ThreadPool(n) {
+    }
+
+    task_descriptor_t addThread(funcHandler func, void *param, bool wait = true,
+                                u32 *taskUnique = nullptr) override {
+        for (int i = 0; i < ava.size(); ++i) {
+            if (ava[i] == false) {
+                pthread_t &t = threads[i];
+                ava[i] = true;
+                pthread_create(&t, nullptr, func, param);
+                return i;
+            }
+        }
+        ava.push_back(true);
+        threads.push_back(pthread_t());
+        pthread_t &t = threads.back();
+        pthread_create(&t, nullptr, func, param);
+        return threads.size() - 1;
+    }
+
+    bool isDescriptorAvailable(task_descriptor_t descriptor) override { return descriptor < threads.size(); }
+
+    void *waitThread(task_descriptor_t index) override {
+        if (index >= threads.size()) { return nullptr; }
+        const pthread_t &t = threads[index];
+        void *ret = nullptr;
+        pthread_join(t, &ret);
+        return ret;
+    }
+
+    bool destroyThread(u_count_t index, bool onlyIdly = false) override {
+        return true;
+    }
+
+    void reduceTo(s_count_t tar, bool force = false) override {
+    }
+
+    void setMax(u_count_t max) override {
+    }
+
+    void waitReduce() override {
+    }
+
+    void waitFinish() override {
+    }
+
+    u_count_t getNumThreads() const { return 0; }
+
+    u_count_t getIdlyThreads() const { return 0; }
+
+    u_count_t getMaxThreads() const { return 0; }
+};
+
 double GetCPUSecond() {
     timeval tp;
     gettimeofday(&tp, nullptr);
     return (static_cast<double>(tp.tv_sec) + static_cast<double>(tp.tv_usec) * 1.e-6);
 }
 
+double time_cost(cv::Mat &img, ImageCrypto &crypto, int n_mean) {
+    double cost = 0, start = 0, end = 0;
+    int ct = 0;
+    while (n_mean--) {
+        start = GetCPUSecond();
+        crypto.encrypt(img);
+        end = GetCPUSecond();
+        cost += end - start;
+        ct++;
+    }
+    return cost / ct;
+}
+
+double time_cost_n_thread(cv::Mat &img, ThreadPool &pool, Keys &k, ParamControl &config, int n_thread, int n_mean) {
+    config.nThread = n_thread;
+    ImageCrypto crypto(pool, ORIGINAL_SIZE, config, k);
+    return time_cost(img, crypto, n_mean);
+}
+
 int main(int argc, const char **argv) {
     chdir(homePath);
 
-    ThreadPool pool(16);
-    const u32 W = 499;
-    cv::Size size{W, W};
+    NoPool nPool(1);
+    ThreadPool tPool(32);
 
     Keys keys = {
         0x134,
@@ -27,63 +104,21 @@ int main(int argc, const char **argv) {
         {0.962, 0.415}
     };
 
-    ImageCrypto crypter(pool, size, DEFAULT_CONFIG, keys);
+    ParamControl config = DEFAULT_CONFIG;
 
     std::cout << getcwd(nullptr, 0) << std::endl;
-    auto img = imread("inputs/test.png", cv::IMREAD_UNCHANGED);
+    auto img = imread("inputs/LenaRGB.png", cv::IMREAD_UNCHANGED);
     if (img.data == nullptr) {
         std::cout << "Read image failed." << std::endl;
         return 1;
     }
 
-    auto encrypted = crypter.encrypt(img);
-    auto decrypted = crypter.decrypt(encrypted);
-    imshow("original", img);
-    imshow("encrypted", encrypted);
-    imshow("decrypted", decrypted);
-    cv::waitKey(0);
-    img = imread("inputs/3.png", cv::IMREAD_UNCHANGED);
-    if (img.data == nullptr) {
-        std::cout << "Read image failed." << std::endl;
-        return 1;
+    for (int i = 17; i <= 32; i++) {
+        double t = time_cost_n_thread(img, (ThreadPool &)nPool, keys, config, i, 1000);
+        printf("time for encryption [no pool,   %d threads]: %.3f (ms)\n",i, t * 1000);
+        t = time_cost_n_thread(img, tPool, keys, config, i, 100);
+        printf("time for encryption [with pool, %d threads]: %.3f (ms)\n",i, t * 1000);
     }
 
-    encrypted = crypter.encrypt(img);
-    decrypted = crypter.decrypt(encrypted);
-    imshow("original", img);
-    imshow("encrypted", encrypted);
-    imshow("decrypted", decrypted);
-    cv::waitKey(0);
-    // return 0;
-
-    cv::VideoCapture cap(argv[1]);
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, W);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, W);
-    double fps = cap.get(cv::CAP_PROP_FPS);
-    while (true) {
-        double start = GetCPUSecond();
-        cv::Mat frame;
-        cap >> frame;
-        if (frame.empty()) {
-            break;
-        }
-        resize(frame, frame, cv::Size(960, 540));
-        auto encry = crypter.encrypt(frame);
-        auto decry = crypter.decrypt(encry);
-        imshow("original", frame);
-        imshow("encrypted", encry);
-        imshow("decrypted", decry);
-        double end = GetCPUSecond();
-
-        printf("time for encrypting and decrypting the frame: %.3f (ms)\n",
-               (end - start) * 1000);
-
-        auto delay = static_cast<int>(1000.0 / fps - (end - start) * 1000);
-        // cv::waitKey(0);
-        if (delay > 1)
-            cv::waitKey(delay);
-        else
-            cv::waitKey(1);
-    }
     return 0;
 }

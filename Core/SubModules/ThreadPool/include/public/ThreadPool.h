@@ -130,7 +130,7 @@ public:
 
     ~ThreadPool();
 
-    task_descriptor_t addThread(funcHandler func, void *param, bool wait = true,
+    virtual task_descriptor_t addThread(funcHandler func, void *param, bool wait = true,
                                 u32 *taskUnique = nullptr);
 
     /* WARN: param T&& and return T& are not supported */
@@ -215,25 +215,25 @@ public:
         }
     }
 
-    bool isDescriptorAvailable(task_descriptor_t descriptor);
+    virtual bool isDescriptorAvailable(task_descriptor_t descriptor);
 
-    void *waitThread(task_descriptor_t index);
+    virtual  void *waitThread(task_descriptor_t index);
 
-    bool destroyThread(u_count_t index, bool onlyIdly = false);
+    virtual bool destroyThread(u_count_t index, bool onlyIdly = false);
 
-    void reduceTo(s_count_t tar, bool force = false);
+    virtual void reduceTo(s_count_t tar, bool force = false);
 
-    void setMax(u_count_t max);
+    virtual void setMax(u_count_t max);
 
-    void waitReduce();
+    virtual void waitReduce();
 
-    void waitFinish();
+    virtual void waitFinish();
 
-    u_count_t getNumThreads() const;
+    virtual u_count_t getNumThreads() const;
 
-    u_count_t getIdlyThreads() const;
+    virtual u_count_t getIdlyThreads() const;
 
-    u_count_t getMaxThreads() const;
+    virtual u_count_t getMaxThreads() const;
 };
 
 

@@ -12,6 +12,12 @@ endforeach ()
 
 BuildExportSize(${PROJECT_NAME} size.cpp ${SOURCES})
 
+target_link_libraries(
+        ${PROJECT_NAME}_impl
+        PUBLIC
+        CList
+)
+
 if (CoreTest)
     add_definitions(-D__DEBUG)
     add_subdirectory(test)

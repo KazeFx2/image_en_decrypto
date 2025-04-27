@@ -49,7 +49,7 @@ add_custom_target(Script-UpdateTranslations
 ##生成版本信息头文件
 set(HEADER_FILE_VERSION_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include/Version.h)
 configure_file(
-        .cmake/Version.h.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/.cmake/Version.h.in
         ${HEADER_FILE_VERSION_PATH}
 )
 

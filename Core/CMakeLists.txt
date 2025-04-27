@@ -54,6 +54,8 @@ add_subdirectory(SubModules)
 target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBS}
         CoreThreadPool
+        CoreLogger
+        CList
         PkgConfig::FFMPEG
 )
 
