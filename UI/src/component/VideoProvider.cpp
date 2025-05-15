@@ -37,6 +37,11 @@ void Video::decoder(VideoControl *vcb) {
     QImage img;
     while (true) {
         vcb->cap >> frame;
+        vcb->mtx.lock();
+        cv::Mat resize_frame;
+        cv::resize(frame, resize_frame, {vcb->crypto_width, vcb->crypto_height});
+        frame = resize_frame;
+        vcb->mtx.unlock();
         if (frame.empty()) {
             vcb->mtx.lock();
             vcb->play_over = true;
@@ -158,6 +163,8 @@ QString Video::loadVideo(const QUrl &file, const QString &key_id, DecodeType typ
     }
     vcb->real_width = vcb->cap.get(cv::CAP_PROP_FRAME_WIDTH);
     vcb->real_height = vcb->cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    vcb->crypto_width = vcb->real_width;
+    vcb->crypto_height = vcb->real_height;
     calcWH(vcb->width, vcb->height, vcb->real_width, vcb->real_height, recommend_width, recommend_height);
     cv::Mat tmp;
     vcb->cap.read(tmp);
@@ -337,10 +344,31 @@ void Video::set_param(const QString &url, const QString &key_id) {
     vcbs[idx]->crypto->setKeys(key.key.control, key.key.keys);
 }
 
+void Video::set_crypto_wh(const QString &url, int width, int height) {
+    int idx;
+    if (!url_available(url, idx)) return;
+    vcbs[idx]->mtx.lock();
+    vcbs[idx]->crypto_width = width;
+    vcbs[idx]->crypto_height = height;
+    vcbs[idx]->mtx.unlock();
+}
+
 bool Video::get_pause(const QString &url) {
     int idx;
     if (!url_available(url, idx)) return true;
     return vcbs[idx]->paused;
+}
+
+int Video::get_crypto_w(const QString &url) {
+    int idx;
+    if (!url_available(url, idx)) return 0;
+    return vcbs[idx]->real_width;
+}
+
+int Video::get_crypto_h(const QString &url) {
+    int idx;
+    if (!url_available(url, idx)) return 0;
+    return vcbs[idx]->real_height;
 }
 
 void Video::__cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt,

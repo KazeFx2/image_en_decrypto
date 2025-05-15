@@ -14,18 +14,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="qml/page/About.qml" line="49"/>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="qml/page/About.qml" line="66"/>
         <source>What&apos;s this?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/About.qml" line="73"/>
-        <source>    This is an experimental course‘s homework of operating system. Meanwhile, I am learning the Qt programming, so I tried to combinate them together. Then this project is given birth to. In order to learn to work with &apos;git&apos; and &apos;camke&apos;, I uploaded it to the github. lisence? Maybe the MIT, I&apos;ll add it after I read the lisences and rules.</source>
+        <source>    An image crypto system based on chaotic mapping, confusion and diffusion.(Also support video and audio)</source>
+        <oldsource>    An image crypto system based on chaotic mapping, confusion and diffusion.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/About.qml" line="80"/>
-        <source>    This is my first try to make my contributions(?) If there is any mistakes that I made, I&apos;ll be very grateful if you can tell me :)</source>
+        <source>    Have fun! :)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37,28 +43,23 @@
 <context>
     <name>AudioPlayer</name>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="262"/>
+        <location filename="qml/global/AudioPlayer.qml" line="249"/>
         <source>Raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="269"/>
+        <location filename="qml/global/AudioPlayer.qml" line="256"/>
         <source>Encrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="276"/>
+        <location filename="qml/global/AudioPlayer.qml" line="263"/>
         <source>Decrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="288"/>
+        <location filename="qml/global/AudioPlayer.qml" line="275"/>
         <source>Cuda</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="qml/global/AudioPlayer.qml" line="301"/>
-        <source>Show Loading</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -112,6 +113,11 @@
     <message>
         <location filename="qml/page/crypto/CryptoAudio.qml" line="127"/>
         <source>Audio Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="84"/>
+        <source>Audio Files (*.wav)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -296,21 +302,21 @@
     <name>CryptoVideo</name>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="44"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="74"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="79"/>
         <source>File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="45"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="75"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="80"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="46"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="76"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="103"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="477"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="81"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="108"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="482"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -320,112 +326,116 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="101"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="106"/>
         <source>Save File Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="102"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="107"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="108"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="113"/>
         <source>Video Files (*.avi)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="133"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="138"/>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="151"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="156"/>
         <source>Video Convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="157"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="162"/>
         <source>Realtime Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="236"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="241"/>
         <source>Select Input Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="246"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="251"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="316"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="321"/>
         <source>Select Output File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="326"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="331"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="354"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="359"/>
         <source>No Video File Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="398"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="403"/>
         <source>Cuda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="420"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="425"/>
         <source>Encrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="429"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="434"/>
         <source>Decrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="442"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="447"/>
         <source>Convert!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="495"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="500"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="669"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="544"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="713"/>
         <source>Keep Aspect Ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="544"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="713"/>
         <source>Disable Aspect Ratio Lock</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="585"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="590"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="759"/>
         <source>Reset Width/Height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="607"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="612"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="650"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="659"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="777"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>

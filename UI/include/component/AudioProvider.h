@@ -107,6 +107,10 @@ public:
 
     Q_INVOKABLE double get_msec(int id);
 
+    Q_INVOKABLE int get_vol(int id);
+
+    Q_INVOKABLE void set_vol(int id, int vol);
+
     Q_INVOKABLE int get_decode_type(int id);
 
     Q_INVOKABLE bool get_cuda(int id);

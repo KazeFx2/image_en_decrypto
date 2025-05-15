@@ -81,7 +81,7 @@ FluScrollablePage {
         currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
         defaultSuffix: "wav"
         flags: FileDialog.DontConfirmOverwrite
-        nameFilters: audioPickDialog.nameFilters
+        nameFilters: [qsTr("Audio Files (*.wav)")]
         onAccepted: {
             GlobalVar.au_out_file = Tools.auto_suffix(String(selectedFile), "wav")
             GlobalVar.au_out_name = GlobalVar.au_out_file.split("/").pop()

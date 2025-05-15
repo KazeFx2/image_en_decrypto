@@ -41,6 +41,8 @@ typedef struct {
     int real_height;
     int width;
     int height;
+    int crypto_width;
+    int crypto_height;
     Semaphore decoder_start_sem;
     Semaphore reader_start_sem;
     Semaphore decoder_fin_sem;
@@ -107,7 +109,13 @@ public:
 
     Q_INVOKABLE void set_param(const QString &url, const QString &key_id);
 
+    Q_INVOKABLE void set_crypto_wh(const QString &url, int width, int height);
+
     Q_INVOKABLE bool get_pause(const QString &url);
+
+    Q_INVOKABLE int get_crypto_w(const QString &url);
+
+    Q_INVOKABLE int get_crypto_h(const QString &url);
 
     Q_INVOKABLE void cvtVideo(const QUrl &in_file, const QUrl &out_file, const QString &key_id, bool encrypt,
                               bool cuda);

@@ -303,6 +303,18 @@ double Audio::get_msec(int id) {
     return ac->current_msec;
 }
 
+int Audio::get_vol(int id) {
+    AudioControl *ac = idx_ava(id);
+    if (!ac) return 0;
+    return ac->sink->volume() * 100;
+}
+
+void Audio::set_vol(int id, int vol) {
+    AudioControl *ac = idx_ava(id);
+    if (!ac) return;
+    ac->sink->setVolume(static_cast<qreal>(vol) / 100);
+}
+
 int Audio::get_decode_type(int id) {
     AudioControl *ac = idx_ava(id);
     if (!ac) return Raw;

@@ -28,6 +28,7 @@ FluRectangle {
         procedure.value = AudioProvider.get_msec(audioId) * procedure.to / procedure.max
         update_decode_type()
         update_cuda()
+        vol.value = AudioProvider.get_vol(audioId)
         paused = AudioProvider.get_pause(audioId)
     }
 
@@ -83,20 +84,6 @@ FluRectangle {
         function onAudioCudaChanged(id) {
             if (id === play_img.audioId) {
                 play_img.update_cuda()
-            }
-        }
-    }
-
-    Connections {
-        target: VideoProvider
-        function onVideoLoading(id) {
-            if (id === play_img.mid) {
-                loading.shouldLoad = true
-            }
-        }
-        function onVideoLoaded(id) {
-            if (id === play_img.mid) {
-                loading.shouldLoad = false
             }
         }
     }
@@ -295,16 +282,51 @@ FluRectangle {
                         }
                     }
 
-                    FluCheckBox {
-                        id: show_load
-                        checked: true
-                        text: qsTr("Show Loading")
-                        textRight: false
+                    // FluCheckBox {
+                    //     id: show_load
+                    //     checked: true
+                    //     text: qsTr("Show Loading")
+                    //     textRight: false
+                    //     anchors.left: parent.left
+                    //     anchors.verticalCenter: parent.verticalCenter
+                    //     anchors.leftMargin: 10
+                    // }
+
+                    FluIconButton {
+                        id: vol_btn
+                        property int prev_vol: 0
+                        iconSize: 18
+                        iconSource: {
+                            if (vol.value === 0) return FluentIcons.Volume0
+                            else if (vol.value <= 33) return FluentIcons.Volume1
+                            else if (vol.value <= 66) return FluentIcons.Volume2
+                            else if (vol.value <= 100) return FluentIcons.Volume3
+                        }
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.leftMargin: 10
+                        onClicked: {
+                            if (vol.value === 0) {
+                                if (prev_vol === 0) {
+                                    prev_vol = 100
+                                }
+                                vol.value = prev_vol
+                            } else {
+                                prev_vol = vol.value
+                                vol.value = 0
+                            }
+                        }
                     }
-
+                    FluSlider {
+                        id: vol
+                        width: 100
+                        anchors.left: vol_btn.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 1
+                        onValueChanged: {
+                            AudioProvider.set_vol(audioId, value)
+                        }
+                    }
                 }
             }
         }

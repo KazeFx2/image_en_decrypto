@@ -63,6 +63,11 @@ FluScrollablePage {
         onAccepted: {
             let source = VideoProvider.loadVideo(selectedFile, paramConf.paramKey(), DecodeType.Raw, true, play_img.width, play_img.height)
             // console.log(source)
+            GlobalVar.real_width_rel = VideoProvider.get_crypto_w(source)
+            GlobalVar.real_height_rel = VideoProvider.get_crypto_h(source)
+            GlobalVar.cvt_width_rel = GlobalVar.real_width_rel
+            GlobalVar.cvt_height_rel = GlobalVar.real_height_rel
+            GlobalVar.bind_wh_rel = true
             GlobalVar.video_url = source
         }
         onRejected: {
@@ -598,14 +603,14 @@ FluScrollablePage {
             Rectangle {
                 visible: func_select.currentIndex === 1
                 width: select_video.width + apply_params.width + 10 + del_video_box.width + (del_video_box.width !== 0 ? 10 : 0)
-                height: Math.max(select_video.height, apply_params.height)
+                height: Math.max(select_video.height, apply_params.height) + video_size_box_rel.height + 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: FluColors.Transparent
 
                 FluFilledButton {
                     id: select_video
                     text: qsTr("Select Video")
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.top: parent.top
                     anchors.left: parent.left
                     onClicked: {
                         videoPickDialog.open()
@@ -616,6 +621,7 @@ FluScrollablePage {
                     id: del_video_box
                     width: play_img.url !== "" ? del_video_btn.width : 0
                     height: del_video_btn.height
+                    anchors.top: parent.top
                     anchors.left: select_video.right
                     anchors.leftMargin: 10
                     color: FluColors.Transparent
@@ -642,11 +648,123 @@ FluScrollablePage {
                 FluFilledButton {
                     id: apply_params
                     text: qsTr("Update Params")
-                    enabled: GlobalVar.video_url !== ""
-                    anchors.verticalCenter: parent.verticalCenter
+                    enabled: GlobalVar.video_url !== "" && GlobalVar.cvt_width_rel !== 0 && GlobalVar.cvt_height_rel !== 0
+                    anchors.top: parent.top
                     anchors.right: parent.right
                     onClicked: {
                         VideoProvider.set_param(play_img.url, paramConf.paramKey())
+                        VideoProvider.set_crypto_wh(play_img.url, GlobalVar.cvt_width_rel, GlobalVar.cvt_height_rel)
+                    }
+                }
+
+                Rectangle {
+                    id: video_size_box_rel
+                    width: input_w_rel.width + 10 + bind_wh_rel.width + 10 + input_h_rel.width
+                    height: Math.max(input_w_rel.height, bind_wh_rel.height, input_h_rel.height)
+                    anchors.bottom: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: FluColors.Transparent
+
+                    FluText {
+                        text: qsTr("Size")
+                        anchors.right: input_w_rel.left
+                        anchors.rightMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    FluTextBox {
+                        id: input_w_rel
+                        property bool update_me: true
+                        cleanEnabled: false
+                        text: String(GlobalVar.cvt_width_rel)
+                        enabled: GlobalVar.video_url !== ""
+                        width: 100
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.cvt_width_rel) !== text)
+                                GlobalVar.cvt_width_rel = Number(text)
+                            if (!update_me) {
+                                update_me = true
+                                return
+                            }
+                            if (GlobalVar.bind_wh_rel) {
+                                input_h_rel.update_me = false
+                                GlobalVar.cvt_height_rel = GlobalVar.cvt_width_rel * GlobalVar.real_height_rel / GlobalVar.real_width_rel
+                            }
+                        }
+                    }
+                    FluIconButton {
+                        id: bind_wh_rel
+                        enabled: GlobalVar.video_url !== ""
+                        anchors.left: input_w_rel.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        iconSource: GlobalVar.bind_wh_rel ? FluentIcons.Link : FluentIcons.More
+                        // FluentIcons.More
+
+                        FluTooltip {
+                            visible: parent.hovered
+                            delay: 1000
+                            text: GlobalVar.bind_wh_rel ? qsTr("Disable Aspect Ratio Lock") : qsTr("Keep Aspect Ratio")
+                        }
+
+                        onClicked: {
+                            GlobalVar.bind_wh_rel = !GlobalVar.bind_wh_rel
+                            if (GlobalVar.bind_wh_rel)
+                                GlobalVar.cvt_height_rel = GlobalVar.cvt_width_rel * GlobalVar.real_height_rel / GlobalVar.real_width_rel
+                        }
+                    }
+                    FluTextBox {
+                        id: input_h_rel
+                        property bool update_me: true
+                        cleanEnabled: false
+                        text: String(GlobalVar.cvt_height_rel)
+                        enabled: GlobalVar.video_url !== ""
+                        width: 100
+                        anchors.left: bind_wh_rel.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.cvt_height_rel) !== text)
+                                GlobalVar.cvt_height_rel = Number(text)
+                            if (!update_me) {
+                                update_me = true
+                                return
+                            }
+                            if (GlobalVar.bind_wh_rel) {
+                                input_w_rel.update_me = false
+                                GlobalVar.cvt_width_rel = GlobalVar.cvt_height_rel * GlobalVar.real_width_rel / GlobalVar.real_height_rel
+                            }
+                        }
+                    }
+                    FluIconButton {
+                        enabled: GlobalVar.video_url !== "" && GlobalVar.cvt_witdh_rel !== GlobalVar.real_width_rel && GlobalVar.cvt_height_rel !== GlobalVar.real_height_rel
+                        anchors.left: input_h_rel.right
+                        anchors.leftMargin: 10
+                        anchors.top: bind_wh_rel.top
+                        iconSource: FluentIcons.Refresh
+
+                        FluTooltip {
+                            visible: parent.hovered
+                            delay: 1000
+                            text: qsTr("Reset Width/Height")
+                        }
+
+                        onClicked: {
+                            input_w_rel.update_me = false
+                            input_h_rel.update_me = false
+                            GlobalVar.cvt_width_rel = GlobalVar.real_width_rel
+                            GlobalVar.cvt_height_rel = GlobalVar.real_height_rel
+                        }
                     }
                 }
             }

@@ -32,6 +32,11 @@ QtObject{
     property int real_height: 0
     property int cvt_width: 0
     property int cvt_height: 0
+    property bool bind_wh_rel: true
+    property int real_width_rel: 0
+    property int real_height_rel: 0
+    property int cvt_width_rel: 0
+    property int cvt_height_rel: 0
 
     property int video_sel: 0
 

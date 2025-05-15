@@ -14,19 +14,25 @@
         <translation>作者</translation>
     </message>
     <message>
+        <location filename="qml/page/About.qml" line="49"/>
+        <source>Version</source>
+        <translation>版本</translation>
+    </message>
+    <message>
         <location filename="qml/page/About.qml" line="66"/>
         <source>What&apos;s this?</source>
         <translation>这是什么？</translation>
     </message>
     <message>
         <location filename="qml/page/About.qml" line="73"/>
-        <source>    This is an experimental course‘s homework of operating system. Meanwhile, I am learning the Qt programming, so I tried to combinate them together. Then this project is given birth to. In order to learn to work with &apos;git&apos; and &apos;camke&apos;, I uploaded it to the github. lisence? Maybe the MIT, I&apos;ll add it after I read the lisences and rules.</source>
-        <translation></translation>
+        <source>    An image crypto system based on chaotic mapping, confusion and diffusion.(Also support video and audio)</source>
+        <oldsource>    An image crypto system based on chaotic mapping, confusion and diffusion.</oldsource>
+        <translation>    一个基于混沌映射，置乱和扩散的图像加解密系统。（同时也支持视频和音频）</translation>
     </message>
     <message>
         <location filename="qml/page/About.qml" line="80"/>
-        <source>    This is my first try to make my contributions(?) If there is any mistakes that I made, I&apos;ll be very grateful if you can tell me :)</source>
-        <translation></translation>
+        <source>    Have fun! :)</source>
+        <translation>    尽情使用 :)</translation>
     </message>
     <message>
         <location filename="qml/page/About.qml" line="111"/>
@@ -37,29 +43,28 @@
 <context>
     <name>AudioPlayer</name>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="262"/>
+        <location filename="qml/global/AudioPlayer.qml" line="249"/>
         <source>Raw</source>
-        <translation type="unfinished">原始</translation>
+        <translation>原始</translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="269"/>
+        <location filename="qml/global/AudioPlayer.qml" line="256"/>
         <source>Encrypt</source>
-        <translation type="unfinished">加密</translation>
+        <translation>加密</translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="276"/>
+        <location filename="qml/global/AudioPlayer.qml" line="263"/>
         <source>Decrypt</source>
-        <translation type="unfinished">解密</translation>
+        <translation>解密</translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="288"/>
+        <location filename="qml/global/AudioPlayer.qml" line="275"/>
         <source>Cuda</source>
-        <translation type="unfinished">Cuda</translation>
+        <translation>Cuda</translation>
     </message>
     <message>
-        <location filename="qml/global/AudioPlayer.qml" line="301"/>
         <source>Show Loading</source>
-        <translation type="unfinished">显示加载</translation>
+        <translation type="vanished">显示加载</translation>
     </message>
 </context>
 <context>
@@ -153,6 +158,11 @@
     <message>
         <source>No Video File Selected.</source>
         <translation type="obsolete">没有选择视频文件。</translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="84"/>
+        <source>Audio Files (*.wav)</source>
+        <translation>音频文件 (*.wav)</translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoAudio.qml" line="330"/>
@@ -319,21 +329,21 @@
     <name>CryptoVideo</name>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="44"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="74"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="79"/>
         <source>File Select</source>
         <translation>文件选择</translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="45"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="75"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="80"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoVideo.qml" line="46"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="76"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="103"/>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="477"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="81"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="108"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="482"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -343,112 +353,116 @@
         <translation>视频文件 (*.mp4 *.avi *.mov *.webm *.mkv)</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="101"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="106"/>
         <source>Save File Select</source>
         <translation>选择保存文件</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="102"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="107"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="108"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="113"/>
         <source>Video Files (*.avi)</source>
         <translation>视频文件 (*.avi)</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="133"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="138"/>
         <source>Workspace</source>
         <translation>工作区</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="151"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="156"/>
         <source>Video Convert</source>
         <translation>视频转换</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="157"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="162"/>
         <source>Realtime Play</source>
         <translation>实时播放</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="236"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="241"/>
         <source>Select Input Video</source>
         <translation>选择输入视频</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="246"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="251"/>
         <source>Input</source>
         <translation>输入</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="316"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="321"/>
         <source>Select Output File</source>
         <translation>选择输出文件</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="326"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="331"/>
         <source>Output</source>
         <translation>输出</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="354"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="359"/>
         <source>No Video File Selected.</source>
         <translation>没有选择视频文件。</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="398"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="403"/>
         <source>Cuda</source>
         <translation>Cuda</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="420"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="425"/>
         <source>Encrypt</source>
         <translation>加密</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="429"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="434"/>
         <source>Decrypt</source>
         <translation>解密</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="442"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="447"/>
         <source>Convert!</source>
         <translation>转换！</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="495"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="500"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="669"/>
         <source>Size</source>
         <translation>尺寸</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="544"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="713"/>
         <source>Keep Aspect Ratio</source>
         <translation>保持宽高比</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="544"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="713"/>
         <source>Disable Aspect Ratio Lock</source>
         <translation>取消保持宽高比</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="585"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="590"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="759"/>
         <source>Reset Width/Height</source>
         <translation>重置宽/高</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="607"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="612"/>
         <source>Select Video</source>
         <translation>选择视频</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="650"/>
         <source>Update Params</source>
         <translation>更新参数</translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="659"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="777"/>
         <source>Parameters</source>
         <translation>参数</translation>
     </message>
