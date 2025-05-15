@@ -113,11 +113,23 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
-    for (int i = 17; i <= 32; i++) {
+    // for (int i = 17; i <= 32; i++) {
+    //     double t = time_cost_n_thread(img, (ThreadPool &)nPool, keys, config, i, 1000);
+    //     printf("time for encryption [no pool,   %d threads]: %.3f (ms)\n",i, t * 1000);
+    //     t = time_cost_n_thread(img, tPool, keys, config, i, 100);
+    //     printf("time for encryption [with pool, %d threads]: %.3f (ms)\n",i, t * 1000);
+    // }
+
+    for (int i = 1; i <= 32; i++) {
+        config.cuda = false;
         double t = time_cost_n_thread(img, (ThreadPool &)nPool, keys, config, i, 1000);
         printf("time for encryption [no pool,   %d threads]: %.3f (ms)\n",i, t * 1000);
+        // config.cuda = false;
+        t = time_cost_n_thread(img, tPool, keys, config, i, 1000);
+        printf("time for encryption [no cuda,   %d threads]: %.3f (ms)\n",i, t * 1000);
+        config.cuda = true;
         t = time_cost_n_thread(img, tPool, keys, config, i, 100);
-        printf("time for encryption [with pool, %d threads]: %.3f (ms)\n",i, t * 1000);
+        printf("time for encryption [with cuda, %d threads]: %.3f (ms)\n",i, t * 1000);
     }
 
     return 0;

@@ -13,6 +13,7 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <ctime>
+#include <cstdarg>
 
 #ifndef _WIN32
 #include <sys/time.h>

@@ -6,6 +6,9 @@
 #define C_COMPONENT_TYPES_H
 
 #include "stddef.h"
+#ifdef __linux__
+#include "stdint.h"
+#endif
 
 #define bool char
 typedef unsigned int uint;

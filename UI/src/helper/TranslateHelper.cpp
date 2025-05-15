@@ -20,14 +20,17 @@ void TranslateHelper::init(QQmlEngine* engine)
     _engine = engine;
     _translator = new QTranslator(this);
     QGuiApplication::installTranslator(_translator);
-#ifdef __linux__
     QString translatorPath = QGuiApplication::applicationDirPath() + "/../i18n";
-#else
-    QString translatorPath = QGuiApplication::applicationDirPath() + "/i18n";
-#endif
-    if (_translator->load(
-        QString::fromStdString("%1/" PROJECT_NAME "_%2.qm").arg(translatorPath, _current)))
+    std::vector<QString> translatorPaths = {
+        QGuiApplication::applicationDirPath() + "/../i18n",
+        QGuiApplication::applicationDirPath() + "/i18n"
+    };
+    for (auto translatorPath : translatorPaths)
     {
-        _engine->retranslate();
+        if (_translator->load(
+            QString::fromStdString("%1/" PROJECT_NAME "_%2.qm").arg(translatorPath, _current)))
+        {
+            _engine->retranslate();
+        }
     }
 }
