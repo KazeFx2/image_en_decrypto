@@ -96,7 +96,11 @@ QVariantMap KeyKeeper::loadParam(const QUrl& path)
 {
     C_FullKey key;
     QVariantMap ret;
-    LoadConfKey(key.key.control, key.key.keys, path.toLocalFile().toStdString().c_str());
+    std::string _path = path.toLocalFile().toStdString();
+#ifdef _WIN32
+    _path = UTF8toGBK(_path);
+#endif
+    LoadConfKey(key.key.control, key.key.keys, _path.c_str());
     key.imageCrypto.setKeys(key.key.control, key.key.keys);
     auto k = QString::fromStdString(calcSha256(key.key));
     if (keyMap.find(k) == keyMap.end())

@@ -206,10 +206,10 @@ public:
 
     void *encrypt(const void *src, const u32 width, const u32 height, const u32 nC) {
         const u8 nChannel = nC;
-        if (width != size->width || height != size->height || nChannel != config.nChannel) {
-            auto tmpC = config;
+        if (width != getSize().width || height != getSize().height || nChannel != getConfig().nChannel) {
+            auto tmpC = getConfig();
             tmpC.nChannel = nChannel;
-            setAll(cv::Size(static_cast<int>(width), static_cast<int>(height)), tmpC, keys);
+            setAll(cv::Size(static_cast<int>(width), static_cast<int>(height)), tmpC, getKeys());
         }
         void *ret = new u8[width * height * nChannel];
         memcpy(ret, src, width * height * nChannel);
@@ -226,10 +226,10 @@ public:
 
     void *decrypt(const void *src, const u32 width, const u32 height, const u32 nC) {
         const u8 nChannel = nC;
-        if (width != size->width || height != size->height || nChannel != config.nChannel) {
-            auto tmpC = config;
+        if (width != getSize().width || height != getSize().height || nChannel != getConfig().nChannel) {
+            auto tmpC = getConfig();
             tmpC.nChannel = nChannel;
-            setAll(cv::Size(static_cast<int>(width), static_cast<int>(height)), tmpC, keys);
+            setAll(cv::Size(static_cast<int>(width), static_cast<int>(height)), tmpC, getKeys());
         }
         void *ret = new u8[width * height * nChannel];
         memcpy(ret, src, width * height * nChannel);
