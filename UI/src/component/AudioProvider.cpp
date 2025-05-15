@@ -281,7 +281,6 @@ void Audio::delAudio(int id) {
         ac->timer = nullptr;
     }
     if (ac->sink) {
-        ac->sink->stop();
         delete ac->sink;
         ac->sink = nullptr;
         ac->io = nullptr;

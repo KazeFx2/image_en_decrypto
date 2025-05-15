@@ -33,20 +33,19 @@ Video::Video()
 }
 
 void Video::decoder(VideoControl *vcb) {
-    cv::Mat frame, out;
+    cv::Mat frame, out, resize_frame;
     QImage img;
     while (true) {
         vcb->cap >> frame;
-        vcb->mtx.lock();
-        cv::Mat resize_frame;
-        cv::resize(frame, resize_frame, {vcb->crypto_width, vcb->crypto_height});
-        frame = resize_frame;
-        vcb->mtx.unlock();
         if (frame.empty()) {
             vcb->mtx.lock();
             vcb->play_over = true;
             goto DECODE_WAIT;
         }
+        vcb->mtx.lock();
+        cv::resize(frame, resize_frame, {vcb->crypto_width, vcb->crypto_height});
+        frame = resize_frame;
+        vcb->mtx.unlock();
         switch (vcb->type) {
             case Raw:
                 out = frame;

@@ -20,7 +20,7 @@
 
 #ifndef __K_NO_WIN_
 
-#ifndef __APPLE__
+#ifdef _WIN32
 #ifndef _WINDOWS_
 #include <windows.h>
 #undef ERROR
