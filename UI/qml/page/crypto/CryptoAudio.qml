@@ -10,105 +10,81 @@ import "../../global"
 import main 1.0
 
 FluScrollablePage {
-    id: crypto_video_page
+    id: crypto_audio_page
 
-    function pause_video() {
-        if (play_img.url !== "")
-            VideoProvider.pause(play_img.url)
+    function pause_audio() {
+        if (play_img.audioId !== -1)
+            AudioProvider.pause(play_img.audioId)
     }
 
-    property string open_file: GlobalVar.open_file
-    property string open_name: GlobalVar.open_name
-    property string out_file: GlobalVar.out_file
-    property string out_name: GlobalVar.out_name
-
-    Connections {
-    }
+    property string open_file: GlobalVar.au_open_file
+    property string open_name: GlobalVar.au_open_name
+    property string out_file: GlobalVar.au_out_file
+    property string out_name: GlobalVar.au_out_name
 
     Component.onCompleted: {
-        if (GlobalVar.video_cvt_param_key_id !== "")
-            paramConf.loadKey(GlobalVar.video_cvt_param_key_id)
-    }
-    Component.onDestruction: {
-        GlobalVar.video_cvt_param_key_id = paramConf.paramKey()
+        if (GlobalVar.audio_cvt_param_key_id !== "")
+            paramConf.loadKey(GlobalVar.audio_cvt_param_key_id)
     }
 
-    onWidthChanged: {
+    Component.onDestruction: {
+        GlobalVar.audio_cvt_param_key_id = paramConf.paramKey()
     }
 
     width: parent.width
     height: parent.height
 
     FileDialog {
-        id: videoPickDialog
+        id: audioPickDialog
         title: qsTr("File Select")
         acceptLabel: qsTr("Open")
         rejectLabel: qsTr("Cancel")
         fileMode: FileDialog.OpenFile
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        defaultSuffix: "mp4"
-        nameFilters: [qsTr("Video Files (*.mp4 *.avi *.mov *.webm *.mkv)")]
+        currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
+        defaultSuffix: "mp3"
+        nameFilters: [qsTr("Audio Files (*.mp3 *.aac *.m4a *.flac *.wav .*ogg *.opus *.alac *.wma *.ac3 *.eac3 *.dts *.amr)")]
         flags: FileDialog.ReadOnly
-        /*
-            FileDialog.DontResolveSymlinks
-            FileDialog.DontConfirmOverwrite
-            FileDialog.ReadOnly
-            FileDialog.HideNameFilterDetails
-            FileDialog.DontUseNativeDialog
-        */
-        /*
-            selectedFile: url
-            selectedFiles: url
-        */
         onAccepted: {
-            let source = VideoProvider.loadVideo(selectedFile, paramConf.paramKey(), DecodeType.Raw, true, play_img.width, play_img.height)
-            // console.log(source)
-            GlobalVar.video_url = source
+            let id = AudioProvider.loadAudio(selectedFile, paramConf.paramKey(), DecodeType.Raw, GlobalVar.au_cvt_width_rel, GlobalVar.au_cvt_height_rel, true)
+            GlobalVar.audio_id = id
         }
         onRejected: {
         }
     }
 
     FileDialog {
-        id: videoCvtPickDialog
+        id: audioCvtPickDialog
         title: qsTr("File Select")
         acceptLabel: qsTr("Open")
         rejectLabel: qsTr("Cancel")
         fileMode: FileDialog.OpenFile
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        defaultSuffix: "mp4"
-        nameFilters: videoPickDialog.nameFilters
+        currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
+        defaultSuffix: "mp3"
+        nameFilters: audioPickDialog.nameFilters
         flags: FileDialog.ReadOnly
         onAccepted: {
-            GlobalVar.open_file = String(selectedFile)
-            GlobalVar.open_name = GlobalVar.open_file.split("/").pop()
-            GlobalVar.out_file = ""
-            GlobalVar.out_name = ""
-            let ret = VideoProvider.getVideoWH(selectedFile)
-            GlobalVar.real_width = ret.width
-            GlobalVar.real_height = ret.height
-            input_w.update_me = false
-            input_h.update_me = false
-            GlobalVar.cvt_width = GlobalVar.real_width
-            GlobalVar.cvt_height = GlobalVar.real_height
+            GlobalVar.au_open_file = String(selectedFile)
+            GlobalVar.au_open_name = GlobalVar.au_open_file.split("/").pop()
+            GlobalVar.au_out_file = ""
+            GlobalVar.au_out_name = ""
         }
         onRejected: {
         }
     }
 
     FileDialog {
-        id: videoSaveDialog
+        id: audioSaveDialog
         title: qsTr("Save File Select")
         acceptLabel: qsTr("Save")
         rejectLabel: qsTr("Cancel")
         fileMode: FileDialog.SaveFile
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        defaultSuffix: "avi"
+        currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
+        defaultSuffix: "wav"
         flags: FileDialog.DontConfirmOverwrite
-        nameFilters: [qsTr("Video Files (*.avi)")]
+        nameFilters: audioPickDialog.nameFilters
         onAccepted: {
-            GlobalVar.out_file = Tools.auto_suffix(String(selectedFile), "avi")
-            GlobalVar.out_name = GlobalVar.out_file.split("/").pop()
+            GlobalVar.au_out_file = Tools.auto_suffix(String(selectedFile), "wav")
+            GlobalVar.au_out_name = GlobalVar.au_out_file.split("/").pop()
         }
         onRejected: {
         }
@@ -145,18 +121,18 @@ FluScrollablePage {
                 enabled: _apply_params.progress === 1.0
                 spacing: 8
                 orientation: Qt.Horizontal
-                currentIndex: GlobalVar.video_sel
+                currentIndex: GlobalVar.audio_sel
                 anchors.horizontalCenter: parent.horizontalCenter
                 FluRadioButton {
-                    text: qsTr("Video Convert")
+                    text: qsTr("Audio Convert")
                     onClicked: {
-                        GlobalVar.video_sel = 0
+                        GlobalVar.audio_sel = 0
                     }
                 }
                 FluRadioButton {
                     text: qsTr("Realtime Play")
                     onClicked: {
-                        GlobalVar.video_sel = 1
+                        GlobalVar.audio_sel = 1
                     }
                 }
             }
@@ -166,7 +142,7 @@ FluScrollablePage {
             }
 
             Rectangle {
-                id: video_cvt
+                id: audio_cvt
                 visible: func_select.currentIndex === 0
                 width: parent.width
                 height: 300
@@ -181,7 +157,7 @@ FluScrollablePage {
                     color: FluColors.Transparent
 
                     Rectangle {
-                        visible: GlobalVar.open_file !== ""
+                        visible: GlobalVar.au_open_file !== ""
                         width: parent.width / 2
                         height: in_icon.height + input_file_name.height + in_del.height + 10
                         color: FluColors.Transparent
@@ -189,7 +165,7 @@ FluScrollablePage {
 
                         FluIcon {
                             id: in_icon
-                            iconSource: FluentIcons.Video
+                            iconSource: FluentIcons.Audio
                             iconSize: parent.parent.height * 0.4
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
@@ -199,7 +175,7 @@ FluScrollablePage {
 
                         FluText {
                             id: input_file_name
-                            text: GlobalVar.open_name
+                            text: GlobalVar.au_open_name
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
                                 top: in_icon.bottom
@@ -216,16 +192,16 @@ FluScrollablePage {
                                 bottom: parent.bottom
                             }
                             onClicked: {
-                                GlobalVar.open_file = ""
-                                GlobalVar.open_name = ""
-                                GlobalVar.out_file = ""
-                                GlobalVar.out_name = ""
+                                GlobalVar.au_open_file = ""
+                                GlobalVar.au_open_name = ""
+                                GlobalVar.au_out_file = ""
+                                GlobalVar.au_out_name = ""
                             }
                         }
                     }
 
                     FluIconButton {
-                        visible: GlobalVar.open_file === ""
+                        visible: GlobalVar.au_open_file === ""
                         iconSource: FluentIcons.OpenFile
                         iconSize: parent.height / 2
                         anchors.centerIn: parent
@@ -233,11 +209,11 @@ FluScrollablePage {
                         FluTooltip {
                             visible: parent.hovered
                             delay: 1000
-                            text: qsTr("Select Input Video")
+                            text: qsTr("Select Input Audio")
                         }
 
                         onClicked: {
-                            videoCvtPickDialog.open()
+                            audioCvtPickDialog.open()
                         }
                     }
                 }
@@ -263,7 +239,7 @@ FluScrollablePage {
                     color: FluColors.Transparent
 
                     Rectangle {
-                        visible: GlobalVar.out_file !== ""
+                        visible: GlobalVar.au_out_file !== ""
                         width: parent.width / 2
                         height: out_icon.height + output_file_name.height + out_del.height + 5
                         color: FluColors.Transparent
@@ -271,7 +247,7 @@ FluScrollablePage {
 
                         FluIcon {
                             id: out_icon
-                            iconSource: FluentIcons.Video
+                            iconSource: FluentIcons.Audio
                             iconSize: parent.parent.height * 0.4
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
@@ -281,7 +257,7 @@ FluScrollablePage {
 
                         FluText {
                             id: output_file_name
-                            text: GlobalVar.out_name
+                            text: GlobalVar.au_out_name
                             anchors {
                                 horizontalCenter: parent.horizontalCenter
                                 top: out_icon.bottom
@@ -298,14 +274,14 @@ FluScrollablePage {
                                 bottom: parent.bottom
                             }
                             onClicked: {
-                                GlobalVar.out_file = ""
-                                GlobalVar.out_name = ""
+                                GlobalVar.au_out_file = ""
+                                GlobalVar.au_out_name = ""
                             }
                         }
                     }
 
                     FluIconButton {
-                        visible: GlobalVar.out_file === ""
+                        visible: GlobalVar.au_out_file === ""
                         iconSource: FluentIcons.SaveLocal
                         iconSize: parent.height / 2
                         anchors.centerIn: parent
@@ -317,7 +293,7 @@ FluScrollablePage {
                         }
 
                         onClicked: {
-                            videoSaveDialog.open()
+                            audioSaveDialog.open()
                         }
                     }
                 }
@@ -344,31 +320,32 @@ FluScrollablePage {
 
                 onVisibleChanged: {
                     if (!visible) {
-                        pause_video()
+                        pause_audio()
                     }
                 }
 
                 FluText {
-                    visible: play_img.url === ""
+                    visible: play_img.audioId === -1
                     anchors.centerIn: parent
-                    text: qsTr("No Video File Selected.")
+                    text: qsTr("No Audio File Selected.")
                     font.pixelSize: 24
                 }
 
-                VideoPlayer {
+                AudioPlayer {
                     id: play_img
-                    url: GlobalVar.video_url
-                    visible: play_img.url !== ""
+                    audioId: GlobalVar.audio_id
+                    visible: play_img.audioId !== -1
                     width: parent.width
                     height: parent.height
 
                     onWidthChanged: {
-                        if (width < 0)
-                            pause_video()
+                        if (width < 0) {
+                            pause_audio()
+                        }
                     }
 
                     Component.onDestruction: {
-                        pause_video()
+                        pause_audio()
                     }
                 }
 
@@ -381,7 +358,7 @@ FluScrollablePage {
             Rectangle {
                 visible: func_select.currentIndex === 0
                 width: upper_box.width
-                height: upper_box.height + video_size_box.height + 10
+                height: upper_box.height + audio_size_box.height + 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: FluColors.Transparent
 
@@ -394,21 +371,21 @@ FluScrollablePage {
                         id: cuda
                         textRight: false
                         enabled: Crypto.cudaAvailable() && _apply_params.enabled
-                        checked: GlobalVar.video_cvt_cuda
+                        checked: GlobalVar.audio_cvt_cuda
                         text: qsTr("Cuda")
                         anchors {
                             left: parent.left
                             verticalCenter: parent.verticalCenter
                         }
                         onCheckedChanged: {
-                            GlobalVar.video_cvt_cuda = checked
+                            GlobalVar.audio_cvt_cuda = checked
                         }
                     }
 
                     FluDropDownButton {
                         id: cvt_type_sel
                         text: option_en.text
-                        property int currentIndex: GlobalVar.video_cvt_encrypt ? 0 : 1
+                        property int currentIndex: GlobalVar.audio_cvt_encrypt ? 0 : 1
                         enabled: _apply_params.enabled
                         anchors {
                             left: cuda.right
@@ -421,7 +398,7 @@ FluScrollablePage {
                             onClicked: {
                                 cvt_type_sel.text = text
                                 cvt_type_sel.currentIndex = 0
-                                GlobalVar.video_cvt_encrypt = true
+                                GlobalVar.audio_cvt_encrypt = true
                             }
                         }
                         FluMenuItem {
@@ -430,27 +407,24 @@ FluScrollablePage {
                             onClicked: {
                                 cvt_type_sel.text = text
                                 cvt_type_sel.currentIndex = 1
-                                GlobalVar.video_cvt_encrypt = false
+                                GlobalVar.audio_cvt_encrypt = false
                             }
                         }
                     }
 
                     FluProgressButton {
                         id: _apply_params
-                        progress: GlobalVar.apply_params_progrs
-                        enabled: GlobalVar.open_file !== "" && GlobalVar.out_file !== "" && progress === 1.0 && GlobalVar.cvt_width !== 0 && GlobalVar.cvt_height !== 0
+                        progress: GlobalVar.au_apply_params_progrs
+                        enabled: GlobalVar.au_open_file !== "" && GlobalVar.au_out_file !== "" && progress === 1.0 && GlobalVar.au_cvt_width !== 0 && GlobalVar.au_cvt_height !== 0
                         text: qsTr("Convert!")
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.verticalCenter: parent.verticalCenter
                         onClicked: {
-                            GlobalVar.apply_params_progrs = 0.0
-                            VideoProvider.cvtVideoWH(GlobalVar.open_file, GlobalVar.out_file, paramConf.paramKey(), cvt_type_sel.currentIndex === 0, cuda.checked, GlobalVar.cvt_width, GlobalVar.cvt_height)
+                            GlobalVar.au_apply_params_progrs = 0.0
+                            AudioProvider.cvtAudio(GlobalVar.au_open_file, GlobalVar.au_out_file, paramConf.paramKey(), GlobalVar.au_cvt_width, GlobalVar.au_cvt_height, cvt_type_sel.currentIndex === 0, cuda.checked)
                         }
                         Component.onDestruction: {
-                            // if (progress !== 1.0) {
-                            //     VideoProvider.force_stop_cvt()
-                            // }
                         }
                     }
                     Rectangle {
@@ -476,23 +450,23 @@ FluScrollablePage {
                             }
                             text: qsTr("Cancel")
                             onClicked: {
-                                VideoProvider.force_stop_cvt()
+                                AudioProvider.force_stop_cvt()
                             }
                         }
                     }
                 }
 
                 Rectangle {
-                    id: video_size_box
+                    id: audio_size_box
                     // property bool flag: false
-                    width: input_w.width + 10 + bind_wh.width + 10 + input_h.width
-                    height: Math.max(input_w.height, bind_wh.height, input_h.height)
+                    width: input_w.width + 10 + h_txt.width + 10 + input_h.width
+                    height: Math.max(input_w.height, h_txt.height, input_h.height)
                     anchors.bottom: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: FluColors.Transparent
 
                     FluText {
-                        text: qsTr("Size")
+                        text: qsTr("Width")
                         anchors.right: input_w.left
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
@@ -500,10 +474,9 @@ FluScrollablePage {
 
                     FluTextBox {
                         id: input_w
-                        property bool update_me: true
                         cleanEnabled: false
-                        text: String(GlobalVar.cvt_width)
-                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                        text: String(GlobalVar.au_cvt_width)
+                        enabled: GlobalVar.au_open_file !== "" && _apply_params.progress === 1.0
                         width: 100
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
@@ -512,47 +485,24 @@ FluScrollablePage {
                         }
                         onTextChanged: {
                             if (text === "") return
-                            if (String(GlobalVar.cvt_width) !== text)
-                                GlobalVar.cvt_width = Number(text)
-                            if (!update_me) {
-                                update_me = true
-                                return
-                            }
-                            if (GlobalVar.bind_wh) {
-                                input_h.update_me = false
-                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
-                            }
+                            if (String(GlobalVar.au_cvt_width) !== text)
+                                GlobalVar.au_cvt_width = Number(text)
                         }
                     }
-                    FluIconButton {
-                        id: bind_wh
-                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                    FluText {
+                        id: h_txt
                         anchors.left: input_w.right
                         anchors.leftMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        iconSource: GlobalVar.bind_wh ? FluentIcons.Link : FluentIcons.More
-                        // FluentIcons.More
-
-                        FluTooltip {
-                            visible: parent.hovered
-                            delay: 1000
-                            text: GlobalVar.bind_wh ? qsTr("Disable Aspect Ratio Lock") : qsTr("Keep Aspect Ratio")
-                        }
-
-                        onClicked: {
-                            GlobalVar.bind_wh = !GlobalVar.bind_wh
-                            if (GlobalVar.bind_wh)
-                                GlobalVar.cvt_height = GlobalVar.cvt_width * GlobalVar.real_height / GlobalVar.real_width
-                        }
+                        text: qsTr("Height")
                     }
                     FluTextBox {
                         id: input_h
-                        property bool update_me: true
                         cleanEnabled: false
-                        text: String(GlobalVar.cvt_height)
-                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0
+                        text: String(GlobalVar.au_cvt_height)
+                        enabled: GlobalVar.au_open_file !== "" && _apply_params.progress === 1.0
                         width: 100
-                        anchors.left: bind_wh.right
+                        anchors.left: h_txt.right
                         anchors.leftMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         validator: RegularExpressionValidator {
@@ -560,36 +510,26 @@ FluScrollablePage {
                         }
                         onTextChanged: {
                             if (text === "") return
-                            if (String(GlobalVar.cvt_height) !== text)
-                                GlobalVar.cvt_height = Number(text)
-                            if (!update_me) {
-                                update_me = true
-                                return
-                            }
-                            if (GlobalVar.bind_wh) {
-                                input_w.update_me = false
-                                GlobalVar.cvt_width = GlobalVar.cvt_height * GlobalVar.real_width / GlobalVar.real_height
-                            }
+                            if (String(GlobalVar.au_cvt_height) !== text)
+                                GlobalVar.au_cvt_height = Number(text)
                         }
                     }
                     FluIconButton {
-                        enabled: GlobalVar.open_file !== "" && _apply_params.progress === 1.0 && GlobalVar.cvt_witdh !== GlobalVar.real_width && GlobalVar.cvt_height !== GlobalVar.real_height
+                        enabled: GlobalVar.au_open_file !== "" && _apply_params.progress === 1.0 && GlobalVar.au_cvt_witdh !== GlobalVar.au_def_width && GlobalVar.au_cvt_height !== GlobalVar.au_def_height
                         anchors.left: input_h.right
                         anchors.leftMargin: 10
-                        anchors.top: bind_wh.top
+                        anchors.top: audio_size_box.top
                         iconSource: FluentIcons.Refresh
 
                         FluTooltip {
                             visible: parent.hovered
                             delay: 1000
-                            text: qsTr("Reset Width/Height")
+                            text: qsTr("Reset Matrix Shape")
                         }
 
                         onClicked: {
-                            input_w.update_me = false
-                            input_h.update_me = false
-                            GlobalVar.cvt_width = GlobalVar.real_width
-                            GlobalVar.cvt_height = GlobalVar.real_height
+                            GlobalVar.au_cvt_width = GlobalVar.au_def_width
+                            GlobalVar.au_cvt_height = GlobalVar.au_def_height
                         }
                     }
                 }
@@ -597,26 +537,27 @@ FluScrollablePage {
 
             Rectangle {
                 visible: func_select.currentIndex === 1
-                width: select_video.width + apply_params.width + 10 + del_video_box.width + (del_video_box.width !== 0 ? 10 : 0)
-                height: Math.max(select_video.height, apply_params.height)
+                width: select_audio.width + apply_params.width + 10 + del_audio_box.width + (del_audio_box.width !== 0 ? 10 : 0)
+                height: Math.max(select_audio.height, apply_params.height) + audio_size_box_rel.height + 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: FluColors.Transparent
 
                 FluFilledButton {
-                    id: select_video
-                    text: qsTr("Select Video")
-                    anchors.verticalCenter: parent.verticalCenter
+                    id: select_audio
+                    text: qsTr("Select Audio")
+                    anchors.top: parent.top
                     anchors.left: parent.left
                     onClicked: {
-                        videoPickDialog.open()
+                        audioPickDialog.open()
                     }
                 }
 
                 Rectangle {
-                    id: del_video_box
-                    width: play_img.url !== "" ? del_video_btn.width : 0
-                    height: del_video_btn.height
-                    anchors.left: select_video.right
+                    id: del_audio_box
+                    width: play_img.audioId !== -1 ? del_audio_btn.width : 0
+                    height: del_audio_btn.height
+                    anchors.left: select_audio.right
+                    anchors.top: parent.top
                     anchors.leftMargin: 10
                     color: FluColors.Transparent
                     clip: true
@@ -626,15 +567,13 @@ FluScrollablePage {
                         }
                     }
                     FluIconButton {
-                        id: del_video_btn
+                        id: del_audio_btn
                         iconSource: FluentIcons.Delete
                         iconColor: FluColors.Red.normal
                         anchors.centerIn: parent
-                        enabled: play_img.url !== ""
+                        enabled: play_img.audioId !== -1
                         onClicked: {
-                            // const tmp = play_img.url
-                            GlobalVar.video_url = ""
-                            // VideoProvider.delVideo(tmp)
+                            GlobalVar.audio_id = -1
                         }
                     }
                 }
@@ -642,13 +581,91 @@ FluScrollablePage {
                 FluFilledButton {
                     id: apply_params
                     text: qsTr("Update Params")
-                    enabled: GlobalVar.video_url !== ""
-                    anchors.verticalCenter: parent.verticalCenter
+                    enabled: GlobalVar.audio_id !== -1 && GlobalVar.au_cvt_width_rel !== 0 && GlobalVar.au_cvt_height_rel !== 0
+                    anchors.top: parent.top
                     anchors.right: parent.right
                     onClicked: {
-                        VideoProvider.set_param(play_img.url, paramConf.paramKey())
+                        AudioProvider.set_param(play_img.audioId, paramConf.paramKey(), GlobalVar.au_cvt_width_rel, GlobalVar.au_cvt_height_rel)
                     }
                 }
+
+                Rectangle {
+                    id: audio_size_box_rel
+                    width: input_w_rel.width + 10 + h_txt_rel.width + 10 + input_h_rel.width
+                    height: Math.max(input_w_rel.height, h_txt_rel.height, input_h_rel.height)
+                    anchors.bottom: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: FluColors.Transparent
+
+                    FluText {
+                        text: qsTr("Width")
+                        anchors.right: input_w_rel.left
+                        anchors.rightMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    FluTextBox {
+                        id: input_w_rel
+                        cleanEnabled: false
+                        text: String(GlobalVar.au_cvt_width_rel)
+                        enabled: GlobalVar.audio_id !== -1
+                        width: 100
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.au_cvt_width_rel) !== text)
+                                GlobalVar.au_cvt_width_rel = Number(text)
+                        }
+                    }
+                    FluText {
+                        id: h_txt_rel
+                        anchors.left: input_w_rel.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr("Height")
+                    }
+                    FluTextBox {
+                        id: input_h_rel
+                        cleanEnabled: false
+                        text: String(GlobalVar.au_cvt_height_rel)
+                        enabled: GlobalVar.audio_id !== -1
+                        width: 100
+                        anchors.left: h_txt_rel.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[0-9]*/
+                        }
+                        onTextChanged: {
+                            if (text === "") return
+                            if (String(GlobalVar.au_cvt_height_rel) !== text)
+                                GlobalVar.au_cvt_height_rel = Number(text)
+                        }
+                    }
+                    FluIconButton {
+                        enabled: GlobalVar.audio_id !== -1 && GlobalVar.au_cvt_witdh_rel !== GlobalVar.au_def_width && GlobalVar.au_cvt_height_rel !== GlobalVar.au_def_height
+                        anchors.left: input_h_rel.right
+                        anchors.leftMargin: 10
+                        anchors.top: audio_size_box_rel.top
+                        iconSource: FluentIcons.Refresh
+
+                        FluTooltip {
+                            visible: parent.hovered
+                            delay: 1000
+                            text: qsTr("Reset Matrix Shape")
+                        }
+
+                        onClicked: {
+                            GlobalVar.au_cvt_width_rel = GlobalVar.au_def_width
+                            GlobalVar.au_cvt_height_rel = GlobalVar.au_def_height
+                        }
+                    }
+                }
+
             }
 
             FluRectangle {

@@ -32,6 +32,7 @@ Q_IMPORT_QML_PLUGIN(FluentUIPlugin)
 #include "component/Crypto.h"
 #include "component/ImageProvider.h"
 #include "component/VideoProvider.h"
+#include "component/AudioProvider.h"
 
 int main(int argc, char* argv[])
 {
@@ -86,6 +87,7 @@ int main(int argc, char* argv[])
     engine.rootContext()->setContextProperty("TranslateHelper", TranslateHelper::getInstance());
     engine.rootContext()->setContextProperty("KeyKeeper", KeyKeeper::getInstance());
     engine.rootContext()->setContextProperty("Crypto", Crypto::getInstance());
+    engine.rootContext()->setContextProperty("AudioProvider", Audio::getInstance());
     memImage = new MemoryImage();
     engine.addImageProvider("MemoryImage", memImage);
     engine.rootContext()->setContextProperty("MemImage", memImage);

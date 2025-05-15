@@ -132,6 +132,13 @@ FluScrollablePage {
             }
 
             NamedUrlItem {
+                ico: "qrc:/main/res/png/FFmpeg.png"
+                name: "FFmpeg"
+                url: "https://ffmpeg.org"
+                license: "GNU LGPL v2.1+"
+            }
+
+            NamedUrlItem {
                 ico: "qrc:/main/res/ico/Qt.ico"
                 name: "Qt Project"
                 url: "https://github.com/qtproject"

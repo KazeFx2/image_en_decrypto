@@ -8,43 +8,31 @@ import FluentUI 1.0
 import "qrc:/main/src/js/tools.js" as Tools
 import main 1.0
 
-FluImage {
+FluRectangle {
     id: play_img
     width: parent.width
     height: 300
-    fillMode: Image.Pad
-    property int ct: 0
-    property string url: ""
-    property string url_prev: ""
-    property string mid: url.split("/").pop()
+    color: FluColors.Transparent
+    property int audioId: -1
+    property int idPrev: -1
     property bool paused: true
-    source: url === "" ? "" : url + "/" + String(ct)
     property bool hovered: false
 
     Component.onDestruction: {
-        // VideoProvider.delVideo(url)
     }
 
-    onUrlChanged: {
-        VideoProvider.delVideo(url_prev)
-        url_prev = url
-        procedure.max = VideoProvider.total_msec(url)
-        procedure.value = VideoProvider.get_msec(url) * procedure.to / procedure.max
+    onAudioIdChanged: {
+        AudioProvider.delAudio(idPrev)
+        idPrev = audioId
+        procedure.max = AudioProvider.total_msec(audioId)
+        procedure.value = AudioProvider.get_msec(audioId) * procedure.to / procedure.max
         update_decode_type()
         update_cuda()
-        paused = VideoProvider.get_pause(url)
-        // console.log(procedure.max)
-    }
-
-    onWidthChanged: {
-        VideoProvider.set_wh(url, width, height)
-    }
-    onHeightChanged: {
-        VideoProvider.set_wh(url, width, height)
+        paused = AudioProvider.get_pause(audioId)
     }
 
     function update_decode_type() {
-        switch(VideoProvider.get_decode_type(url)){
+        switch(AudioProvider.get_decode_type(audioId)){
         case DecodeType.Raw:
             decode_type.text = option_raw.text
             break
@@ -58,7 +46,7 @@ FluImage {
     }
 
     function update_cuda() {
-        cuda.checked = VideoProvider.get_cuda(url)
+        cuda.checked = AudioProvider.get_cuda(audioId)
     }
 
     FluStatusLayout {
@@ -69,35 +57,38 @@ FluImage {
     }
 
     Connections {
-        target: VideoProvider
-        function onVideoUpdated(id, msec) {
-            if (id === play_img.mid) {
-                play_img.ct++
+        target: AudioProvider
+        function onAudioUpdated(id, msec) {
+            if (id === play_img.audioId) {
                 if (!procedure.pressed)
                     procedure.set_msec(msec)
                 procedure.current_msec = msec
             }
         }
-        function onVideoPaused(id) {
-            if (id === play_img.mid) {
+        function onAudioPaused(id) {
+            if (id === play_img.audioId) {
                 play_img.paused = true
             }
         }
-        function onVideoResumed(id) {
-            if (id === play_img.mid) {
+        function onAudioResumed(id) {
+            if (id === play_img.audioId) {
                 play_img.paused = false
             }
         }
-        function onVideoDecodeTypeChanged(id) {
-            if (id === play_img.mid) {
+        function onAudioDecodeTypeChanged(id) {
+            if (id === play_img.audioId) {
                 play_img.update_decode_type()
             }
         }
-        function onVideoCudaChanged(id) {
-            if (id === play_img.mid) {
+        function onAudioCudaChanged(id) {
+            if (id === play_img.audioId) {
                 play_img.update_cuda()
             }
         }
+    }
+
+    Connections {
+        target: VideoProvider
         function onVideoLoading(id) {
             if (id === play_img.mid) {
                 loading.shouldLoad = true
@@ -108,6 +99,12 @@ FluImage {
                 loading.shouldLoad = false
             }
         }
+    }
+
+    FluIcon {
+        iconSource: FluentIcons.Audio
+        anchors.centerIn: parent
+        iconSize: 150
     }
 
     MouseArea {
@@ -186,7 +183,7 @@ FluImage {
 
                         onPressedChanged: {
                             if (!pressed)
-                                VideoProvider.goto_msec(play_img.url, to <= 1 ? 0 : max * value / (to - 1))
+                                AudioProvider.goto_msec(play_img.audioId, to <= 1 ? 0 : max * value / (to - 1))
                         }
 
                         onMaxChanged: {
@@ -219,7 +216,7 @@ FluImage {
                                 onClicked: {
                                     const delta = procedure.max / 100 < 15000 ? procedure.max / 100 : 15000
                                     const new_val = procedure.current_msec - delta < 0 ? 0 : procedure.current_msec - delta
-                                    VideoProvider.goto_msec(play_img.url, new_val)
+                                    AudioProvider.goto_msec(play_img.audioId, new_val)
                                     procedure.set_msec(new_val)
                                 }
                             }
@@ -229,9 +226,10 @@ FluImage {
                                 iconSource: play_img.paused ? FluentIcons.Play : FluentIcons.Pause
                                 onClicked: {
                                     if (play_img.paused) {
-                                        VideoProvider.resume(play_img.url)
-                                    } else
-                                        VideoProvider.pause(play_img.url)
+                                        AudioProvider.resume(play_img.audioId)
+                                    } else {
+                                        AudioProvider.pause(play_img.audioId)
+                                    }
                                 }
                             }
                             FluRectangle {width: 10; height: 10; color: FluColors.Transparent}
@@ -241,7 +239,7 @@ FluImage {
                                 onClicked: {
                                     const delta = procedure.max / 100 < 15000 ? procedure.max / 100 : 15000
                                     const new_val = procedure.current_msec + delta > procedure.max ? procedure.max : procedure.current_msec + delta
-                                    VideoProvider.goto_msec(play_img.url, new_val)
+                                    AudioProvider.goto_msec(play_img.audioId, new_val)
                                     procedure.set_msec(new_val)
                                 }
                             }
@@ -263,21 +261,21 @@ FluImage {
                             id: option_raw
                             text: qsTr("Raw")
                             onClicked: {
-                                VideoProvider.set_type(play_img.url, DecodeType.Raw)
+                                AudioProvider.set_type(play_img.audioId, DecodeType.Raw)
                             }
                         }
                         FluMenuItem{
                             id: option_encrypt
                             text: qsTr("Encrypt")
                             onClicked: {
-                                VideoProvider.set_type(play_img.url, DecodeType.Encrypt)
+                                AudioProvider.set_type(play_img.audioId, DecodeType.Encrypt)
                             }
                         }
                         FluMenuItem{
                             id: option_decrypt
                             text: qsTr("Decrypt")
                             onClicked: {
-                                VideoProvider.set_type(play_img.url, DecodeType.Decrypt)
+                                AudioProvider.set_type(play_img.audioId, DecodeType.Decrypt)
                             }
                         }
                     }
@@ -293,7 +291,7 @@ FluImage {
                         anchors.verticalCenter: parent.verticalCenter
 
                         onCheckedChanged: {
-                            VideoProvider.set_cuda(play_img.url, checked)
+                            AudioProvider.set_cuda(play_img.audioId, checked)
                         }
                     }
 

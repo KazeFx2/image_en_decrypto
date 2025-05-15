@@ -15,7 +15,7 @@ AutoMemoryPool::AutoMemoryPool(const AutoMemoryPool &other) {
     addition = other.addition;
     size = other.size;
     list = init_list_default();
-    AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->next);
+    AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->node.next);
     FOREACH(AutoMemoryNode, i, list) {
         addNode(i->data.size);
         memcpy((*node)->data.start, i->data.start, i->data.size);
@@ -28,12 +28,13 @@ AutoMemoryPool &AutoMemoryPool::operator=(const AutoMemoryPool &other) {
     addition = other.addition;
     size = other.size;
     list = init_list_default();
-    AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->next);
+    AutoMemoryNode **node = reinterpret_cast<AutoMemoryNode **>(&list->node.next);
     FOREACH(AutoMemoryNode, i, list) {
         addNode(i->data.size);
         memcpy((*node)->data.start, i->data.start, i->data.size);
         node = reinterpret_cast<AutoMemoryNode **>(&(*node)->node.next);
     }
+    return *this;
 }
 
 AutoMemoryPool::AutoMemoryPool(AutoMemoryPool &&other) {
@@ -49,6 +50,7 @@ AutoMemoryPool &AutoMemoryPool::operator=(AutoMemoryPool &&other) {
     size = other.size;
     list = other.list;
     other.list = nullptr;
+    return *this;
 }
 
 

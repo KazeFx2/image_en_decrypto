@@ -9,6 +9,7 @@
 #include "includes.h"
 #include "ThreadPool.h"
 #include "Bitmap.h"
+#include "../../SubModules/Mutex/include/private/Mutex.h"
 
 f64 PLCM(__IN f64 initialCondition, __IN f64 controlCondition);
 
@@ -79,6 +80,8 @@ void PreAssist(__IN_OUT u32 &rowStart, __IN_OUT u32 &rowEnd, __IN_OUT u32 &colSt
 
 void DestroyReturn(__IN threadReturn **ret, __IN const ParamControl &config);
 
+void PrintReturn(__IN FILE *fp, __IN threadReturn **ret, __IN const ParamControl &config, __IN u32 width, __IN u32 height);
+
 threadReturn **CopyReturn(__IN threadReturn **other, __IN const ParamControl &Config, __IN const cv::Size &Size);
 
 void DumpBytes(__IN FILE *fd, __IN const char *name, __IN const u8 *array, __IN u32 size);
@@ -108,5 +111,61 @@ std::string UTF8toGBK(__IN const std::string &str);
 
 std::string GBKtoUTF8(__IN const std::string &str);
 #endif
+
+void audio_open(__IN const char *input_filenam, __OUT u8 *channels = nullptr, __OUT u32 *sample_size = nullptr,
+                __OUT void **data = nullptr, __OUT int *sample_rate = nullptr, __OUT bool *is_float = nullptr, __OUT double *duration_msec = nullptr, __OUT u64 *duration_pts = nullptr);
+
+void audio_open_out(__IN void *in_data, __IN const char *output_filename, __OUT u32 *sample_size, __OUT void **data);
+
+typedef struct audio_control_s {
+    Semaphore sem;
+
+    Mutex mtx;
+
+    void *ctx;
+
+    bool term;
+    bool fin;
+
+    int type;
+    Keys keys;
+    ParamControl config;
+    ThreadPool *pool;
+    u32 width;
+    u32 height;
+
+    int new_type;
+    bool update_type;
+
+    double new_msec;
+    bool update_msec;
+
+    Keys new_keys;
+    ParamControl new_config;
+    bool update_keys;
+
+    bool new_cuda;
+    bool update_cuda;
+
+    u32 new_width;
+    u32 new_height;
+    bool update_size;
+
+    void (*send_samples)(const u8 *data, u32 size, void *ctx);
+    void (*set_msec)(double msec, u32 pts, void *ctx);
+    void (*cleanup)(void *ctx);
+    void (*type_change)(void *ctx);
+} audio_control_t;
+
+int audio_crypto(__IN void *in_data, __IN void *out_data, __IN const Keys &Key,
+                 __IN threadReturn **threadKeys,
+                 __IN const ParamControl &Config, __IN ThreadPool &pool, __IN u32 width,
+                 __IN u32 height,
+                 __IN bool encrypt,__IN const bool *term, __IN_OUT void (*signal)(u64, u64) = nullptr);
+
+int audio_crypto_realtime(__IN void *data,
+                          __IN_OUT audio_control_t *ctrl);
+
+double GetCPUSecond();
 
 #endif //UTIL_H

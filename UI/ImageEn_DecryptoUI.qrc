@@ -13,6 +13,7 @@
         <file>qml/global/MyFluPivot.qml</file>
         <file>qml/page/crypto/CryptoImage.qml</file>
         <file>qml/page/crypto/CryptoVideo.qml</file>
+        <file>qml/page/crypto/CryptoAudio.qml</file>
         <file>src/js/tools.js</file>
         <file>qml/global/SeparateLine.qml</file>
         <file>qml/global/SubTitle.qml</file>
@@ -25,6 +26,7 @@
         <file>qml/global/TimeSlider.qml</file>
         <file>qml/global/MyUpMenu.qml</file>
         <file>qml/global/VideoPlayer.qml</file>
+        <file>qml/global/AudioPlayer.qml</file>
         <file>qml/global/MyStaggeredLayout.qml</file>
         <file>qml/page/About.qml</file>
         <file>qml/global/ScrollableItems.qml</file>
@@ -37,6 +39,7 @@
         <file>res/ico/GitHub.ico</file>
         <file>res/ico/FluentUI.ico</file>
         <file>res/png/OpenCV.png</file>
+        <file>res/png/FFmpeg.png</file>
         <file>qml/global/GlobalVar.qml</file>
     </qresource>
 </RCC>

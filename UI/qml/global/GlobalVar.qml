@@ -36,4 +36,22 @@ QtObject{
     property int video_sel: 0
 
     property string video_url: ""
+
+    property int au_def_width: 64
+    property int au_def_height: 64
+    property string au_open_file: ""
+    property string au_open_name: ""
+    property string au_out_file: ""
+    property string au_out_name: ""
+    property string audio_cvt_param_key_id: ""
+    property bool audio_cvt_cuda: Crypto.cudaAvailable()
+    property bool audio_cvt_encrypt: true
+    property double au_apply_params_progrs: 1.0
+    property int au_cvt_width: au_def_width
+    property int au_cvt_height: au_def_height
+    property int au_cvt_width_rel: au_def_width
+    property int au_cvt_height_rel: au_def_height
+    property int audio_id: -1
+
+    property int audio_sel: 0
 }

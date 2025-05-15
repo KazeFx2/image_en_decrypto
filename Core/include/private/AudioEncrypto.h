@@ -5,13 +5,11 @@
 #ifndef AUDIOENCRYPTO_H
 #define AUDIOENCRYPTO_H
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswresample/swresample.h>
-#include <libavutil/error.h>
-#include <libavutil/audio_fifo.h>
-#include <libavutil/avassert.h>
-}
+#include "ThreadPool.h"
+#include "includes.h"
+
+void EncryptoAudio(__IN const char *input_audio, __OUT const char *output_audio, __IN const Keys &Key,
+                   __IN threadReturn **threadKeys,
+                   __IN const ParamControl &Config, __IN ThreadPool &pool, __IN u32 width, __IN u32 height);
 
 #endif //AUDIOENCRYPTO_H

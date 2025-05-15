@@ -45,7 +45,7 @@ inline void print_size(const char *type_name, size_t size, size_t align) {
       printf("\tu64 ");
       break;
   }
-  printf("_data[%lu];\n", size / align);
+  printf("_data[%zu];\n", size / align);
   printf("} %s_private;\n", tmp);
 }
 

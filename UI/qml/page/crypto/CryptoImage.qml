@@ -52,7 +52,7 @@ FluScrollablePage {
         fileMode: FileDialog.OpenFiles
         currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
         defaultSuffix: "jpg"
-        nameFilters: [qsTr("Image Files (*.jpg *.jpeg *.png)")]
+        nameFilters: [qsTr("Image Files (*.jpg *.jpeg *.png *.bmp)")]
         flags: FileDialog.ReadOnly
         /*
             FileDialog.DontResolveSymlinks

@@ -12,9 +12,37 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/stat.h>
+#include <ctime>
+
+#ifndef _WIN32
 #include <sys/time.h>
 #include <unistd.h>
-#include <ctime>
+#else
+#include <direct.h>
+#include <io.h>
+typedef unsigned short mode_t;
+#ifndef S_ISDIR
+#define S_ISDIR(mode) (((mode) & _S_IFMT) == _S_IFDIR)
+#endif
+#define mkdir(dir, mode) _mkdir(dir)
+#define access(file, mode) _access(file, mode)
+#define W_OK 0x02
+#define R_OK 0x04
+void gettimeofday(struct timeval *tv, void *tz) {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    const uint64_t EPOCH_OFFSET = 116444736000000000ULL;
+    uli.QuadPart -= EPOCH_OFFSET;
+    uli.QuadPart /= 10;
+    tv->tv_sec = uli.QuadPart / 1000000ULL;
+    tv->tv_usec = uli.QuadPart % 1000000ULL;
+}
+#endif
 
 extern "C" {
 #include "c_list.h"

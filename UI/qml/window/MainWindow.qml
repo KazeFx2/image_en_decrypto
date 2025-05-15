@@ -101,6 +101,20 @@ FluWindow {
             }
         }
     }
+    Connections {
+        target: AudioProvider
+        function onAudioCvtSignal(i, len) {
+            if (len === 0) {
+                GlobalVar.au_apply_params_progrs = 1.0
+                showError(qsTr("Conversion Failed/Stopped!"))
+            } else {
+                GlobalVar.au_apply_params_progrs = i * 1.0 / len
+                if (i === len) {
+                    showSuccess(qsTr("Conversion Complete!"))
+                }
+            }
+        }
+    }
     // sys tray icon
     SystemTrayIcon {
         id: system_tray
@@ -152,8 +166,12 @@ FluWindow {
                 Crypto.stopSave()
             if (GlobalVar.apply_params_progrs !== 1.0)
                 VideoProvider.force_stop_cvt()
+            if (GlobalVar.au_apply_params_progrs !== 1.0)
+                AudioProvider.force_stop_cvt()
             if (GlobalVar.video_url !== "")
                 GlobalVar.video_url = ""
+            if (GlobalVar.audio_id != -1)
+                GlobalVar.audio_id = -1
             FluRouter.exit(0)
         }
     }

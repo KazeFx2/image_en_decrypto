@@ -1,4 +1,4 @@
-#include "../CList.h"
+#include "../c_list.h"
 #include <stdio.h>
 
 typedef unsigned char MyType;
@@ -17,6 +17,6 @@ int main() {
     printf("%p\n", head);
     push_end(head, &b, sizeof(MyType));
     printf("%p\n", head);
-    printf("a: %d, b: %d\n", ((MyList *) (head->next))->data,
-           ((MyList *) (((MyList *) (head->next))->list.next))->data);
+    printf("a: %d, b: %d\n", ((MyList *) (head->node.next))->data,
+           ((MyList *) (((MyList *) (head->node.next))->list.next))->data);
 }

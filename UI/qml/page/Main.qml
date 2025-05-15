@@ -105,10 +105,10 @@ Rectangle {
                     contentItem: FluLoader {
                         width: parent.width
                         height: parent.height
-                        source: "qrc:/main/qml/page/crypto/CryptoVideo.qml"
+                        source: "qrc:/main/qml/page/crypto/CryptoAudio.qml"
                         onVisibleChanged: {
                             if (visible)
-                                source = "qrc:/main/qml/page/crypto/CryptoVideo.qml";
+                                source = "qrc:/main/qml/page/crypto/CryptoAudio.qml";
                             else {
                                 // source = "";
                             }

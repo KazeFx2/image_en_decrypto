@@ -32,10 +32,6 @@ public:
             bool wait;
         } ParamType;
 
-        typedef struct {
-            R ret;
-        } returnType;
-
         taskDescriptor(): pool(nullptr), func(nullptr), param(nullptr), descriptor(false), taskUnique(0) {
         }
 
@@ -53,6 +49,9 @@ public:
                 pool->waitThread(descriptor);
                 return;
             } else {
+                typedef struct {
+                    R ret;
+                } returnType;
                 auto *tmp = static_cast<returnType *>(pool->waitThread(descriptor));
                 auto &&ret = tmp->ret;
                 delete tmp;

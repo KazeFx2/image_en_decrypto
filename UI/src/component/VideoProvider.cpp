@@ -7,25 +7,6 @@
 // #include <qfuture.h>
 #include <QThread>
 // #include <QtConcurrent/qtconcurrentrun.h>
-#ifndef _WIN32
-#include <sys/time.h>
-#else
-void gettimeofday(struct timeval *tv, void *tz) {
-    FILETIME ft;
-    GetSystemTimeAsFileTime(&ft);
-
-    ULARGE_INTEGER uli;
-    uli.LowPart = ft.dwLowDateTime;
-    uli.HighPart = ft.dwHighDateTime;
-
-    const uint64_t EPOCH_OFFSET = 116444736000000000ULL;
-    uli.QuadPart -= EPOCH_OFFSET;
-    uli.QuadPart /= 10;
-    tv->tv_sec = uli.QuadPart / 1000000ULL;
-    tv->tv_usec = uli.QuadPart % 1000000ULL;
-}
-#endif
-
 #include "GlobalVariables.h"
 #include "Semaphore.h"
 #include "component/Crypto.h"
@@ -44,12 +25,6 @@ void calcWH(int &w_out, int &h_out, int w_real, int h_real, int w_recommend, int
         h_out = h_recommend;
         w_out = w_real * h_recommend / h_real;
     }
-}
-
-inline double GetCPUSecond() {
-    timeval tp;
-    gettimeofday(&tp, nullptr);
-    return (static_cast<double>(tp.tv_sec) + static_cast<double>(tp.tv_usec) * 1.e-6);
 }
 
 Video::Video()
@@ -240,6 +215,7 @@ void Video::delVideo(const QString &url) {
     vcbs[idx]->reader_fin_sem.wait();
     delete vcbs[idx]->crypto;
     delete vcbs[idx];
+    vcbs[idx] = nullptr;
     get_putIdx(true, idx);
 }
 
@@ -291,6 +267,7 @@ bool Video::url_available(const QString &url, int &idx) {
     idx = array[3].toInt(&ok);
     if (!ok) return false;
     if (idx >= vcbs.size()) return false;
+    if (!vcbs[idx]) return false;
     return true;
 }
 

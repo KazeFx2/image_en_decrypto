@@ -13,9 +13,49 @@ include_directories(
 )
 
 # ffmepg
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
-        libavcodec libavformat libavutil libswresample)
+if(WIN32)
+    set(FFMPEG_DIR "D:/EnvPrograms/ffmpeg")
+
+    add_library(FFmpeg::avcodec SHARED IMPORTED)
+    set_target_properties(FFmpeg::avcodec PROPERTIES
+            IMPORTED_LOCATION "${FFMPEG_DIR}/bin/avcodec-61.dll"
+            IMPORTED_IMPLIB "${FFMPEG_DIR}/lib/avcodec.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_DIR}/include"
+    )
+
+    add_library(FFmpeg::avformat SHARED IMPORTED)
+    set_target_properties(FFmpeg::avformat PROPERTIES
+            IMPORTED_LOCATION "${FFMPEG_DIR}/bin/avformat-61.dll"
+            IMPORTED_IMPLIB "${FFMPEG_DIR}/lib/avformat.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_DIR}/include"
+    )
+
+    add_library(FFmpeg::avutil SHARED IMPORTED)
+    set_target_properties(FFmpeg::avutil PROPERTIES
+            IMPORTED_LOCATION "${FFMPEG_DIR}/bin/avutil-59.dll"
+            IMPORTED_IMPLIB "${FFMPEG_DIR}/lib/avutil.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_DIR}/include"
+    )
+
+    add_library(FFmpeg::swresample SHARED IMPORTED)
+    set_target_properties(FFmpeg::swresample PROPERTIES
+            IMPORTED_LOCATION "${FFMPEG_DIR}/bin/swresample-5.dll"
+            IMPORTED_IMPLIB "${FFMPEG_DIR}/lib/swresample.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_DIR}/include"
+    )
+
+    add_library(FFmpeg::FFmpeg INTERFACE IMPORTED)
+    target_link_libraries(FFmpeg::FFmpeg INTERFACE
+            FFmpeg::avcodec
+            FFmpeg::avformat
+            FFmpeg::avutil
+            FFmpeg::swresample
+    )
+else ()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
+            libavcodec libavformat libavutil libswresample)
+endif ()
 
 set(SOURCE_DIRS
         "src"
@@ -51,13 +91,23 @@ static char homePath[] = \"${CMAKE_HOME_DIRECTORY}\";
 
 add_subdirectory(SubModules)
 
-target_link_libraries(${PROJECT_NAME}
-        ${OpenCV_LIBS}
-        CoreThreadPool
-        CoreLogger
-        CList
-        PkgConfig::FFMPEG
-)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME}
+            ${OpenCV_LIBS}
+            CoreThreadPool
+            CoreLogger
+            CList
+            FFmpeg::FFmpeg
+    )
+else ()
+    target_link_libraries(${PROJECT_NAME}
+            ${OpenCV_LIBS}
+            CoreThreadPool
+            CoreLogger
+            CList
+            PkgConfig::FFMPEG
+    )
+endif ()
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")

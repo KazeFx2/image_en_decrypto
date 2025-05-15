@@ -7,6 +7,15 @@
 #include "ThreadPool.h"
 #include <iostream>
 
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
+#include <libavutil/error.h>
+#include <libavutil/audio_fifo.h>
+#include <libavutil/avassert.h>
+}
+
 int open_input_file(const char *filename, AVFormatContext **input_format_ctx, AVCodecContext **input_codec_ctx,
                     int *stream_idx) {
     int error = AVERROR_EXIT, i = 0;

@@ -68,8 +68,8 @@ private:
 public:
     enum DecodeType {
         Raw,
-        Decrypt,
-        Encrypt
+        Encrypt,
+        Decrypt
     };
 
     Q_ENUM(DecodeType)

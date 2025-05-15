@@ -35,6 +35,166 @@
     </message>
 </context>
 <context>
+    <name>AudioPlayer</name>
+    <message>
+        <location filename="qml/global/AudioPlayer.qml" line="262"/>
+        <source>Raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/AudioPlayer.qml" line="269"/>
+        <source>Encrypt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/AudioPlayer.qml" line="276"/>
+        <source>Decrypt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/AudioPlayer.qml" line="288"/>
+        <source>Cuda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/AudioPlayer.qml" line="301"/>
+        <source>Show Loading</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CryptoAudio</name>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="39"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="57"/>
+        <source>File Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="40"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="58"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="41"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="59"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="79"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="451"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="45"/>
+        <source>Audio Files (*.mp3 *.aac *.m4a *.flac *.wav .*ogg *.opus *.alac *.wma *.ac3 *.eac3 *.dts *.amr)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="77"/>
+        <source>Save File Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="78"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="109"/>
+        <source>Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="133"/>
+        <source>Realtime Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="127"/>
+        <source>Audio Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="212"/>
+        <source>Select Input Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="222"/>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="292"/>
+        <source>Select Output File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="302"/>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="330"/>
+        <source>No Audio File Selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="375"/>
+        <source>Cuda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="397"/>
+        <source>Encrypt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="406"/>
+        <source>Decrypt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="419"/>
+        <source>Convert!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="469"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="601"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="497"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="629"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="527"/>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="659"/>
+        <source>Reset Matrix Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="547"/>
+        <source>Select Audio</source>
+        <oldsource>Select Video</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="583"/>
+        <source>Update Params</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoAudio.qml" line="676"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CryptoImage</name>
     <message>
         <location filename="qml/page/crypto/CryptoImage.qml" line="49"/>
@@ -57,7 +217,8 @@
     </message>
     <message>
         <location filename="qml/page/crypto/CryptoImage.qml" line="55"/>
-        <source>Image Files (*.jpg *.jpeg *.png)</source>
+        <source>Image Files (*.jpg *.jpeg *.png *.bmp)</source>
+        <oldsource>Image Files (*.jpg *.jpeg *.png)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -239,17 +400,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="593"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <source>Keep Aspect Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="539"/>
+        <source>Disable Aspect Ratio Lock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="585"/>
+        <source>Reset Width/Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="607"/>
         <source>Select Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="630"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
         <source>Update Params</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/crypto/CryptoVideo.qml" line="644"/>
+        <location filename="qml/page/crypto/CryptoVideo.qml" line="659"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -373,32 +549,34 @@
     <message>
         <location filename="qml/window/MainWindow.qml" line="87"/>
         <location filename="qml/window/MainWindow.qml" line="99"/>
+        <location filename="qml/window/MainWindow.qml" line="113"/>
         <source>Conversion Complete!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/window/MainWindow.qml" line="95"/>
+        <location filename="qml/window/MainWindow.qml" line="109"/>
         <source>Conversion Failed/Stopped!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="138"/>
-        <location filename="qml/window/MainWindow.qml" line="146"/>
+        <location filename="qml/window/MainWindow.qml" line="152"/>
+        <location filename="qml/window/MainWindow.qml" line="160"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="139"/>
+        <location filename="qml/window/MainWindow.qml" line="153"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="140"/>
+        <location filename="qml/window/MainWindow.qml" line="154"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="147"/>
+        <location filename="qml/window/MainWindow.qml" line="161"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -728,27 +906,27 @@
 <context>
     <name>VideoPlayer</name>
     <message>
-        <location filename="qml/global/VideoPlayer.qml" line="262"/>
+        <location filename="qml/global/VideoPlayer.qml" line="264"/>
         <source>Raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/VideoPlayer.qml" line="269"/>
+        <location filename="qml/global/VideoPlayer.qml" line="271"/>
         <source>Encrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/VideoPlayer.qml" line="276"/>
+        <location filename="qml/global/VideoPlayer.qml" line="278"/>
         <source>Decrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/VideoPlayer.qml" line="288"/>
+        <location filename="qml/global/VideoPlayer.qml" line="290"/>
         <source>Cuda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/VideoPlayer.qml" line="301"/>
+        <location filename="qml/global/VideoPlayer.qml" line="303"/>
         <source>Show Loading</source>
         <translation type="unfinished"></translation>
     </message>

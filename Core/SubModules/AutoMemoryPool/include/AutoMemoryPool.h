@@ -9,7 +9,7 @@
 #include "private/types.h"
 
 extern "C" {
-#include "list/CList.h"
+#include "c_list.h"
 }
 
 #define POINTER_OPERATE(ptr, op) (ptr = reinterpret_cast<decltype(ptr)>(reinterpret_cast<uptr>(ptr) op))
@@ -46,7 +46,7 @@ public:
         } AutoMemoryPointerType;
 
         AutoMemoryPointer(AutoMemoryPool *parent): typeSize(sizeof(T)), parent(parent) {
-            node = reinterpret_cast<AutoMemoryNode *>(parent->list->next);
+            node = reinterpret_cast<AutoMemoryNode *>(parent->list->node.next);
             data = node->data.start;
             size = node->data.size;
             offset = 0;
@@ -134,7 +134,7 @@ public:
                     return operator-=(1);
             }
             if (offset == 0) {
-                if (node->node.prev != parent->list) {
+                if (node->node.prev != (node_s *)parent->list) {
                     node = reinterpret_cast<AutoMemoryNode *>(node->node.prev);
                     size = node->data.size;
                     offset = size - 1;
@@ -198,7 +198,7 @@ public:
         }
 
         bool checkBegin() const {
-            if (node->node.prev == parent->list)
+            if (node->node.prev == (node_s *)parent->list)
                 return true;
             return false;
         }
