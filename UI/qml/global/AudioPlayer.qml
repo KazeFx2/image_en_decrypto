@@ -108,7 +108,7 @@ FluRectangle {
 
     Rectangle {
         id: control_panel
-        visible: play_img.hovered || procedure.hovered || prev.hovered || play.hovered || next.hovered || decode_type.hovered || decode_type.backShadow.hovered || cuda.hovered
+        visible: play_img.hovered || procedure.hovered || prev.hovered || play.hovered || next.hovered || decode_type.hovered || decode_type.backShadow.hovered || cuda.hovered || vol_btn.hovered || vol.hovered
         anchors {
             left: parent.left
             right: parent.right
